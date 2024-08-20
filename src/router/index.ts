@@ -1,19 +1,37 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
-import HomeView from "../views/HomeView.vue";
-import weather from "../views/weather/weathermainpage.vue";
-import portfolio from "../views/portfolio/portfolio.vue";
-const routes: Array<RouteRecordRaw> = [
-  { path: "/portfolio", name: "portfolio", component: portfolio },
+import { createRouter, createWebHistory } from 'vue-router';
+import HomeView from '../views/HomeView.vue';
+
+
+import PortfolioView from '../views/portfolio/portfolio.vue';
+import Nav from '../views/portfolio/header.vue'; // Import the Nav component
+import Contact from '../views/portfolio/contact.vue'; // Import the Contact component
+
+const routes = [
   {
-    path: "/",
-    name: "home",
+    path: '/',
+    name: 'home',
     component: HomeView,
   },
   {
-    path: "/weather",
-    name: "weather",
-    component: weather,
+    path: '/Nav',
+    name: 'Nav',
+    component: Nav,
   },
+
+  {
+    path: '/portfolio',
+    name: 'portfolio',
+    component: PortfolioView,
+  },
+  {
+    path: "/contact",
+    name: "Contact",
+    components: {
+      default: Contact,  // This is the default view
+      nav: Nav,          // This is the named view
+    },
+  },
+ 
 ];
 
 const router = createRouter({

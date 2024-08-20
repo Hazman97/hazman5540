@@ -7,8 +7,9 @@
         <div class="hidden xl:flex items-center">
           <nav>
             <ul class="flex item-center gap-8 font-semibold uppercase text-black dark:text-white">
-              <li><router-link class="hover:text-teal-400" to="/">Home</router-link></li>
+              <li><router-link class="hover:text-teal-400" :to="{name:'portfolio'}">Home</router-link></li>
               <li><router-link class="hover:text-teal-300" to="/contact">Contact</router-link></li>
+           
               <li><router-link class="hover:text-teal-300" to="/about">About</router-link></li>
               <li><router-link class="hover:text-teal-300" to="/portfolio">Portfolio</router-link></li>
             </ul>
