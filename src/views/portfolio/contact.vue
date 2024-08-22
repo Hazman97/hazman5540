@@ -36,26 +36,49 @@
       type="text"
       v-model="name"
       placeholder="Name"
-      class="w-full h-10 border-2 border-gray-300 rounded-md mb-4 p-2"
+      class="w-full h-10 border-2 border-gray-300 rounded-md mb-4 p-2 bg-white dark:bg-transparent dark:border-slate-400 dark:border text-slate-400 dark:hover:border-teal-300 "
     />
     <input
       type="email"
       v-model="email"
       placeholder="Email"
-      class="w-full h-10 border-2 border-gray-300 rounded-md mb-4 p-2"
+      class="w-full h-10 border-2 border-gray-300 rounded-md mb-4 p-2 bg-white dark:bg-transparent dark:border-slate-400 dark:border text-slate-400 dark:hover:border-teal-300"
     />
     <textarea
       v-model="message"
       placeholder="Message"
-      class="w-full h-20 border-2 border-gray-300 rounded-md mb-4 p-2"
+      class="w-full h-20 border-2 border-gray-300 rounded-md mb-4 p-2 bg-white dark:bg-transparent dark:border-slate-400 dark:border text-slate-400 dark:hover:border-teal-300"
     ></textarea>
     <div class="flex justify-end">
       <button
-        type="submit"
-        class="bg-white dark:bg-transparent dark:border-teal-300 dark:border dark:text-teal-500 bg-opacity-30 backdrop-filter backdrop-blur-md rounded-full px-4 py-2 text-blue-700 font-semibold"
-      >
-        Send
-      </button>
+  type="submit"
+  class="bg-white dark:bg-transparent dark:border-teal-300 dark:border dark:text-teal-500 bg-opacity-30 backdrop-filter backdrop-blur-md rounded-full px-4 py-2 text-blue-700 font-semibold flex items-center justify-center"
+  :disabled="loading"
+>
+  <span v-if="!loading">Send</span>
+  <svg
+    v-if="loading"
+    class="animate-spin h-5 w-5 text-teal-500"
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+  >
+    <circle
+      class="opacity-25"
+      cx="12"
+      cy="12"
+      r="10"
+      stroke="currentColor"
+      stroke-width="4"
+    ></circle>
+    <path
+      class="opacity-75"
+      fill="currentColor"
+      d="M4 12a8 8 0 018-8v8H4z"
+    ></path>
+  </svg>
+</button>
+
     </div>
   </form>
       </div>
@@ -185,21 +208,51 @@
   </div>
 </template>
 <script>
+import emailjs from 'emailjs-com';
+
 export default {
+  components: {
+    emailjs
+  },
   data() {
     return {
       name: '',
       email: '',
-      message: ''
+      message: '',
+      loading: false,
     };
   },
   methods: {
-    sendEmail() {
-      const subject = `Message from ${this.name}`;
-      const body = `Name: ${this.name}\nEmail: ${this.email}\n\nMessage:\n${this.message}`;
-      const mailtoLink = `mailto:Hazman5001@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-      window.location.href = mailtoLink;
+  async sendEmail() {
+    this.loading = true;  // Start loading
+    try {
+      const serviceId = 'service_4rlm53k';
+      const templateId = 'template_hh9ycj9';
+      const userId = 'RCPfF4lu88RJjCpCV';
+
+      const templateParams = {
+        name: this.name,
+        email: this.email,
+        message: this.message,
+      };
+
+      await emailjs.send(serviceId, templateId, templateParams, userId);
+      
+      alert('Email sent successfully!');
+      
+      // Clear the form fields
+      this.name = '';
+      this.email = '';
+      this.message = '';
+      
+    } catch (error) {
+      console.error('Failed to send email:', error);
+      alert('Failed to send email.');
+    } finally {
+      this.loading = false;  // Stop loading whether success or failure
     }
-  }
+  },
+}
+
 };
 </script>
