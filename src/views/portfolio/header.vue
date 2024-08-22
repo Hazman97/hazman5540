@@ -1,5 +1,5 @@
 <template>
-    <header class="py-8 px-[15%] bg-white dark:bg-gray-800 shadow-md ">
+    <header class="py-8 px-[15%] bg-white dark:bg-[#0a192f] shadow-md ">
       <div class="container mx-auto flex items-center justify-between">
         <a ref="/" class="font-bold text-2xl text-black dark:text-white">
           MAN <span class="text-teal-300">.</span>
@@ -8,10 +8,11 @@
           <nav>
             <ul class="flex item-center gap-8 font-semibold uppercase text-black dark:text-white">
               <li><router-link class="hover:text-teal-400" :to="{name:'portfolio'}">Home</router-link></li>
-              <li><router-link class="hover:text-teal-300" to="/contact">Contact</router-link></li>
+              
            
               <li><router-link class="hover:text-teal-300" to="/about">About</router-link></li>
-              <li><router-link class="hover:text-teal-300" to="/portfolio">Portfolio</router-link></li>
+              <li><router-link class="hover:text-teal-300" to="/Project">Project</router-link></li>
+              <li><router-link class="hover:text-teal-300" to="/contact">Contact</router-link></li>
             </ul>
           </nav>
         </div>
