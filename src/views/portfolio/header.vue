@@ -1,5 +1,5 @@
 <template>
-    <header class="py-8 px-[15%] bg-white dark:bg-[#0a192f] shadow-md ">
+    <header class="py-4 px-[15%] bg-white/30 dark:bg-[#0a192f]/10 shadow-md backdrop-blur-sm sticky z-200">
       <div class="container mx-auto flex items-center justify-between">
         <a ref="/" class="font-bold text-2xl text-black dark:text-white">
           MAN <span class="text-teal-300">.</span>
@@ -10,7 +10,7 @@
               <li><router-link class="hover:text-teal-400" :to="{name:'portfolio'}">Home</router-link></li>
               
            
-              <li><router-link class="hover:text-teal-300" to="/about">About</router-link></li>
+              <li><router-link class="hover:text-teal-300" :to="{name:'about'}">About</router-link></li>
               <li><router-link class="hover:text-teal-300" to="/Project">Project</router-link></li>
               <li><router-link class="hover:text-teal-300" to="/contact">Contact</router-link></li>
             </ul>
@@ -39,13 +39,23 @@
       };
     },
     mounted() {
-      this.isDarkMode = localStorage.getItem('darkMode') === 'true';
-      if (this.isDarkMode) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    },
+    const userPreference = localStorage.getItem('darkMode');
+
+    if (userPreference !== null) {
+      // User has a preference stored in localStorage
+      this.isDarkMode = userPreference === 'true';
+    } else {
+      // No user preference, check the system's theme preference
+      this.isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+
+    // Apply the theme based on the determined preference
+    if (this.isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  },
     methods: {
       toggleDarkMode() {
         this.isDarkMode = !this.isDarkMode;

@@ -1,18 +1,18 @@
 <template>
-    <div class="px-[15%] h-screen dark:bg-[#0a192f]">
+    <div class="px-[15%] h-screen dark:bg-[#0a192f] z-10">
       <div>
-        <h1 class="text-4xl capitalize text-center font-semibold dark:text-[#ccd6f6]">projects</h1>
+        <h1 class="text-4xl capitalize text-center font-semibold dark:text-[#ccd6f6] mb-10">projects</h1>
   
         <div
           v-for="(project, index) in projects"
           :key="index"
-          class="border border-gray-300 dark:border-slate-400 mt-5 rounded-lg flex flex-col sm:flex-col md:flex-row p-3"
+          class="border border-gray-300 dark:border-slate-400 dark:hover:border-teal-300 mt-5 rounded-lg flex flex-col sm:flex-col md:flex-row p-3 "
         >
           <div>
             <img
               :src="project.image"
               alt=""
-              class="w-60 h-40 rounded-full object-cover"
+              class="w-60 h-40 rounded-full object-cover z-10"
             />
           </div>
           <div>

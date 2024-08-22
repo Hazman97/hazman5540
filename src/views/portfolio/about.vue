@@ -22,7 +22,7 @@
                 contribute to front-end development or IT support roles.</p>
         </div>
         <div class="w-full py-10">
-          <img src="/test.png" alt="" class="w-60 h-60 object-cover mx-auto" />
+          <img src="/test.png" alt="" class="w-60 h-60 object-cover mx-auto rounded-md" />
         </div>
       </div>
     </div>
