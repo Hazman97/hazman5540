@@ -1,10 +1,11 @@
 <template>
   <div class="relative">
-    <navpage class="z-100 sticky top-0" />
+    <navpage class="z-100 sticky top-0 z-50" />
 <home/>
-    <about />
+    <about class="container" />
     <project class=" z-10" />
-    <contact />
+    <section id="contact"> <contact /></section>
+   
   </div>
 </template>
 

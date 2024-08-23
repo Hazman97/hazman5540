@@ -33,12 +33,17 @@ export default {
       projects: [
         {
           image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRuzA1eTueMtWXI_QdH-kABhfcfaxHAot5v0Q&s",
-          title: "Project 1",
+          title: "security and safety portal",
           description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam quod, voluptates, quae, quos quidem quia quibusdam dolorum consequuntur"
         },
         {
           image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRuzA1eTueMtWXI_QdH-kABhfcfaxHAot5v0Q&s",
-          title: "Project 1",
+          title: "organization cart",
+          description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam quod, voluptates, quae, quos quidem quia quibusdam dolorum consequuntur"
+        },
+        {
+          image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRuzA1eTueMtWXI_QdH-kABhfcfaxHAot5v0Q&s",
+          title: "e-claim",
           description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam quod, voluptates, quae, quos quidem quia quibusdam dolorum consequuntur"
         },
         // Add more project objects here

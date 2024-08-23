@@ -23,8 +23,8 @@
 
 <template>
   <div class="px-[15%] relative z-1 dark:bg-[#0a192f] py-10 ">
-    <div class="absolute top-0 -left-4 w-72 h-72 rounded-full bg-purple-300 blur-2xl animate-move-spin-scale"></div>
-    <div class="absolute top-5 -left-10 w-40 h-40 rounded-full bg-blue-300 blur-2xl animate-move-spin-scale"></div>
+    <div class="absolute top-0 -left-4 w-72 h-72 rounded-full bg-purple-300 dark:bg-purple-300/20 blur-2xl animate-move-spin-scale"></div>
+    <div class="absolute top-5 -left-10 w-40 h-40 rounded-full bg-blue-300  dark:bg-blue-300/20 blur-2xl animate-move-spin-scale"></div>
     <h2 class="font-semibold text-center text-4xl capitalize text-black dark:text-[#ccd6f6]">contact me</h2>
     <div class="flex flex-col sm:flex-col md:flex-row md:justify-between gap-2 relative z-2">
       <div class="bg-white/30 dark:bg-black/10 backdrop:blur-xl dark:mt-10 container w-full h-50 py-10 px-10 rounded-xl">
