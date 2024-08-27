@@ -1,10 +1,12 @@
 <template>
   <div class="relative">
-    <navpage class="z-100 sticky top-0 z-50" />
+    <navpage class=" sticky top-0 z-50 " />
 <home/>
     <about class="container" />
-    <project class=" z-10" />
-    <section id="contact"> <contact /></section>
+    <project class="" />
+     <section id="contact">
+      <contact />
+    </section>
    
   </div>
 </template>

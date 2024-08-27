@@ -26,13 +26,13 @@
       </p>
     </div>
     <div class="flex justify-center items-center mt-10 gap-10 z-20 relative">
-      <router-link to="#contact" class="p-2 rounded-lg">
-        <button
-          class="bg-none dark:text-purple-200 capitalize border font-semibold border-teal-500 py-2 px-4 rounded-full hover:bg-teal-500 hover:text-white dark:hover:text-white dark:hover:bg-teal-500"
-        >
-          Contact Me
-        </button>
-      </router-link>
+      <router-link to="/portfolio#contact" class="p-2 rounded-lg">
+      <button
+        class="bg-none dark:text-purple-200 capitalize border font-semibold border-teal-500 py-2 px-4 rounded-full hover:bg-teal-500 hover:text-white dark:hover:text-white dark:hover:bg-teal-500"
+      >
+        Contact Me
+      </button>
+    </router-link>
       <button
         class="bg-gradient-to-r text-white dark:bg-gradient-to-r dark:from-teal-700 from-teal-500 to-teal-300 font-semibold dark:text-purple-200 capitalize border border-teal-500 py-2 px-4 rounded-full"
       >

@@ -1,7 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import HomeView from '../views/HomeView.vue';
-
-
 import PortfolioView from '../views/portfolio/portfolio.vue';
 import Nav from '../views/portfolio/header.vue'; // Import the Nav component
 import Contact from '../views/portfolio/contact.vue'; // Import the Contact component
@@ -19,7 +17,6 @@ const routes = [
     name: 'Nav',
     component: Nav,
   },
-
   {
     path: '/portfolio',
     name: 'portfolio',
@@ -49,12 +46,23 @@ const routes = [
       nav: Nav,          // This is the named view
     },
   },
- 
 ];
 
 const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
+  history: createWebHistory(),
   routes,
+  scrollBehavior(to, from, savedPosition) {
+    if (to.hash) {
+      return {
+        el: to.hash,
+        behavior: 'smooth',
+      };
+    } else if (savedPosition) {
+      return savedPosition;
+    } else {
+      return { top: 0 };
+    }
+  },
 });
 
 export default router;

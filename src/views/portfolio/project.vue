@@ -1,5 +1,5 @@
 <template>
-    <div class="px-[15%] h-screen dark:bg-[#0a192f] z-10">
+    <div class="px-[15%] dark:bg-[#0a192f]">
       <div>
         <h1 class="text-4xl capitalize text-center font-semibold dark:text-[#ccd6f6] mb-10">projects</h1>
   
