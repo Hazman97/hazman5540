@@ -1,5 +1,5 @@
 <template>
-  <div class="px-[15%] h-screen dark:bg-[#0a192f]">
+  <div class="px-[15%] min-h-screen dark:bg-[#0a192f]">
     <div class="py-10">
       <h2
         class="font-semibold text-center text-4xl capitalize text-black dark:text-[#ccd6f6] mb-5"
@@ -23,6 +23,27 @@
         </div>
         <div class="w-full py-10">
           <img src="/test.png" alt="" class="w-60 h-60 object-cover mx-auto rounded-md" />
+        </div>
+      </div>
+      <div class="rounded-3xl bg-slate-200 py-2 px-2 dark:bg-blue-900/10 ">
+        <h1 class="capitalize text-xl font-semibold text-teal-500 "> my skill</h1>
+        <P class="capitalize text-lg font-semibold dark:text-[#ccd6f6] mt-5">stacks used</P>
+        <div class="grid md:grid-cols-3 mt-3 sm:grid-col-1 gap-3">
+          <div class="text-slate-500 dark:text-white flex flex-col text-xs font-mono  gap-3">
+            <P class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100">TYPESCRIPT</P>
+            <p class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100">HTML & CSS</p>
+            <P class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100">JAVASCRIPT</P>
+          </div>
+          <div class="text-slate-500 dark:text-white flex flex-col text-xs font-mono  gap-3">
+            <p class="hover:font-sans hover:text-slate-600  dark:hover:text-teal-100 ">VUE JS</p>
+            <P class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100">TAILWINDS</P>
+            <P class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100">JAVASCRIPT</P>
+          </div>
+          <div class="text-slate-500 dark:text-white flex flex-col text-xs font-mono  gap-3">
+            <p class="hover:font-sans hover:text-slate-600  dark:hover:text-teal-100 ">PHP</p>
+            <P class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100">MySQL</P>
+            <P class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100"></P>
+          </div>
         </div>
       </div>
     </div>
