@@ -9,15 +9,15 @@
     </div>
     <div class="flex flex-col z-1 justify-center px-[10%] z-20 relative">
       <p
-        class="text-teal-300 font-bold uppercase text-6xl dark:text-purple-200 mt-20 text-pretty"
+        class="text-teal-300 font-bold uppercase text-6xl dark:text-blue-200 mt-20 text-pretty"
       >
         welcome! I'M HAZMAN ADANAN
       </p>
 
-      <p class="text-slate-600 dark:text-purple-100 text-pretty text-xl mt-5">
+      <p class="text-slate-600 dark:text-blue-100 text-pretty text-xl mt-5">
         A Programmer with a Strong Background in IT Support and Networking.
       </p>
-      <p class="text-slate-600 dark:text-purple-100 text-pretty text-md mt-5">
+      <p class="text-slate-600 dark:text-blue-100 text-pretty text-md mt-5">
         Beyond just coding, I have a strong interest in IT support, desktop
         support, and networking. My diverse experience ensures that the software
         I develop is both efficient and well-supported by the underlying
