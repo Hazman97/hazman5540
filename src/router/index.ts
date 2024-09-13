@@ -4,8 +4,9 @@ import PortfolioView from '../views/portfolio/portfolio.vue';
 import Nav from '../views/portfolio/header.vue'; // Import the Nav component
 import Contact from '../views/portfolio/contact.vue'; // Import the Contact component
 import about from '../views/portfolio/about.vue'; // Import the About component
-import project from '../views/portfolio/project.vue'; // Import the Project component
-
+import project from '../views/portfolio/project.vue'; // Import the Project component4
+import organizationChart from '../views/project/organizationchart.vue';
+import NotFound from '../views/notfoundpage/notfoundpage.vue';
 const routes = [
   {
     path: '/',
@@ -39,12 +40,22 @@ const routes = [
     },
   },
   {
+    path: "/organization-chart",
+    name: "organizationChart",
+    components: organizationChart
+  },
+  {
     path: "/about",
     name: "about",
     components: {
       default: about,  // This is the default view
       nav: Nav,          // This is the named view
     },
+  },
+  {
+    path: '/:pathMatch(.*)*', // Catch-all route
+    name: 'NotFound',
+    component: NotFound,
   },
 ];
 
