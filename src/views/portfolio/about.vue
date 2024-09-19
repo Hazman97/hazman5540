@@ -31,64 +31,64 @@
         </div>
         <div class="relative">
         <h1 class="capitalize text-xl font-semibold text-teal-500 "> Skill</h1>
-        <P class="capitalize text-lg font-semibold dark:text-[#ccd6f6] mt-5">stacks used</P>
+        <p class="capitalize text-lg font-semibold dark:text-[#ccd6f6] mt-5">stacks used</p>
         
         <div class="grid md:grid-cols-4 mt-3 sm:grid-col-1 gap-3">
           <div class="text-slate-500 dark:text-white flex flex-col text-xs font-mono  gap-3 ">
-            <P class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100">TYPESCRIPT</P>
+            <p class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100">TYPESCRIPT</p>
             <p class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100">HTML (<span class="text-teal-500">intermediate</span>)</p>
-            <P class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100">JAVA (<span class="text-teal-500">basic</span>)</P>
+            <p class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100">JAVA (<span class="text-teal-500">basic</span>)</p>
           </div>
           <div class="text-slate-500 dark:text-white flex flex-col text-xs font-mono  gap-3">
             <p class="hover:font-sans hover:text-slate-600  dark:hover:text-teal-100 ">VUE JS (<span class="text-teal-500">intermediate</span>)</p>
-            <P class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100">TAILWINDS (<span class="text-teal-500">intermediate</span>)</P>
-            <P class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100">JAVASCRIPT (<span class="text-teal-500">basic</span>)</P>
+            <p class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100">TAILWINDS (<span class="text-teal-500">intermediate</span>)</p>
+            <p class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100">JAVASCRIPT (<span class="text-teal-500">basic</span>)</p>
           </div>
           <div class="text-slate-500 dark:text-white flex flex-col text-xs font-mono  gap-3">
             <p class="hover:font-sans hover:text-slate-600  dark:hover:text-teal-100 ">PHP (<span class="text-teal-500">basic</span>)</p>
-            <P class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100">MySQL (<span class="text-teal-500">basic</span>)</P>
-            <P class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100"></P>
+            <p class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100">MySQL (<span class="text-teal-500">basic</span>)</p>
+            <p class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100"></P>
           </div>
           <div class="text-slate-500 dark:text-white flex flex-col text-xs font-mono  gap-3">
             <p class="hover:font-sans hover:text-slate-600  dark:hover:text-teal-100 ">Nginx (<span class="text-teal-500">basic</span>)</p>
-            <P class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100">IIS (<span class="text-teal-500">basic</span>)</P>
-            <P class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100"> Cloudflare Tunnel (<span class="text-teal-500">basic</span>)</P>
+            <p class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100">IIS (<span class="text-teal-500">basic</span>)</p>
+            <p class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100"> Cloudflare Tunnel (<span class="text-teal-500">basic</span>)</p>
           </div>
         </div>
-        <P class="capitalize text-lg font-semibold dark:text-[#ccd6f6] mt-5">software</P>
+        <p class="capitalize text-lg font-semibold dark:text-[#ccd6f6] mt-5">software</P>
         <div class="grid md:grid-cols-3 mt-3 sm:grid-col-1 gap-3">
           <div class="text-slate-500 dark:text-white flex flex-col text-xs font-mono  gap-3">
-            <P class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100">Photoshop (<span class="text-teal-500">basic</span>)</P>
+            <p class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100">Photoshop (<span class="text-teal-500">basic</span>)</p>
             <p class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100">Premier Pro (<span class="text-teal-500">basic</span>)</p>
-            <P class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100">Capcut (<span class="text-teal-500">basic</span>)</P>
+            <p class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100">Capcut (<span class="text-teal-500">basic</span>)</p>
           </div>
           <div class="text-slate-500 dark:text-white flex flex-col text-xs font-mono  gap-3">
             <p class="hover:font-sans hover:text-slate-600  dark:hover:text-teal-100 "></p>
-            <P class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100"></P>
-            <P class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100"></P>
+            <p class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100"></p>
+            <p class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100"></p>
           </div>
           <div class="text-slate-500 dark:text-white flex flex-col text-xs font-mono  gap-3">
             <p class="hover:font-sans hover:text-slate-600  dark:hover:text-teal-100 "></p>
-            <P class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100"></P>
-            <P class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100"></P>
+            <p class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100"></p>
+            <p class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100"></p>
           </div>
         </div>
-        <P class="capitalize text-lg font-semibold dark:text-[#ccd6f6] mt-5">Technical Skills</P>
+        <p class="capitalize text-lg font-semibold dark:text-[#ccd6f6] mt-5">Technical Skills</p>
         <div class="grid md:grid-cols-3 mt-3 sm:grid-col-1 gap-3">
           <div class="text-slate-500 dark:text-white flex flex-col text-xs font-mono  gap-3">
-            <P class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100">PC Repair/Customization</P>
+            <p class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100">PC Repair/Customization</p>
             <p class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100">Network Setup</p>
-            <P class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100">IT Support </P>
+            <p class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100">IT Support </p>
           </div>
           <div class="text-slate-500 dark:text-white flex flex-col text-xs font-mono  gap-3">
             <p class="hover:font-sans hover:text-slate-600  dark:hover:text-teal-100 ">Desktop Support</p>
-            <P class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100"></P>
-            <P class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100"></P>
+            <p class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100"></p>
+            <p class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100"></p>
           </div>
           <div class="text-slate-500 dark:text-white flex flex-col text-xs font-mono  gap-3">
             <p class="hover:font-sans hover:text-slate-600  dark:hover:text-teal-100 "></p>
-            <P class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100"></P>
-            <P class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100"></P>
+            <p class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100"></p>
+            <p class="hover:font-sans hover:text-slate-600 dark:hover:text-teal-100"></p>
           </div>
         </div>
       </div>

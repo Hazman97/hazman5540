@@ -33,7 +33,7 @@
         Contact Me
       </button>
     </router-link>
-      <button
+      <button @click="downloadResume"
         class="bg-gradient-to-r text-white dark:bg-gradient-to-r dark:from-teal-700 from-teal-500 to-teal-300 font-semibold dark:text-purple-200 capitalize border border-teal-500 py-2 px-4 rounded-full"
       >
         get my resume
@@ -46,5 +46,18 @@
 export default {
   name: "Home",
   // Your component's logic goes here
+
+
+  methods: {
+    // Your methods go here
+    downloadResume() {
+  const link = document.createElement('a');
+  link.href = '/resume.pdf'; // Path to the file in the public directory
+  link.download = 'Your_Resume.pdf';
+  link.click();
+}
+  },
 };
+
+
 </script>
