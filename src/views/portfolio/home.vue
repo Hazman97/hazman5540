@@ -52,8 +52,8 @@ export default {
     // Your methods go here
     downloadResume() {
   const link = document.createElement('a');
-  link.href = '/resume.pdf'; // Path to the file in the public directory
-  link.download = 'Your_Resume.pdf';
+  link.href = '/hazmansresume.pdf'; // Path to the file in the public directory
+  link.download = 'Hazman_Resume.pdf';
   link.click();
 }
   },
