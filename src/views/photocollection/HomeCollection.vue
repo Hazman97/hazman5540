@@ -1,10 +1,10 @@
 <template>
-    <div class="p-6">
-      <h1 class="text-2xl font-bold">Select a Country</h1>
+    <div class="p-6 px-[15%] flex-col mx-auto items-center">
+      <h1 class="flex text-2xl font-bold justify-centre">My Photo Collection</h1>
       <div class="mt-4">
         <ul>
           <li v-for="country in countries" :key="country">
-            <router-link :to="'/country/' + country" class="text-blue-500">
+            <router-link :to="'/country/' + country" class="text-sky-500 text-2xl ">
               {{ country }}
             </router-link>
           </li>
