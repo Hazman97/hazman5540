@@ -1,5 +1,6 @@
 <template>
-    <div class="p-6">
+    <div class="px-[15%]">
+    <div class="p-6 ">
       <h1 class="text-2xl font-bold">{{ locationName }}</h1>
       <div class="grid grid-cols-2 gap-4 mt-4">
         <div v-if="images.length > 0">
@@ -10,7 +11,7 @@
         </div>
         <p v-else class="text-gray-500">No images available</p>
       </div>
-    </div>
+    </div></div>
   </template>
   
   <script>
@@ -30,6 +31,9 @@
       locationName() {
         return this.$route.params.location;
       },
+    },
+    watch: {
+      '$route.params.location': 'fetchImages'
     },
     methods: {
       async fetchImages() {

@@ -9,15 +9,20 @@ import organizationChart from "../views/project/organizationchart.vue";
 import NotFound from "../views/notfoundpage/notfoundpage.vue";
 import todolist from "@/views/project/todolist.vue";
 import PostImage from "@/views/photo_collection/PostImage.vue";
-import Home from '../views/photocollection/HomeCollection.vue';
-import CountryView from '../views/photocollection/CountryView.vue';
-import LocationView from '../views/photocollection/LocationView.vue';
-import UploadView from '../views/photocollection/UploadView.vue';
+import Home from "../views/photocollection/HomeCollection.vue";
+import CountryView from "../views/photocollection/CountryView.vue";
+import LocationView from "../views/photocollection/LocationView.vue";
+import UploadView from "../views/photocollection/UploadView.vue";
+import topbar from "../views/photocollection/Topbar.vue";
 const routes = [
-  { path: '/photocollection', name: 'HomeCollection', component: Home },
-  { path: '/country/:name', name: 'CountryView', component: CountryView },
-  { path: '/country/:name/location/:location', name: 'LocationView', component: LocationView },
-  { path: '/upload', name: 'UploadView', component: UploadView },
+  { path: "/photocollection", name: "HomeCollection", component: Home },
+  { path: "/country/:name", name: "CountryView",  components: { default: CountryView, nav: topbar } },
+  {
+    path: "/country/:name/location/:location",
+    name: "LocationView",
+    components: { default: LocationView, nav: topbar },
+  },
+  { path: "/upload", name: "UploadView", component: UploadView },
   // { path: "/upload", name: "Upload", component: PostImage },
   {
     path: "/",
