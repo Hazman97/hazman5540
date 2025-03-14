@@ -1,56 +1,42 @@
 <template>
+  <div class="container mx-auto px-[15%] py-8 flex-col sm:flex-col space-y-6 md:flex-row items-start gap-8 lg:flex xl:flex">
+    <!-- Router Links on the Left -->
+    <ul class="space-y-4 mt-8 w-1/4">
+      <li v-for="(index, loc) in location" :key="loc" class="flex-col items-center space-x-4 text-2xl">
+        <router-link :to="`/country/${countryName}/location/${index}`" class="p-2 cursor-pointer border-b border-gray-600 hover:bg-white hover:bg-opacity-20 dark:text-slate-200  dark:border-slate-400">
+          {{ index }}
+        </router-link>
+      </li>
+    </ul>
 
-    <div class="px-[15%] bg-white rounded-lg p-6">
-      <h1 class="text-3xl font-bold text-gray-800 mb-6">{{ countryName }}</h1>
-      <ul class="space-y-4">
-        <li
-          v-for="(index, loc) in location"
-          :key="loc"
-          class="flex-col items-center space-x-4 text-2xl"
-        >
-          <router-link
-            :to="`/country/${countryName}/location/${index}`"
-            class="hover:underline"
-          >
-            {{ index }}
-          </router-link>
-          <img
-            v-if="getImage(index)"
-            :src="getImage(index).url"
-            :alt="getImage(index).title"
-            class="w-60 h-60 rounded-lg object-cover shadow-md"
-          />
-        </li>
-      </ul>
+    <!-- Scrollable Horizontal Gallery on the Right -->
+    <div ref="scrollContainer" class="scroll-container flex gap-4 overflow-x-auto whitespace-nowrap p-4 border rounded-lg w-full">
+      <img v-for="(img, j) in images" :key="j" class="w-full h-40 object-cover rounded-lg" :src="img.url" alt="Location Image" />
     </div>
-  
+  </div>
 </template>
 
 <script>
-import { db } from "../../firebase";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { ref, computed, onMounted, watch, nextTick } from "vue";
+import { getFirestore, collection, getDocs, query, where } from "firebase/firestore";
+import { useRoute } from "vue-router";
 
 export default {
-  data() {
-    return {
-      location: {},
-      actualCountryName: "",
-      images: [],
-    };
-  },
-  computed: {
-    countryName() {
-      return this.$route.params.name || "";
-    },
-  },
-  async mounted() {
-    await this.fetchCountryData();
-  },
-  methods: {
-    async fetchCountryData() {
-      console.log(`🔍 Fetching data for country: "${this.countryName}"`);
+  setup() {
+    const images = ref([]);
+    const location = ref([]);
+    const loading = ref(true);
+    const error = ref(null);
+    const db = getFirestore();
+    const route = useRoute();
+    const scrollContainer = ref(null);
+    
+    const countryName = computed(() => route.params.name || "");
 
-      if (!this.countryName) {
+    const fetchCountryData = async () => {
+      console.log(`🔍 Fetching data for country: "${countryName.value}"`);
+
+      if (!countryName.value) {
         console.error("❌ Error: countryName is undefined");
         return;
       }
@@ -58,7 +44,7 @@ export default {
       try {
         const q = query(
           collection(db, "countries"),
-          where("country", "==", this.countryName)
+          where("country", "==", countryName.value)
         );
         const querySnapshot = await getDocs(q);
 
@@ -66,28 +52,37 @@ export default {
           const countryData = querySnapshot.docs[0].data();
           console.log(`✅ Found country document:`, countryData);
 
-          this.location = countryData.location || {};
-          this.images = countryData.images || [];
-          this.actualCountryName = countryData.country;
+            location.value = countryData.location || [];
+            images.value = (countryData.images || []).filter(img => img.url);
+          
+          // Scroll to the end when images load
+          nextTick(() => {
+            if (scrollContainer.value) {
+              scrollContainer.value.scrollLeft = scrollContainer.value.scrollWidth;
+            }
+          });
         } else {
-          console.error(`❌ No data found for country: "${this.countryName}"`);
+          console.error(`❌ No data found for country: "${countryName.value}"`);
         }
       } catch (error) {
         console.error("🔥 Firestore fetch error:", error);
       }
-    },
-    getImage(locationName) {
-      return this.images.find((img) => img.location === locationName) || null;
-    },
-  },
-  watch: {
-    $route() {
-      this.fetchCountryData();
-    },
+    };
+
+    onMounted(fetchCountryData);
+    watch(() => route.params.name, fetchCountryData);
+
+    return { images, loading, error, location, countryName, scrollContainer };
   },
 };
 </script>
 
 <style scoped>
-/* Add any additional custom styles here */
+.scroll-container::-webkit-scrollbar {
+  height: 8px;
+}
+.scroll-container::-webkit-scrollbar-thumb {
+  background: #999;
+  border-radius: 10px;
+}
 </style>
