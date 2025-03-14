@@ -5,16 +5,17 @@
     <div
       v-for="image in images"
       :key="image.url"
-      class="flex flex-col h-full max-w-lg mx-auto bg-gray-800 rounded-lg shadow-lg"
+      class="flex flex-col h-full max-w-lg mx-auto bg-gray-800 rounded-lg shadow-lg transition-all delay-100 duration-300 ease-in-out transform hover:scale-105"
     >
       <!-- Image -->
       <!-- <a :href="image.url" target="_blank" rel="noopener noreferrer"> -->
       <img
         v-if="!isYouTubeVideo(image.videoUrl)"
-        class="rounded-lg rounded-b-none object-cover h-64 w-full"
+        class="rounded-lg rounded-b-none object-cover hover:object-none h-64 w-full"
         :src="image.url"
         :alt="image.title"
         loading="lazy"
+      @click="openModal(image.url, image.title)"
       />
 
       <!-- Show YouTube Video if Available -->
@@ -125,6 +126,22 @@
         </div>
       </div> -->
     </div>
+    <div 
+      v-if="isModalOpen" 
+      class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-90 z-50"
+      @click.self="closeModal"
+    >
+      <div class="relative flex flex-col items-center">
+        <span
+          class="absolute top-5 right-10 text-white text-4xl font-bold cursor-pointer hover:text-gray-400"
+          @click="closeModal"
+        >
+          &times;
+        </span>
+        <img :src="imageSrc" :alt="imageAlt" class="w-4/5 max-w-[700px] animate-zoom">
+        <p class="text-gray-300 text-center mt-4">{{ imageAlt }}</p>
+      </div>
+    </div>
 
     <p
       v-if="images.length === 0"
@@ -143,6 +160,9 @@ export default {
   data() {
     return {
       images: [],
+      isModalOpen: false,
+      imageSrc: '',
+      imageAlt: '',
     };
   },
   computed: {
@@ -175,6 +195,15 @@ export default {
 
       return `https://www.youtube.com/embed/${videoId}`;
     },
+    openModal(imageUrl, imageTitle) {
+      this.imageSrc = imageUrl;
+      this.imageAlt = imageTitle;
+      this.isModalOpen = true;
+    },
+
+    closeModal() {
+      this.isModalOpen = false;
+    },
     async fetchImages() {
       try {
         // Query the 'countries' collection for the selected country
@@ -205,5 +234,12 @@ export default {
 <style>
 iframe {
   cursor: auto !important; /* Ensure cursor stays visible */
+}
+@keyframes zoom {
+  from { transform: scale(0); }
+  to { transform: scale(1); }
+}
+.animate-zoom {
+  animation: zoom 0.6s;
 }
 </style>
