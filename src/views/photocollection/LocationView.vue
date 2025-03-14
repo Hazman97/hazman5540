@@ -92,7 +92,7 @@
         <h1
           class="capitalize text-xl font-medium leading-6 tracking-wide text-gray-300 hover:text-blue-500 cursor-pointer"
         >
-          <a :href="image.link">{{ image.title }}</a>
+          <a :href="image.url">{{ image.title }}</a>
         </h1>
       </div>
 
@@ -101,14 +101,14 @@
         <p class="text-gray-400 font-normal leading-5 tracking-wide">
           {{ image.description || "No description available" }}
         </p>
-        <a
+        <!-- <a
           :href="image.url"
           target="_blank"
           rel="noopener noreferrer"
           class="font-bold hover:text-blue-400 text-gray-100 text-sm capitalize"
         >
           full size
-        </a>
+        </a> -->
       </div>
 
       <!-- Author & Likes
