@@ -1,21 +1,25 @@
 <template>
   <div
-    class="h-screen flex transition-all duration-1000 bg-cover bg-center"
+    v-if="loading"
+    class="h-screen flex items-center justify-center bg-gray-900 text-white"
+  >
+    <p class="text-xl animate-pulse">Loading images...</p>
+  </div>
+
+  <div
+    v-else
+    class="h-screen flex transition-all duration-1000 bg-cover bg-center relative"
     :style="{ backgroundImage: `url(${slides[activeIndex]?.url})` }"
   >
+    <!-- Dark Overlay -->
+    <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+
     <!-- Sidebar -->
-    <div class="w-1/4 bg-black bg-opacity-70 text-white p-5 overflow-y-auto">
+    <div
+      class="relative w-1/4 bg-black bg-opacity-70 text-white p-5 overflow-y-auto"
+    >
       <h2 class="text-lg font-semibold mb-4">Photo Collection</h2>
       <ul>
-        <!-- <li
-          v-for="(slide, index) in slides"
-          :key="index"
-          @click="setSlide(index)"
-          class="p-2 cursor-pointer border-b border-gray-600 hover:bg-white hover:bg-opacity-20"
-        >
-          {{ slide.title }}
-        </li> -->
-        <!-- Countries -->
         <li
           v-for="(images, country) in imagesByCountry"
           :key="country"
@@ -31,21 +35,22 @@
     </div>
 
     <!-- Slideshow -->
-    <div class="w-3/4 flex justify-center items-center relative">
+    <div class="relative w-3/4 flex justify-center items-center">
       <button
         @click="prevSlide"
-        class="absolute left-4 bg-black bg-opacity-50 text-white p-2"
+        class="absolute left-4 bg-black bg-opacity-50 text-white p-2 z-10"
       >
         &#10094;
       </button>
       <img
+        v-if="slides.length"
         :src="slides[activeIndex]?.url"
         alt="Slideshow"
-        class="max-w-3/4 max-h-3/4 rounded-lg shadow-lg transition-opacity duration-500"
+        class="max-w-3/4 max-h-3/4 rounded-lg shadow-lg transition-opacity duration-500 ease-in-out relative z-10"
       />
       <button
         @click="nextSlide"
-        class="absolute right-4 bg-black bg-opacity-50 text-white p-2"
+        class="absolute right-4 bg-black bg-opacity-50 text-white p-2 z-10"
       >
         &#10095;
       </button>
@@ -64,15 +69,17 @@ export default {
       activeIndex: 0,
       imagesByCountry: {}, // Stores images categorized by country
       autoSlideInterval: null,
+      loading: true, // Loading state
     };
   },
   async mounted() {
     await this.fetchImages();
-    this.showRandomImages(); // Set default random images
-    this.startAutoSlide();
+    await this.showRandomImages();
+    await this.startAutoSlide();
+    this.loading = false; // Hide loading after fetching images
   },
   methods: {
-    startAutoSlide() {
+    async startAutoSlide() {
       this.stopAutoSlide();
       this.autoSlideInterval = setInterval(this.nextSlide, 3000);
     },
@@ -86,9 +93,6 @@ export default {
       this.activeIndex =
         (this.activeIndex - 1 + this.slides.length) % this.slides.length;
     },
-    setSlide(index) {
-      this.activeIndex = index;
-    },
     async fetchImages() {
       try {
         const querySnapshot = await getDocs(collection(db, "countries"));
@@ -97,7 +101,7 @@ export default {
 
         querySnapshot.forEach((doc) => {
           const country = doc.data().country;
-          const images = doc.data().images || [];
+          const images = (doc.data().images || []).filter((image) => image.url);
 
           if (images.length) {
             imagesByCountry[country] = images;
@@ -106,12 +110,12 @@ export default {
         });
 
         this.imagesByCountry = imagesByCountry;
-        this.slides = this.getRandomImages(allImages, 5); // Show 5 random images as default
+        this.slides = this.getRandomImages(allImages, 5);
       } catch (error) {
         console.error("Error fetching images:", error);
       }
     },
-    showRandomImages() {
+    async showRandomImages() {
       const allImages = Object.values(this.imagesByCountry).flat();
       this.slides = this.getRandomImages(allImages, 5);
       this.activeIndex = 0;
