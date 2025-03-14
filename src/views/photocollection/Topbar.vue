@@ -3,7 +3,7 @@
     class="py-4 px-[15%] bg-white/30 dark:bg-[#0a192f]/10 shadow-md backdrop-blur-sm sticky z-200"
   >
     <div class="container mx-auto flex items-center justify-between">
-      <a ref="/" class="font-bold text-2xl text-black dark:text-white">
+      <a href="/photocollection" class="font-bold text-2xl text-black dark:text-white">
         MAN <span class="text-teal-300">.</span>
       </a>
       <!-- <div class="hidden xl:flex items-center">

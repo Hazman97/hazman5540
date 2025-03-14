@@ -8,6 +8,7 @@ import {
   doc,
   updateDoc,
   arrayUnion,
+  serverTimestamp,
 } from "firebase/firestore";
 
 export default {
@@ -20,6 +21,8 @@ export default {
       newLocation: "",
       photoTitle: "",
       photoUrl: "",
+      description: "",
+      videoUrl: "",
     };
   },
   computed: {
@@ -100,8 +103,7 @@ export default {
       if (
         !this.selectedCountry ||
         !this.selectedLocation ||
-        !this.photoTitle ||
-        !this.photoUrl
+        !this.photoTitle 
       ) {
         alert("Please fill all fields!");
         return;
@@ -117,12 +119,27 @@ export default {
 
       try {
         const countryRef = doc(db, "countries", countryDoc.id);
+        const createdAt = new Date();
+        const formattedDate = new Intl.DateTimeFormat("en-GB", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric"
+}).format(createdAt);
+const formattedTime = new Intl.DateTimeFormat("en-US", { hour: "2-digit", minute: "2-digit"}).format(createdAt);
+
+console.log("Date:", formattedDate);  // Example: "March 14, 2025"
+console.log("Time:", formattedTime);  // Example: "12:34:56 PM"
 
         await updateDoc(countryRef, {
           images: arrayUnion({
             location: this.selectedLocation,
             title: this.photoTitle,
             url: this.photoUrl,
+            createdAt: createdAt.toISOString(),  // Full timestamp
+        date: formattedDate,
+        time: formattedTime,
+        description: this.description,
+        videoUrl: this.videoUrl
           }),  // ✅ FIXED: Directly adding image using arrayUnion()
         });
 
@@ -208,7 +225,20 @@ export default {
     <div v-if="photoUrl" class="mt-4">
       <img :src="photoUrl" alt="Preview Image" class="w-full rounded-lg" />
     </div>
-
+    <label class="block mt-4">description:</label>
+    <input
+      v-model="description"
+      type="text"
+      class="border p-2 rounded w-full"
+      placeholder="description"
+    />
+    <label class="block mt-4">Video URL:</label>
+    <input
+      v-model="videoUrl"
+      type="text"
+      class="border p-2 rounded w-full"
+      placeholder="video URL here"
+    />
     <!-- Upload Button -->
     <button
       @click="uploadPhoto"

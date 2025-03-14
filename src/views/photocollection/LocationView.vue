@@ -1,60 +1,209 @@
 <template>
-    <div class="px-[15%]">
-    <div class="p-6 ">
-      <h1 class="text-2xl font-bold">{{ locationName }}</h1>
-      <div class="grid grid-cols-2 gap-4 mt-4">
-        <div v-if="images.length > 0">
-          <div v-for="image in images" :key="image.url">
-            <img :src="image.url" class="w-full rounded-lg" />
-            <p class="text-sm">{{ image.title }}</p>
+  <div
+    class="px-[15%] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-6"
+  >
+    <div
+      v-for="image in images"
+      :key="image.url"
+      class="flex flex-col h-full max-w-lg mx-auto bg-gray-800 rounded-lg shadow-lg"
+    >
+      <!-- Image -->
+      <!-- <a :href="image.url" target="_blank" rel="noopener noreferrer"> -->
+      <img
+        v-if="!isYouTubeVideo(image.videoUrl)"
+        class="rounded-lg rounded-b-none object-cover h-64 w-full"
+        :src="image.url"
+        :alt="image.title"
+        loading="lazy"
+      />
+
+      <!-- Show YouTube Video if Available -->
+      <iframe
+        v-else
+        class="rounded-lg w-full h-64"
+        :src="getYouTubeEmbedUrl(image.videoUrl)"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen
+      ></iframe>
+      <!-- </a> -->
+
+      <!-- Tags & Time -->
+      <div class="flex justify-between -mt-4 px-4">
+        <span
+          class="inline-block ring-4 bg-red-500 ring-gray-800 rounded-full text-sm font-medium tracking-wide text-gray-100 px-3 pt-0.5"
+        >
+          {{ image.date || "General" }}
+        </span>
+        <span
+          class="flex h-min space-x-1 items-center rounded-full text-gray-400 bg-gray-800 py-1 px-2 text-xs font-medium"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5 text-blue-500"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <p class="text-blue-500 font-semibold text-xs">
+            {{ image.time || "5 Mins" }}
+          </p>
+        </span>
+      </div>
+
+      <!-- Title -->
+      <div class="py-2 px-4">
+        <h1
+          class="capitalize text-xl font-medium leading-6 tracking-wide text-gray-300 hover:text-blue-500 cursor-pointer"
+        >
+          <a :href="image.link">{{ image.title }}</a>
+        </h1>
+      </div>
+
+      <!-- Description -->
+      <div class="px-4 space-y-2 flex-col mb-4">
+        <p class="text-gray-400 font-normal leading-5 tracking-wide">
+          {{ image.description || "No description available" }}
+        </p>
+        <a
+          :href="image.url"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="font-bold hover:text-blue-400 text-gray-100 text-sm capitalize"
+        >
+          full size
+        </a>
+      </div>
+
+      <!-- Author & Likes
+      <div class="flex flex-row items-end h-full w-full px-4 mt-4">
+        <div class="flex border-t border-gray-700 w-full py-4">
+          <div
+            class="flex items-center space-x-3 border-r border-gray-700 w-full"
+          >
+            <img
+              class="object-cover w-8 h-8 border-2 border-white rounded-full"
+              :src="image.authorImage"
+              alt="Author"
+              loading="lazy"
+            />
+            <div>
+              <p class="text-sm font-semibold tracking-wide text-gray-200">
+                {{ image.author || "Anonymous" }}
+              </p>
+              <p class="text-xs font-light tracking-wider text-gray-300">
+                {{ image.timeAgo || "Just now" }}
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center flex-shrink-0 px-2">
+            <div class="flex items-center space-x-1 text-gray-400">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                />
+              </svg>
+              <p class="font-medium">{{ image.likes || 0 }}</p>
+            </div>
           </div>
         </div>
-        <p v-else class="text-gray-500">No images available</p>
-      </div>
-    </div></div>
-  </template>
-  
-  <script>
-  import { db } from "../../firebase";
-  import { collection, query, where, getDocs } from "firebase/firestore";
-  
-  export default {
-    data() {
-      return {
-        images: [],
-      };
+      </div> -->
+    </div>
+
+    <p
+      v-if="images.length === 0"
+      class="text-gray-500 text-center col-span-full"
+    >
+      No images available
+    </p>
+  </div>
+</template>
+
+<script>
+import { db } from "../../firebase";
+import { collection, query, where, getDocs } from "firebase/firestore";
+
+export default {
+  data() {
+    return {
+      images: [],
+    };
+  },
+  computed: {
+    countryName() {
+      return this.$route.params.name;
     },
-    computed: {
-      countryName() {
-        return this.$route.params.name;
-      },
-      locationName() {
-        return this.$route.params.location;
-      },
+    locationName() {
+      return this.$route.params.location;
     },
-    watch: {
-      '$route.params.location': 'fetchImages'
+  },
+  watch: {
+    "$route.params.location": "fetchImages",
+  },
+  methods: {
+    isYouTubeVideo: (url) => {
+      return url && (url.includes("youtube.com") || url.includes("youtu.be"));
     },
-    methods: {
-      async fetchImages() {
-        try {
-          // Query the 'countries' collection for the selected country
-          const q = query(collection(db, "countries"), where("country", "==", this.countryName));
-          const querySnapshot = await getDocs(q);
-  
-          if (!querySnapshot.empty) {
-            const countryData = querySnapshot.docs[0].data();
-            // Filter images that belong to the selected location
-            this.images = countryData.images.filter((img) => img.location === this.locationName);
-          }
-        } catch (error) {
-          console.error("Error fetching images:", error);
+
+    // Convert normal YouTube URL to an embeddable URL
+    getYouTubeEmbedUrl: (url) => {
+      if (!url) return "";
+      let videoId = "";
+
+      if (url.includes("youtu.be/")) {
+        videoId = url.split("youtu.be/")[1].split("?")[0]; // Extract Video ID
+      } else {
+        const urlParams = new URL(url).searchParams;
+        videoId = urlParams.get("v");
+      }
+
+      return `https://www.youtube.com/embed/${videoId}`;
+    },
+    async fetchImages() {
+      try {
+        // Query the 'countries' collection for the selected country
+        const q = query(
+          collection(db, "countries"),
+          where("country", "==", this.countryName)
+        );
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          const countryData = querySnapshot.docs[0].data();
+          // Filter images that belong to the selected location
+          this.images = countryData.images.filter(
+            (img) => img.location === this.locationName
+          );
         }
-      },
+      } catch (error) {
+        console.error("Error fetching images:", error);
+      }
     },
-    mounted() {
-      this.fetchImages();
-    },
-  };
-  </script>
-  
+  },
+  mounted() {
+    this.fetchImages();
+  },
+};
+</script>
+
+<style>
+iframe {
+  cursor: auto !important; /* Ensure cursor stays visible */
+}
+</style>
