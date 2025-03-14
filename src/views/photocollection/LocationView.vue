@@ -3,7 +3,7 @@
     class="px-[15%] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-6"
   >
     <div
-      v-for="image in images"
+      v-for="(image, index) in images"
       :key="image.url"
       class="flex flex-col h-full max-w-lg mx-auto bg-gray-800 rounded-lg shadow-lg transition-all delay-100 duration-300 ease-in-out transform hover:scale-105"
     >
@@ -15,7 +15,7 @@
         :src="image.url"
         :alt="image.title"
         loading="lazy"
-      @click="openModal(image.url, image.title)"
+      @click="openModal(index)"
       />
 
       <!-- Show YouTube Video if Available -->
@@ -132,14 +132,37 @@
       @click.self="closeModal"
     >
       <div class="relative flex flex-col items-center">
+        <!-- Close Button -->
         <span
           class="absolute top-5 right-10 text-white text-4xl font-bold cursor-pointer hover:text-gray-400"
           @click="closeModal"
         >
           &times;
         </span>
-        <img :src="imageSrc" :alt="imageAlt" class="w-4/5 max-w-[700px] animate-zoom">
-        <p class="text-gray-300 text-center mt-4">{{ imageAlt }}</p>
+
+        <!-- Previous Button -->
+        <button
+          v-if="images.length > 1"
+          class="absolute left-5 top-1/2 transform -translate-y-1/2 text-white text-4xl font-bold cursor-pointer bg-gray-800 bg-opacity-50 p-2 rounded-full hover:bg-opacity-70"
+          @click.stop="prevImage"
+        >
+          &#10094;
+        </button>
+
+        <!-- Current Image -->
+        <img :src="currentImage.url" :alt="currentImage.title" class="w-4/5 max-w-[700px] animate-zoom">
+
+        <!-- Image Title -->
+        <p class="text-gray-300 text-center mt-4">{{ currentImage.title }}</p>
+
+        <!-- Next Button -->
+        <button
+          v-if="images.length > 1"
+          class="absolute right-5 top-1/2 transform -translate-y-1/2 text-white text-4xl font-bold cursor-pointer bg-gray-800 bg-opacity-50 p-2 rounded-full hover:bg-opacity-70"
+          @click.stop="nextImage"
+        >
+          &#10095;
+        </button>
       </div>
     </div>
 
@@ -163,6 +186,7 @@ export default {
       isModalOpen: false,
       imageSrc: '',
       imageAlt: '',
+      currentIndex: 0, // Track current image index
     };
   },
   computed: {
@@ -172,6 +196,10 @@ export default {
     locationName() {
       return this.$route.params.location;
     },
+  
+    currentImage() {
+      return this.images[this.currentIndex] || {};
+    }
   },
   watch: {
     "$route.params.location": "fetchImages",
@@ -195,14 +223,41 @@ export default {
 
       return `https://www.youtube.com/embed/${videoId}`;
     },
-    openModal(imageUrl, imageTitle) {
-      this.imageSrc = imageUrl;
-      this.imageAlt = imageTitle;
+    openModal(index) {
+      this.currentIndex = index;
       this.isModalOpen = true;
+      document.addEventListener("keydown", this.handleKeydown);
     },
 
     closeModal() {
       this.isModalOpen = false;
+      document.removeEventListener("keydown", this.handleKeydown);
+    },
+
+    nextImage() {
+      if (this.currentIndex < this.images.length - 1) {
+        this.currentIndex++;
+      } else {
+        this.currentIndex = 0; // Loop to first image
+      }
+    },
+
+    prevImage() {
+      if (this.currentIndex > 0) {
+        this.currentIndex--;
+      } else {
+        this.currentIndex = this.images.length - 1; // Loop to last image
+      }
+    },
+
+    handleKeydown(event) {
+      if (event.key === "ArrowRight") {
+        this.nextImage();
+      } else if (event.key === "ArrowLeft") {
+        this.prevImage();
+      } else if (event.key === "Escape") {
+        this.closeModal();
+      }
     },
     async fetchImages() {
       try {
