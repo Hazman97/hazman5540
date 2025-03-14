@@ -10,23 +10,51 @@
       <!-- Image -->
       <!-- <a :href="image.url" target="_blank" rel="noopener noreferrer"> -->
       <img
-        v-if="!isYouTubeVideo(image.videoUrl)"
-        class="rounded-lg rounded-b-none object-cover hover:object-none h-64 w-full"
+        v-if="
+          !isYouTubeVideo(image.videoUrl) &&
+          !isGooglePhotosVideo(image.videoUrl)
+        "
+        class="rounded-lg h-64 w-full object-cover"
         :src="image.url"
         :alt="image.title"
         loading="lazy"
-      @click="openModal(index)"
+        @click="openModal(index)"
       />
 
-      <!-- Show YouTube Video if Available -->
+      <!-- Show YouTube Video -->
       <iframe
-        v-else
+        v-else-if="isYouTubeVideo(image.videoUrl)"
         class="rounded-lg w-full h-64"
         :src="getYouTubeEmbedUrl(image.videoUrl)"
         frameborder="0"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowfullscreen
       ></iframe>
+
+      <!-- Show Google Photos Video -->
+      <div
+        v-else-if="isGooglePhotosVideo(image.videoUrl)"
+        class="relative w-full h-64"
+      >
+        <img
+          :src="getThumbnail(image.videoUrl)"
+          class="rounded-lg w-full h-64 object-cover"
+          alt="Video Thumbnail"
+        />
+        <a
+          :href="image.videoUrl"
+          target="_blank"
+          class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-lg"
+        >
+          <svg
+            class="w-16 h-16 text-white"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path d="M8 5v14l11-7z"></path>
+          </svg>
+        </a>
+      </div>
       <!-- </a> -->
 
       <!-- Tags & Time -->
@@ -126,8 +154,8 @@
         </div>
       </div> -->
     </div>
-    <div 
-      v-if="isModalOpen" 
+    <div
+      v-if="isModalOpen"
       class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-90 z-50"
       @click.self="closeModal"
     >
@@ -150,7 +178,11 @@
         </button>
 
         <!-- Current Image -->
-        <img :src="currentImage.url" :alt="currentImage.title" class="w-4/5 max-w-[700px] animate-zoom">
+        <img
+          :src="currentImage.url"
+          :alt="currentImage.title"
+          class="w-4/5 max-w-[700px] animate-zoom"
+        />
 
         <!-- Image Title -->
         <p class="text-gray-300 text-center mt-4">{{ currentImage.title }}</p>
@@ -184,8 +216,8 @@ export default {
     return {
       images: [],
       isModalOpen: false,
-      imageSrc: '',
-      imageAlt: '',
+      imageSrc: "",
+      imageAlt: "",
       currentIndex: 0, // Track current image index
     };
   },
@@ -196,26 +228,31 @@ export default {
     locationName() {
       return this.$route.params.location;
     },
-  
+
     currentImage() {
       return this.images[this.currentIndex] || {};
-    }
+    },
   },
   watch: {
     "$route.params.location": "fetchImages",
   },
   methods: {
-    isYouTubeVideo: (url) => {
+    isYouTubeVideo(url) {
       return url && (url.includes("youtube.com") || url.includes("youtu.be"));
     },
+    isGooglePhotosVideo(url) {
+      return url && url.includes("photos.google.com");
+    },
 
-    // Convert normal YouTube URL to an embeddable URL
-    getYouTubeEmbedUrl: (url) => {
+    getThumbnail(url) {
+      return url.replace("=m18", "=w600-h400"); // Adjust thumbnail resolution if needed
+    },
+    getYouTubeEmbedUrl(url) {
       if (!url) return "";
       let videoId = "";
 
       if (url.includes("youtu.be/")) {
-        videoId = url.split("youtu.be/")[1].split("?")[0]; // Extract Video ID
+        videoId = url.split("youtu.be/")[1].split("?")[0];
       } else {
         const urlParams = new URL(url).searchParams;
         videoId = urlParams.get("v");
@@ -291,8 +328,12 @@ iframe {
   cursor: auto !important; /* Ensure cursor stays visible */
 }
 @keyframes zoom {
-  from { transform: scale(0); }
-  to { transform: scale(1); }
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
 }
 .animate-zoom {
   animation: zoom 0.6s;
