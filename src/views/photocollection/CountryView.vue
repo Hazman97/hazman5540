@@ -10,8 +10,8 @@
     </ul>
 
     <!-- Scrollable Horizontal Gallery on the Right -->
-    <div ref="scrollContainer" class="scroll-container flex gap-4 overflow-x-auto whitespace-nowrap p-4 border rounded-lg w-full">
-      <img v-for="(img, j) in images" :key="j" class="w-full h-40 object-cover rounded-lg" :src="img.url" alt="Location Image" />
+    <div ref="scrollContainer" class="scroll-container flex gap-4 overflow-x-auto whitespace-nowrap p-4 border rounded-lg w-full snap-x snap-mandatory scroll-smooth" @scroll="handleScroll">
+      <img v-for="(img, j) in images" :key="j" class="w-full h-40 object-cover rounded-lg snap-center" :src="img.url" alt="Location Image" />
     </div>
   </div>
 </template>
