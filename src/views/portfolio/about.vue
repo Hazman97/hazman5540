@@ -30,7 +30,7 @@
 
         </div>
         <div class="relative">
-        <h1 class="capitalize text-xl font-semibold text-teal-500 "> Skill</h1>
+        <h1 class="capitalize text-xl font-semibold text-teal-500 "> Skills</h1>
         <p class="capitalize text-lg font-semibold dark:text-[#ccd6f6] mt-5">stacks used</p>
         
         <div class="grid md:grid-cols-4 mt-3 sm:grid-col-1 gap-3">
