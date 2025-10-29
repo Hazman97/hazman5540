@@ -14,6 +14,19 @@
 .animate-move-spin-scale {
   animation: move 10s infinite, spin-scale 5s infinite;
 }
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+.modal-content {
+  transition: all 0.3s ease;
+}
 </style>
 
 <template>
@@ -86,6 +99,21 @@
               </button>
             </div>
           </form>
+        </div>
+        <div
+          v-if="showSuccessModal"
+          class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+        >
+          <transition name="fade" appear>
+            <div
+              class="modal-content bg-white dark:bg-slate-800 p-8 rounded-lg shadow-xl text-center transform scale-100"
+            >
+              <p class="text-2xl font-semibold text-green-500">Success!</p>
+              <p class="text-gray-600 dark:text-gray-300 mt-2">
+                Your message has been sent.
+              </p>
+            </div>
+          </transition>
         </div>
         <div
           class="p-5 backdrop-blur-md bg-white/30 dark:bg-black/10 rounded-xl dark:text-[#ccd6f6] dark:mt-10"
@@ -293,6 +321,7 @@ export default {
       email: "",
       message: "",
       loading: false,
+      showSuccessModal: false,
     };
   },
   methods: {
@@ -311,15 +340,18 @@ export default {
 
         await emailjs.send(serviceId, templateId, templateParams, userId);
 
-        alert("Email sent successfully!");
+        this.showSuccessModal = true;
+        setTimeout(() => {
+          this.showSuccessModal = false;
+        }, 3000);
 
         // Clear the form fields
         this.name = "";
         this.email = "";
         this.message = "";
       } catch (error) {
-        console.error("Failed to send email:", error);
-        alert("Failed to send email.");
+        console.error("Failed to send email:", error); // You might want a failure modal too
+        alert("Failed to send email."); // Keeping alert for failure for now
       } finally {
         this.loading = false; // Stop loading whether success or failure
       }
