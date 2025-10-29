@@ -53,7 +53,7 @@ export default {
     downloadResume() {
   const link = document.createElement('a');
   link.href = '/Hazman_resume_OCT2025.pdf'; // Path to the file in the public directory
-  link.download = 'Hazman_Resume.pdf';
+  link.download = 'Hazman_resume_OCT2025';
   link.click();
 }
   },
