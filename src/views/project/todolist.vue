@@ -1,77 +1,215 @@
 <template>
-  <div class="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-    <div class="w-full max-w-md bg-white rounded-lg shadow-md p-8">
+  <div class="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center p-4">
+    <div class="w-full max-w-2xl">
       
-      <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">
-        MyKad Information Extractor
-      </h1>
+      <!-- Main Card -->
+      <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-white/20">
+        
+        <!-- Header with Gradient -->
+        <div class="relative bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-8 text-white overflow-hidden">
+          <!-- Decorative circles -->
+          <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
+          <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full -ml-24 -mb-24"></div>
+          
+          <div class="relative flex items-center gap-4">
+            <!-- Icon -->
+            <div class="p-4 bg-white/20 backdrop-blur-sm rounded-2xl">
+              <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
+              </svg>
+            </div>
+            <div>
+              <h1 class="text-3xl font-bold mb-1">MyKad Information Extractor</h1>
+              <p class="text-white/90 text-sm">Extract personal information from Malaysian IC number</p>
+            </div>
+          </div>
+        </div>
 
-      <!-- INPUT Section -->
-      <div class="mb-4">
-        <label for="mykad" class="block text-sm font-medium text-gray-700 mb-2">
-          Enter MyKad Number (12 digits)
-        </label>
-        <input
-          id="mykad"
-          v-model="myKadNumber"
-          type="text"
-          placeholder="e.g., 900101101234"
-          maxlength="12"
-          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        />
+        <!-- Content -->
+        <div class="p-8">
+          
+          <!-- Input Section -->
+          <div class="mb-6">
+            <label for="mykad" class="block text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+              <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+              </svg>
+              Enter MyKad Number (12 digits)
+            </label>
+            <div class="relative">
+              <input
+                id="mykad"
+                v-model="myKadNumber"
+                type="text"
+                placeholder="e.g., 900101101234"
+                maxlength="12"
+                @keyup.enter="processMyKad"
+                class="w-full px-5 py-4 text-lg border-2 border-gray-200 rounded-2xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200 bg-white/50 backdrop-blur-sm font-mono"
+              />
+              <div class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium text-sm">
+                {{ myKadNumber.length }}/12
+              </div>
+            </div>
+          </div>
+
+          <!-- Error Message Display -->
+          <Transition
+            enter-active-class="transition-all duration-300 ease-out"
+            enter-from-class="opacity-0 -translate-y-2"
+            enter-to-class="opacity-100 translate-y-0"
+            leave-active-class="transition-all duration-200 ease-in"
+            leave-from-class="opacity-100 translate-y-0"
+            leave-to-class="opacity-0 -translate-y-2">
+            <div v-if="error" class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-lg flex items-start gap-3">
+              <svg class="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <p class="text-red-700 font-medium">{{ error }}</p>
+            </div>
+          </Transition>
+
+          <!-- Action Buttons -->
+          <div class="flex flex-col sm:flex-row gap-3 mb-8">
+            <button
+              @click="processMyKad"
+              class="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold py-4 px-6 rounded-xl hover:shadow-xl hover:scale-105 focus:outline-none focus:ring-4 focus:ring-indigo-500/50 transition-all duration-200">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+              </svg>
+              Process Information
+            </button>
+            <button
+              @click="clearInfo"
+              class="sm:w-auto flex items-center justify-center gap-2 bg-gray-100 text-gray-700 font-bold py-4 px-6 rounded-xl hover:bg-gray-200 hover:shadow-lg focus:outline-none focus:ring-4 focus:ring-gray-300/50 transition-all duration-200">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+              </svg>
+              Clear
+            </button>
+          </div>
+
+          <!-- Results Section -->
+          <Transition
+            enter-active-class="transition-all duration-500 ease-out"
+            enter-from-class="opacity-0 translate-y-8"
+            enter-to-class="opacity-100 translate-y-0"
+            leave-active-class="transition-all duration-300 ease-in"
+            leave-from-class="opacity-100 translate-y-0"
+            leave-to-class="opacity-0 translate-y-8">
+            <div v-if="results" class="border-t-2 border-gray-100 pt-8">
+              
+              <!-- Results Header -->
+              <div class="flex items-center gap-3 mb-6">
+                <div class="p-2 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl">
+                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800">Extracted Information</h2>
+              </div>
+
+              <!-- Results Grid -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                
+                <!-- Birth Date -->
+                <div class="group p-5 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 hover:shadow-lg transition-all duration-200">
+                  <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                      <div class="flex items-center gap-2 mb-2">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        <span class="text-sm font-semibold text-blue-700">Birth Date</span>
+                      </div>
+                      <p class="text-2xl font-bold text-gray-900">{{ results.day }}/{{ results.month }}/{{ results.year }}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Gender -->
+                <div class="group p-5 bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl border border-purple-100 hover:shadow-lg transition-all duration-200">
+                  <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                      <div class="flex items-center gap-2 mb-2">
+                        <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                        <span class="text-sm font-semibold text-purple-700">Gender</span>
+                      </div>
+                      <p class="text-2xl font-bold text-gray-900">{{ results.gender }}</p>
+                    </div>
+                    <div :class="results.gender === 'Male' ? 'bg-blue-100 text-blue-600' : 'bg-pink-100 text-pink-600'" 
+                         class="p-2 rounded-lg">
+                      <svg v-if="results.gender === 'Male'" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2a7 7 0 00-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 001 1h6a1 1 0 001-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 00-7-7z"/>
+                      </svg>
+                      <svg v-else class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2a7 7 0 00-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 001 1h6a1 1 0 001-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 00-7-7z"/>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Age -->
+                <div class="group p-5 bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl border border-green-100 hover:shadow-lg transition-all duration-200">
+                  <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                      <div class="flex items-center gap-2 mb-2">
+                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span class="text-sm font-semibold text-green-700">Current Age</span>
+                      </div>
+                      <p class="text-2xl font-bold text-gray-900">{{ results.age }} years old</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- State of Birth -->
+                <div class="group p-5 bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl border border-amber-100 hover:shadow-lg transition-all duration-200">
+                  <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                      <div class="flex items-center gap-2 mb-2">
+                        <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                        <span class="text-sm font-semibold text-amber-700">State of Birth</span>
+                      </div>
+                      <p class="text-xl font-bold text-gray-900">{{ results.stateOfBirth }}</p>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Additional Info Banner -->
+              <div class="mt-6 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl border border-indigo-100">
+                <div class="flex items-start gap-3">
+                  <svg class="w-5 h-5 text-indigo-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                  <div>
+                    <p class="text-sm font-semibold text-indigo-900 mb-1">Information Extracted Successfully</p>
+                    <p class="text-xs text-indigo-700">All data has been processed from the MyKad number format (YYMMDD-PB-###G)</p>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </Transition>
+
+        </div>
       </div>
 
-      <!-- Error Message Display -->
-      <div v-if="error" class="mb-4 text-center text-red-600 font-medium">
-        {{ error }}
-      </div>
-
-      <!-- PROCESS Triggers (Buttons) -->
-      <div class="flex flex-col sm:flex-row sm:justify-between">
-        <button
-          @click="processMyKad"
-          class="w-full sm:w-auto bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 mb-2 sm:mb-0"
-        >
-          Process Information
-        </button>
-        <button
-          @click="clearInfo"
-          class="w-full sm:w-auto bg-gray-500 text-white font-bold py-2 px-4 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50"
-        >
-          Clear
-        </button>
-      </div>
-
-      <!-- OUTPUT Section -->
-      <div v-if="results" class="mt-8 border-t border-gray-200 pt-6">
-        <h2 class="text-xl font-semibold text-gray-800 mb-4">Results:</h2>
-        <ul class="space-y-3">
-          <li class="flex justify-between">
-            <span class="font-medium text-gray-600">Birth Date (DD):</span>
-            <span class="text-gray-900 font-mono">{{ results.day }}</span>
-          </li>
-          <li class="flex justify-between">
-            <span class="font-medium text-gray-600">Birth Month (MM):</span>
-            <span class="text-gray-900 font-mono">{{ results.month }}</span>
-          </li>
-          <li class="flex justify-between">
-            <span class="font-medium text-gray-600">Birth Year (YYYY):</span>
-            <span class="text-gray-900 font-mono">{{ results.year }}</span>
-          </li>
-          <li class="flex justify-between">
-            <span class="font-medium text-gray-600">Gender:</span>
-            <span class="text-gray-900 font-mono">{{ results.gender }}</span>
-          </li>
-          <!-- THIS IS THE LINE I FIXED (was classli=) -->
-          <li class="flex justify-between">
-            <span class="font-medium text-gray-600">State Born:</span>
-            <span class="text-gray-900 font-mono">{{ results.stateOfBirth }}</span>
-          </li>
-          <li class="flex justify-between">
-            <span class="font-medium text-gray-600">Age:</span>
-            <span class="text-gray-900 font-mono">{{ results.age }} years old</span>
-          </li>
-        </ul>
+      <!-- Footer Info -->
+      <div class="mt-6 text-center">
+        <p class="text-sm text-gray-600">
+          <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+          </svg>
+          Your data is processed locally and never stored
+        </p>
       </div>
 
     </div>
@@ -82,14 +220,11 @@
 import { ref } from 'vue';
 
 // --- STATE ---
-// `ref` makes these reactive. .value is used to access them in the script.
 const myKadNumber = ref('');
 const results = ref<MyKadInfo | null>(null);
 const error = ref('');
 
 // --- CONSTANTS & TYPES ---
-
-// This map stores the state codes from the MyKad (digits 7 and 8)
 const myKadStateMap: { [key: string]: string } = {
   '01': 'Johor', '21': 'Johor', '22': 'Johor', '23': 'Johor', '24': 'Johor',
   '02': 'Kedah', '25': 'Kedah', '26': 'Kedah', '27': 'Kedah',
@@ -110,7 +245,6 @@ const myKadStateMap: { [key: string]: string } = {
   '82': 'Negeri Tidak Diketahui (Unknown)',
 };
 
-// Define the structure for our results object
 interface MyKadInfo {
   day: string;
   month: string;
@@ -121,32 +255,22 @@ interface MyKadInfo {
 }
 
 // --- HELPERS ---
-
-/**
- * Helper function to get the state name from the code.
- */
 function getStateOfBirth(code: string): string {
   return myKadStateMap[code] || 'Unknown Code';
 }
 
-/**
- * Helper function to calculate the full year and age.
- */
 function calculateAge(yy: string, mm: string, dd: string): { fullYear: number, age: number } {
   const birthYear = parseInt(yy);
   const currentYear = new Date().getFullYear();
   const currentYearLastTwo = currentYear % 100;
 
-  // Determine if 19xx or 20xx
   const fullYear = birthYear > currentYearLastTwo 
     ? 1900 + birthYear 
     : 2000 + birthYear;
 
   const today = new Date();
-  // Note: Month is 0-indexed in JavaScript (0 = Jan, 1 = Feb, etc.)
   const birthDate = new Date(fullYear, parseInt(mm) - 1, parseInt(dd));
 
-  // Check for invalid date (e.g., 900230 - Feb 30th)
   if (birthDate.getDate() !== parseInt(dd) || 
       birthDate.getMonth() !== (parseInt(mm) - 1) ||
       birthDate.getFullYear() !== fullYear) {
@@ -155,53 +279,36 @@ function calculateAge(yy: string, mm: string, dd: string): { fullYear: number, a
 
   let age = today.getFullYear() - birthDate.getFullYear();
   
-  // Check if the birthday has passed this year
   const monthDiff = today.getMonth() - birthDate.getMonth();
   if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-    age--; // Subtract 1 if birthday hasn't happened yet
+    age--;
   }
 
   return { fullYear, age };
 }
 
 // --- METHODS ---
-// These functions are automatically available to your template
-/**
- * Main "PROCESS" function.
- * Triggered when the "Process Information" button is clicked.
- */
 function processMyKad() {
-  // 1. Clear previous results and errors
   results.value = null;
   error.value = '';
 
-  // 2. Validate Input
-  const ic = myKadNumber.value.replace(/-/g, ''); // Remove any dashes
+  const ic = myKadNumber.value.replace(/-/g, '');
   if (!/^\d{12}$/.test(ic)) {
     error.value = 'Invalid MyKad. Must be exactly 12 digits.';
     return;
   }
 
-  // 3. --- PROCESS ---
   try {
-    // Extract data based on MyKad format (YYMMDD-PB-###G)
     const yy = ic.substring(0, 2);
     const mm = ic.substring(2, 4);
     const dd = ic.substring(4, 6);
-    const pb = ic.substring(6, 8); // Place of Birth code
-    const genderDigit = parseInt(ic.substring(11, 12)); // Last digit
+    const pb = ic.substring(6, 8);
+    const genderDigit = parseInt(ic.substring(11, 12));
 
-    // Determine State Born
     const stateOfBirth = getStateOfBirth(pb);
-
-    // Determine Gender
     const gender: 'Male' | 'Female' = (genderDigit % 2 === 0) ? 'Female' : 'Male';
-    
-    // Calculate Age
     const { fullYear, age } = calculateAge(yy, mm, dd);
 
-    // 4. --- OUTPUT ---
-    // Store all processed data in the 'results' object
     results.value = {
       day: dd,
       month: mm,
@@ -221,19 +328,9 @@ function processMyKad() {
   }
 }
 
-/**
- * Clears all input and output fields.
- */
 function clearInfo() {
   myKadNumber.value = '';
   results.value = null;
   error.value = '';
 }
 </script>
-
-<style>
-/* You can keep your global styles here */
-body {
-  @apply bg-gray-100;
-}
-</style>
