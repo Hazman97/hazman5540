@@ -1,43 +1,36 @@
 <template>
-  <div class="px-[15%]">
-    <div class="container ">
-      <div class="relative z-20">
-        <div
-          class="absolute w-[800px] h-[500px] bg-blue-500/20 rounded-full top-0 right-0 blur-[100px]"
-        ></div>
-      </div>
-    </div>
-    <div class="flex flex-col z-1 justify-center px-[10%] z-20 relative">
-      <p
-        class="text-teal-300 font-bold uppercase text-6xl dark:text-blue-200 mt-20 text-pretty"
-      >
-        welcome! I'M HAZMAN ADANAN
+  <div class="min-h-screen flex items-center justify-center px-[5%] md:px-[10%] lg:px-[15%] relative overflow-hidden">
+    <!-- Background Elements -->
+    <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-teal-500/10 dark:bg-accent/10 rounded-full blur-[120px] -z-10 animate-pulse"></div>
+    <div class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-500/10 dark:bg-secondary/30 rounded-full blur-[100px] -z-10"></div>
+
+    <div class="flex flex-col justify-center z-10 max-w-4xl">
+      <p class="text-teal-500 dark:text-accent font-mono mb-5 animate-fade-in-down">Hi, my name is</p>
+      
+      <h1 class="text-5xl md:text-7xl font-bold text-slate-800 dark:text-heading mb-4 animate-fade-in-up delay-100">
+        Hazman Adanan.
+      </h1>
+      
+      <h2 class="text-4xl md:text-6xl font-bold text-slate-500 dark:text-text mb-8 animate-fade-in-up delay-200">
+        I build things for the web.
+      </h2>
+
+      <p class="text-slate-600 dark:text-text text-lg md:text-xl max-w-xl mb-12 leading-relaxed animate-fade-in-up delay-300">
+        I'm a Programmer with a strong background in IT Support and Networking. 
+        I combine coding expertise with a deep understanding of infrastructure to build efficient, well-supported software.
       </p>
 
-      <p class="text-slate-600 dark:text-blue-100 text-pretty text-xl mt-5">
-        A Programmer with a Strong Background in IT Support and Networking.
-      </p>
-      <p class="text-slate-600 dark:text-blue-100 text-pretty text-md mt-5">
-        Beyond just coding, I have a strong interest in IT support, desktop
-        support, and networking. My diverse experience ensures that the software
-        I develop is both efficient and well-supported by the underlying
-        infrastructure. I believe in a comprehensive approach to technology,
-        where every piece of the puzzle fits perfectly.
-      </p>
-    </div>
-    <div class="flex justify-center items-center mt-10 gap-10 z-20 relative">
-      <router-link to="/portfolio#contact" class="p-2 rounded-lg">
-      <button
-        class="bg-none dark:text-purple-200 capitalize border font-semibold border-teal-500 py-2 px-4 rounded-full hover:bg-teal-500 hover:text-white dark:hover:text-white dark:hover:bg-teal-500"
-      >
-        Contact Me
-      </button>
-    </router-link>
-      <button @click="downloadResume"
-        class="bg-gradient-to-r text-white dark:bg-gradient-to-r dark:from-teal-700 from-teal-500 to-teal-300 font-semibold dark:text-purple-200 capitalize border border-teal-500 py-2 px-4 rounded-full"
-      >
-        get my resume
-      </button>
+      <div class="flex flex-wrap gap-6 animate-fade-in-up delay-400">
+        <router-link to="/portfolio#contact">
+          <button class="px-8 py-4 border-2 border-teal-500 text-teal-500 dark:text-accent dark:border-accent rounded hover:bg-teal-500/10 dark:hover:bg-accent/10 transition-all duration-300 font-mono text-sm">
+            Contact Me
+          </button>
+        </router-link>
+        
+        <button @click="downloadResume" class="px-8 py-4 bg-teal-500 text-white dark:bg-accent dark:text-primary rounded hover:bg-teal-600 dark:hover:bg-accent/90 transition-all duration-300 font-mono text-sm font-bold shadow-lg hover:shadow-xl hover:-translate-y-1">
+          Get My Resume
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -45,19 +38,52 @@
 <script>
 export default {
   name: "Home",
-  // Your component's logic goes here
-
-
   methods: {
-    // Your methods go here
     downloadResume() {
-  const link = document.createElement('a');
-  link.href = '/Hazman_resume_OCT2025.pdf'; // Path to the file in the public directory
-  link.download = 'Hazman_resume_OCT2025';
-  link.click();
-}
+      const link = document.createElement('a');
+      link.href = '/Hazman_resume_OCT2025.pdf';
+      link.download = 'Hazman_resume_OCT2025';
+      link.click();
+    }
   },
 };
-
-
 </script>
+
+<style scoped>
+.animate-fade-in-down {
+  animation: fadeInDown 0.8s ease-out forwards;
+  opacity: 0;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s ease-out forwards;
+  opacity: 0;
+}
+
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+</style>
