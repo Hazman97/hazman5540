@@ -306,7 +306,11 @@ export default {
       return this.defaultSiblings;
     },
     displaySiblings() {
-      // Triple the siblings for infinite scroll effect
+      // Only triple if using default data (for infinite scroll effect)
+      // If using submitted wishes, show each once
+      if (this.submittedWishes.length > 0) {
+        return this.siblings;
+      }
       return [...this.siblings, ...this.siblings, ...this.siblings];
     },
   },
