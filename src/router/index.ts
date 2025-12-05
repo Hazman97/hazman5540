@@ -9,6 +9,8 @@ import organizationChart from "../views/project/organizationchart.vue";
 import NotFound from "../views/notfoundpage/notfoundpage.vue";
 import todolist from "@/views/project/todolist.vue";
 import PostImage from "@/views/photo_collection/PostImage.vue";
+import BirthdayMaa from "@/views/birthday/BirthdayMaa.vue";
+import SubmitWish from "@/views/birthday/SubmitWish.vue";
 import Home from "../views/photocollection/HomeCollection.vue";
 import CountryView from "../views/photocollection/CountryView.vue";
 import LocationView from "../views/photocollection/LocationView.vue";
@@ -24,6 +26,16 @@ const routes = [
   },
   { path: "/upload", name: "UploadView", component: UploadView },
   // { path: "/upload", name: "Upload", component: PostImage },
+  {
+    path: "/birthday-maa",
+    name: "BirthdayMaa",
+    component: BirthdayMaa,
+  },
+  {
+    path: "/birthday-maa/submit",
+    name: "SubmitWish",
+    component: SubmitWish,
+  },
   {
     path: "/",
     name: "todolist",
