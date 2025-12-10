@@ -11,6 +11,11 @@ import todolist from "@/views/project/todolist.vue";
 import PostImage from "@/views/photo_collection/PostImage.vue";
 import BirthdayMaa from "@/views/birthday/BirthdayMaa.vue";
 import SubmitWish from "@/views/birthday/SubmitWish.vue";
+// New multi-user birthday components
+import BirthdayCreate from "@/views/birthday/BirthdayCreate.vue";
+import BirthdayView from "@/views/birthday/BirthdayView.vue";
+import BirthdayManage from "@/views/birthday/BirthdayManage.vue";
+import SubmitWishPublic from "@/views/birthday/SubmitWishPublic.vue";
 import Home from "../views/photocollection/HomeCollection.vue";
 import CountryView from "../views/photocollection/CountryView.vue";
 import LocationView from "../views/photocollection/LocationView.vue";
@@ -84,6 +89,27 @@ const routes = [
       default: about, // This is the default view
       nav: Nav, // This is the named view
     },
+  },
+  // === Multi-User Birthday System Routes ===
+  {
+    path: "/birthday/create",
+    name: "BirthdayCreate",
+    component: BirthdayCreate,
+  },
+  {
+    path: "/b/:slug",
+    name: "BirthdayView",
+    component: BirthdayView,
+  },
+  {
+    path: "/b/:slug/wish",
+    name: "BirthdayWish",
+    component: SubmitWishPublic,
+  },
+  {
+    path: "/birthday/manage/:id",
+    name: "BirthdayManage",
+    component: BirthdayManage,
   },
   {
     path: "/:pathMatch(.*)*", // Catch-all route
