@@ -16,6 +16,7 @@ import BirthdayCreate from "@/views/birthday/BirthdayCreate.vue";
 import BirthdayView from "@/views/birthday/BirthdayView.vue";
 import BirthdayManage from "@/views/birthday/BirthdayManage.vue";
 import SubmitWishPublic from "@/views/birthday/SubmitWishPublic.vue";
+import BirthdayAdmin from "@/views/birthday/BirthdayAdmin.vue";
 import Home from "../views/photocollection/HomeCollection.vue";
 import CountryView from "../views/photocollection/CountryView.vue";
 import LocationView from "../views/photocollection/LocationView.vue";
@@ -110,6 +111,11 @@ const routes = [
     path: "/birthday/manage/:id",
     name: "BirthdayManage",
     component: BirthdayManage,
+  },
+  {
+    path: "/birthday/admin",
+    name: "BirthdayAdmin",
+    component: BirthdayAdmin,
   },
   {
     path: "/:pathMatch(.*)*", // Catch-all route

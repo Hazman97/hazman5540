@@ -349,28 +349,49 @@
                 </div>
               </div>
 
+              <!-- Font Color -->
+              <div class="form-group">
+                <label class="form-label">
+                  <span class="label-icon">🖌️</span>
+                  Title Color
+                </label>
+                <div class="font-colors">
+                  <button
+                    v-for="color in fontColors"
+                    :key="color.id"
+                    type="button"
+                    class="font-color-btn"
+                    :class="{ selected: customSettings.fontColor === color.id }"
+                    :style="{ background: color.value }"
+                    @click="customSettings.fontColor = color.id"
+                  >
+                    <span v-if="customSettings.fontColor === color.id">✓</span>
+                  </button>
+                </div>
+              </div>
+
               <!-- Effects Toggle -->
               <div class="form-group">
                 <label class="form-label">
                   <span class="label-icon">✨</span>
                   Effects
                 </label>
-                <div class="effect-toggles">
-                  <label class="effect-toggle">
+                <div class="effect-grid">
+                  <label
+                    v-for="effect in effectOptions"
+                    :key="effect.id"
+                    class="effect-card"
+                    :class="{
+                      selected: customSettings.effects.includes(effect.id),
+                    }"
+                  >
                     <input
                       type="checkbox"
-                      v-model="customSettings.showParticles"
+                      :value="effect.id"
+                      v-model="customSettings.effects"
                     />
-                    <span class="toggle-box"></span>
-                    <span>⭐ Stars</span>
-                  </label>
-                  <label class="effect-toggle">
-                    <input
-                      type="checkbox"
-                      v-model="customSettings.showHearts"
-                    />
-                    <span class="toggle-box"></span>
-                    <span>💕 Hearts</span>
+                    <span class="effect-icon">{{ effect.icon }}</span>
+                    <span class="effect-name">{{ effect.name }}</span>
                   </label>
                 </div>
               </div>
@@ -380,11 +401,48 @@
             <div class="preview-panel">
               <div class="preview-label">📱 Live Preview</div>
               <div class="preview-screen" :style="previewStyles">
-                <div class="preview-stars" v-if="customSettings.showParticles">
-                  <span v-for="i in 8" :key="i" class="preview-star">✦</span>
+                <div
+                  class="preview-stars"
+                  v-if="customSettings.effects.includes('stars')"
+                >
+                  <span v-for="i in 8" :key="'star' + i" class="preview-star"
+                    >✦</span
+                  >
                 </div>
-                <div class="preview-hearts" v-if="customSettings.showHearts">
-                  <span v-for="i in 4" :key="i" class="preview-heart">💕</span>
+                <div
+                  class="preview-hearts"
+                  v-if="customSettings.effects.includes('hearts')"
+                >
+                  <span v-for="i in 4" :key="'heart' + i" class="preview-heart"
+                    >💕</span
+                  >
+                </div>
+                <div
+                  class="preview-confetti"
+                  v-if="customSettings.effects.includes('confetti')"
+                >
+                  <span v-for="i in 6" :key="'conf' + i" class="preview-conf"
+                    >🎊</span
+                  >
+                </div>
+                <div
+                  class="preview-balloons"
+                  v-if="customSettings.effects.includes('balloons')"
+                >
+                  <span v-for="i in 3" :key="'bal' + i" class="preview-balloon"
+                    >🎈</span
+                  >
+                </div>
+                <div
+                  class="preview-sparkles"
+                  v-if="customSettings.effects.includes('sparkles')"
+                >
+                  <span
+                    v-for="i in 5"
+                    :key="'spark' + i"
+                    class="preview-sparkle"
+                    >✨</span
+                  >
                 </div>
                 <div class="preview-content">
                   <div class="preview-icon">🎁</div>
@@ -472,8 +530,8 @@ export default {
         titleFont: "playfair",
         titleSize: "large",
         colorPreset: "template",
-        showParticles: true,
-        showHearts: true,
+        fontColor: "white",
+        effects: ["stars", "hearts"],
       },
 
       stepTitles: [
@@ -508,6 +566,26 @@ export default {
         { id: "xlarge", label: "XL" },
       ],
 
+      fontColors: [
+        { id: "white", value: "#ffffff" },
+        { id: "gold", value: "#fbbf24" },
+        { id: "pink", value: "#f472b6" },
+        { id: "lavender", value: "#c4b5fd" },
+        { id: "cyan", value: "#22d3ee" },
+        { id: "coral", value: "#fb7185" },
+        { id: "mint", value: "#6ee7b7" },
+        { id: "peach", value: "#fcd5b4" },
+      ],
+
+      effectOptions: [
+        { id: "stars", icon: "⭐", name: "Stars" },
+        { id: "hearts", icon: "💕", name: "Hearts" },
+        { id: "confetti", icon: "🎊", name: "Confetti" },
+        { id: "balloons", icon: "🎈", name: "Balloons" },
+        { id: "sparkles", icon: "✨", name: "Sparkles" },
+        { id: "snow", icon: "❄️", name: "Snow" },
+      ],
+
       colorPresets: [
         {
           id: "template",
@@ -538,6 +616,21 @@ export default {
           id: "gold",
           icon: "✨",
           gradient: "linear-gradient(135deg, #fbbf24, #fcd34d)",
+        },
+        {
+          id: "forest",
+          icon: "🌲",
+          gradient: "linear-gradient(135deg, #059669, #34d399)",
+        },
+        {
+          id: "cherry",
+          icon: "🍒",
+          gradient: "linear-gradient(135deg, #dc2626, #f87171)",
+        },
+        {
+          id: "midnight",
+          icon: "🌙",
+          gradient: "linear-gradient(135deg, #1e1b4b, #4338ca)",
         },
       ],
 
@@ -620,6 +713,9 @@ export default {
         ocean: "linear-gradient(135deg, #0c4a6e, #0284c7)",
         sunset: "linear-gradient(135deg, #7c2d12, #ea580c)",
         gold: "linear-gradient(135deg, #713f12, #b45309)",
+        forest: "linear-gradient(135deg, #064e3b, #059669)",
+        cherry: "linear-gradient(135deg, #7f1d1d, #dc2626)",
+        midnight: "linear-gradient(135deg, #0f172a, #1e3a8a)",
       };
 
       let bg = templateGradients[this.template] || templateGradients.rose;
@@ -644,10 +740,22 @@ export default {
         xlarge: "1.5rem",
       };
 
+      const fontColorValues = {
+        white: "#ffffff",
+        gold: "#fbbf24",
+        pink: "#f472b6",
+        lavender: "#c4b5fd",
+        cyan: "#22d3ee",
+        coral: "#fb7185",
+        mint: "#6ee7b7",
+        peach: "#fcd5b4",
+      };
+
       return {
         fontFamily:
           fontFamilies[this.customSettings.titleFont] || fontFamilies.playfair,
         fontSize: fontSizes[this.customSettings.titleSize] || fontSizes.large,
+        color: fontColorValues[this.customSettings.fontColor] || "#ffffff",
       };
     },
   },
@@ -881,8 +989,8 @@ export default {
         titleFont: "playfair",
         titleSize: "large",
         colorPreset: "template",
-        showParticles: true,
-        showHearts: true,
+        fontColor: "white",
+        effects: ["stars", "hearts"],
       };
       this.created = false;
       this.createdPageId = null;
@@ -1836,52 +1944,77 @@ export default {
   font-size: 1.2rem;
 }
 
-/* Effect Toggles */
-.effect-toggles {
+/* Font Colors */
+.font-colors {
   display: flex;
-  gap: 1rem;
+  gap: 0.4rem;
+  flex-wrap: wrap;
 }
 
-.effect-toggle {
+.font-color-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  color: rgba(255, 255, 255, 0.8);
+  justify-content: center;
+  color: rgba(0, 0, 0, 0.5);
   font-size: 0.9rem;
+  font-weight: bold;
+  transition: all 0.2s;
 }
 
-.effect-toggle input {
+.font-color-btn:hover {
+  transform: scale(1.1);
+}
+
+.font-color-btn.selected {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+}
+
+/* Effect Grid */
+.effect-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.effect-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.6rem 0.4rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.6rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.effect-card:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.effect-card.selected {
+  border-color: #8b5cf6;
+  background: rgba(139, 92, 246, 0.15);
+}
+
+.effect-card input {
   display: none;
 }
 
-.toggle-box {
-  width: 40px;
-  height: 22px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 11px;
-  position: relative;
-  transition: all 0.3s;
+.effect-icon {
+  font-size: 1.2rem;
 }
 
-.toggle-box::after {
-  content: "";
-  position: absolute;
-  width: 18px;
-  height: 18px;
-  background: white;
-  border-radius: 50%;
-  top: 2px;
-  left: 2px;
-  transition: all 0.3s;
-}
-
-.effect-toggle input:checked + .toggle-box {
-  background: #8b5cf6;
-}
-
-.effect-toggle input:checked + .toggle-box::after {
-  left: 20px;
+.effect-name {
+  font-size: 0.6rem;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 /* Live Preview Panel */
@@ -2064,6 +2197,152 @@ export default {
   100% {
     bottom: 100%;
     opacity: 0;
+  }
+}
+
+/* Preview Confetti */
+.preview-confetti {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.preview-conf {
+  position: absolute;
+  font-size: 0.7rem;
+  animation: previewConfettiFall 3s ease-in-out infinite;
+}
+
+.preview-conf:nth-child(1) {
+  left: 10%;
+  animation-delay: 0s;
+}
+.preview-conf:nth-child(2) {
+  left: 25%;
+  animation-delay: 0.5s;
+}
+.preview-conf:nth-child(3) {
+  left: 45%;
+  animation-delay: 1s;
+}
+.preview-conf:nth-child(4) {
+  left: 60%;
+  animation-delay: 1.5s;
+}
+.preview-conf:nth-child(5) {
+  left: 75%;
+  animation-delay: 2s;
+}
+.preview-conf:nth-child(6) {
+  left: 90%;
+  animation-delay: 2.5s;
+}
+
+@keyframes previewConfettiFall {
+  0% {
+    top: -10%;
+    opacity: 1;
+    transform: rotate(0deg);
+  }
+  100% {
+    top: 110%;
+    opacity: 0.5;
+    transform: rotate(360deg);
+  }
+}
+
+/* Preview Balloons */
+.preview-balloons {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.preview-balloon {
+  position: absolute;
+  font-size: 0.9rem;
+  animation: previewBalloonFloat 5s ease-in-out infinite;
+}
+
+.preview-balloon:nth-child(1) {
+  left: 15%;
+  animation-delay: 0s;
+}
+.preview-balloon:nth-child(2) {
+  left: 50%;
+  animation-delay: 1.5s;
+}
+.preview-balloon:nth-child(3) {
+  left: 80%;
+  animation-delay: 3s;
+}
+
+@keyframes previewBalloonFloat {
+  0% {
+    bottom: -15%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.9;
+  }
+  90% {
+    opacity: 0.9;
+  }
+  100% {
+    bottom: 105%;
+    opacity: 0;
+  }
+}
+
+/* Preview Sparkles */
+.preview-sparkles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.preview-sparkle {
+  position: absolute;
+  font-size: 0.5rem;
+  animation: previewSparklePop 2s ease-in-out infinite;
+}
+
+.preview-sparkle:nth-child(1) {
+  top: 20%;
+  left: 20%;
+  animation-delay: 0s;
+}
+.preview-sparkle:nth-child(2) {
+  top: 40%;
+  right: 15%;
+  animation-delay: 0.4s;
+}
+.preview-sparkle:nth-child(3) {
+  top: 60%;
+  left: 25%;
+  animation-delay: 0.8s;
+}
+.preview-sparkle:nth-child(4) {
+  top: 75%;
+  right: 25%;
+  animation-delay: 1.2s;
+}
+.preview-sparkle:nth-child(5) {
+  top: 30%;
+  left: 70%;
+  animation-delay: 1.6s;
+}
+
+@keyframes previewSparklePop {
+  0%,
+  100% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 1;
   }
 }
 </style>

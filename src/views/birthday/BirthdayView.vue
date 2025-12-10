@@ -59,7 +59,9 @@
               <div class="gift-glow"></div>
             </div>
 
-            <h1 class="welcome-title">{{ page.title }}</h1>
+            <h1 class="welcome-title" :style="customTitleStyles">
+              {{ page.title }}
+            </h1>
             <p v-if="page.subtitle" class="welcome-subtitle">
               {{ page.subtitle }}
             </p>
@@ -98,7 +100,9 @@
             <div class="edition-badge">
               <span>✨ {{ templateLabel }} ✨</span>
             </div>
-            <h1 class="hero-title">{{ page.title }}</h1>
+            <h1 class="hero-title" :style="customTitleStyles">
+              {{ page.title }}
+            </h1>
             <p class="hero-subtitle">For {{ page.person_name }}</p>
           </div>
         </section>
@@ -241,6 +245,53 @@ export default {
       // If false, mute video and play background music instead
       const mute = this.page.use_video_sound ? 0 : 1;
       return `https://www.youtube.com/embed/${this.page.memories_video_id}?autoplay=1&mute=${mute}&loop=1&playlist=${this.page.memories_video_id}&rel=0&modestbranding=1`;
+    },
+    customSettings() {
+      // Get settings from database, with defaults
+      const defaults = {
+        titleFont: "playfair",
+        titleSize: "large",
+        colorPreset: "template",
+        fontColor: "white",
+        effects: ["stars", "hearts"],
+      };
+      return { ...defaults, ...(this.page?.settings || {}) };
+    },
+    customTitleStyles() {
+      const fontFamilies = {
+        playfair: '"Playfair Display", serif',
+        dancing: '"Dancing Script", cursive',
+        poppins: '"Poppins", sans-serif',
+        montserrat: '"Montserrat", sans-serif',
+      };
+      const fontSizes = {
+        small: "2rem",
+        medium: "2.5rem",
+        large: "3rem",
+        xlarge: "3.5rem",
+      };
+      const fontColors = {
+        white: "#ffffff",
+        gold: "#fbbf24",
+        pink: "#f472b6",
+        lavender: "#c4b5fd",
+        cyan: "#22d3ee",
+        coral: "#fb7185",
+        mint: "#6ee7b7",
+        peach: "#fcd5b4",
+      };
+      return {
+        fontFamily:
+          fontFamilies[this.customSettings.titleFont] || fontFamilies.playfair,
+        fontSize: fontSizes[this.customSettings.titleSize] || fontSizes.large,
+        color: fontColors[this.customSettings.fontColor] || "#ffffff",
+      };
+    },
+    hasEffect() {
+      return (effect) => {
+        const effects = this.customSettings.effects || [];
+        return effects.includes(effect);
+      };
     },
   },
   async mounted() {
@@ -437,7 +488,7 @@ export default {
 </script>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;600;700&family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;500;600&family=Montserrat:wght@400;600;700&display=swap");
 
 /* ===== BASE STYLES ===== */
 .birthday-page {
