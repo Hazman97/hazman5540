@@ -69,7 +69,7 @@
         <!-- Progress Steps -->
         <div class="progress-bar">
           <div
-            v-for="s in 3"
+            v-for="s in 4"
             :key="s"
             class="progress-step"
             :class="{ active: step >= s, current: step === s }"
@@ -273,6 +273,134 @@
           </div>
         </div>
 
+        <!-- Step 4: Customize Look -->
+        <div v-if="step === 4" class="step-content customize-step">
+          <div class="customize-layout">
+            <!-- Customization Controls -->
+            <div class="customize-controls">
+              <!-- Font Selection -->
+              <div class="form-group">
+                <label class="form-label">
+                  <span class="label-icon">🔤</span>
+                  Title Font
+                </label>
+                <div class="font-options">
+                  <label
+                    v-for="font in fontOptions"
+                    :key="font.id"
+                    class="font-option"
+                    :class="{ selected: customSettings.titleFont === font.id }"
+                  >
+                    <input
+                      type="radio"
+                      v-model="customSettings.titleFont"
+                      :value="font.id"
+                    />
+                    <span
+                      class="font-preview"
+                      :style="{ fontFamily: font.family }"
+                      >Aa</span
+                    >
+                    <span class="font-name">{{ font.name }}</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Title Size -->
+              <div class="form-group">
+                <label class="form-label">
+                  <span class="label-icon">📏</span>
+                  Title Size
+                </label>
+                <div class="size-options">
+                  <button
+                    v-for="size in sizeOptions"
+                    :key="size.id"
+                    type="button"
+                    class="size-btn"
+                    :class="{ selected: customSettings.titleSize === size.id }"
+                    @click="customSettings.titleSize = size.id"
+                  >
+                    {{ size.label }}
+                  </button>
+                </div>
+              </div>
+
+              <!-- Color Preset -->
+              <div class="form-group">
+                <label class="form-label">
+                  <span class="label-icon">🎨</span>
+                  Color Theme
+                </label>
+                <div class="color-presets">
+                  <button
+                    v-for="preset in colorPresets"
+                    :key="preset.id"
+                    type="button"
+                    class="color-preset"
+                    :class="{
+                      selected: customSettings.colorPreset === preset.id,
+                    }"
+                    :style="{ background: preset.gradient }"
+                    @click="customSettings.colorPreset = preset.id"
+                  >
+                    <span class="preset-icon">{{ preset.icon }}</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Effects Toggle -->
+              <div class="form-group">
+                <label class="form-label">
+                  <span class="label-icon">✨</span>
+                  Effects
+                </label>
+                <div class="effect-toggles">
+                  <label class="effect-toggle">
+                    <input
+                      type="checkbox"
+                      v-model="customSettings.showParticles"
+                    />
+                    <span class="toggle-box"></span>
+                    <span>⭐ Stars</span>
+                  </label>
+                  <label class="effect-toggle">
+                    <input
+                      type="checkbox"
+                      v-model="customSettings.showHearts"
+                    />
+                    <span class="toggle-box"></span>
+                    <span>💕 Hearts</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Live Preview -->
+            <div class="preview-panel">
+              <div class="preview-label">📱 Live Preview</div>
+              <div class="preview-screen" :style="previewStyles">
+                <div class="preview-stars" v-if="customSettings.showParticles">
+                  <span v-for="i in 8" :key="i" class="preview-star">✦</span>
+                </div>
+                <div class="preview-hearts" v-if="customSettings.showHearts">
+                  <span v-for="i in 4" :key="i" class="preview-heart">💕</span>
+                </div>
+                <div class="preview-content">
+                  <div class="preview-icon">🎁</div>
+                  <h3 class="preview-title" :style="previewTitleStyles">
+                    {{ title || `Happy Birthday ${personName || "Name"}!` }}
+                  </h3>
+                  <p class="preview-subtitle" v-if="subtitle">{{ subtitle }}</p>
+                  <div class="preview-template-badge">
+                    {{ getTemplateLabel }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Navigation Buttons -->
         <div class="nav-buttons">
           <button
@@ -284,7 +412,7 @@
             ← Back
           </button>
           <button
-            v-if="step < 3"
+            v-if="step < 4"
             @click="nextStep"
             class="next-btn"
             :disabled="!canProceed"
@@ -292,7 +420,7 @@
             Next →
           </button>
           <button
-            v-if="step === 3"
+            v-if="step === 4"
             @click="createPage"
             class="create-btn"
             :disabled="isSubmitting"
@@ -339,17 +467,79 @@ export default {
       ownerToken: null,
       copied: null,
 
+      // Custom settings for Step 4
+      customSettings: {
+        titleFont: "playfair",
+        titleSize: "large",
+        colorPreset: "template",
+        showParticles: true,
+        showHearts: true,
+      },
+
       stepTitles: [
         "Who's the Birthday Star?",
         "Choose a Template",
-        "Customize Your Page",
+        "Add Media & Settings",
+        "Customize Look",
       ],
       stepDescriptions: [
         "Enter the birthday person's details",
         "Pick a beautiful design for the page",
-        "Add music, images, and settings",
+        "Add music, video, and images",
+        "Fine-tune fonts, colors & effects",
       ],
-      stepIcons: ["🌟", "🎨", "⚙️"],
+      stepIcons: ["🌟", "🎨", "🎵", "✨"],
+
+      fontOptions: [
+        {
+          id: "playfair",
+          name: "Elegant",
+          family: '"Playfair Display", serif',
+        },
+        { id: "dancing", name: "Script", family: '"Dancing Script", cursive' },
+        { id: "poppins", name: "Modern", family: '"Poppins", sans-serif' },
+        { id: "montserrat", name: "Bold", family: '"Montserrat", sans-serif' },
+      ],
+
+      sizeOptions: [
+        { id: "small", label: "S" },
+        { id: "medium", label: "M" },
+        { id: "large", label: "L" },
+        { id: "xlarge", label: "XL" },
+      ],
+
+      colorPresets: [
+        {
+          id: "template",
+          icon: "🎭",
+          gradient: "linear-gradient(135deg, #6b7280, #9ca3af)",
+        },
+        {
+          id: "blush",
+          icon: "🌸",
+          gradient: "linear-gradient(135deg, #ec4899, #f472b6)",
+        },
+        {
+          id: "violet",
+          icon: "💜",
+          gradient: "linear-gradient(135deg, #8b5cf6, #a78bfa)",
+        },
+        {
+          id: "ocean",
+          icon: "🌊",
+          gradient: "linear-gradient(135deg, #0ea5e9, #38bdf8)",
+        },
+        {
+          id: "sunset",
+          icon: "🌅",
+          gradient: "linear-gradient(135deg, #f97316, #fb923c)",
+        },
+        {
+          id: "gold",
+          icon: "✨",
+          gradient: "linear-gradient(135deg, #fbbf24, #fcd34d)",
+        },
+      ],
 
       templates: [
         {
@@ -409,6 +599,56 @@ export default {
     },
     manageLink() {
       return `${window.location.origin}/birthday/manage/${this.createdPageId}?token=${this.ownerToken}`;
+    },
+    getTemplateLabel() {
+      const t = this.templates.find((t) => t.id === this.template);
+      return t ? t.name : "Custom";
+    },
+    previewStyles() {
+      const templateGradients = {
+        rose: "linear-gradient(135deg, #4a0d2f, #6b1040)",
+        party: "linear-gradient(135deg, #1a1a2e, #302b63)",
+        minimal: "linear-gradient(135deg, #2d3436, #4b5563)",
+        ocean: "linear-gradient(135deg, #0c2461, #1e3a5f)",
+        sunset: "linear-gradient(135deg, #450a0a, #c73659)",
+        galaxy: "linear-gradient(135deg, #0f0f23, #5b21b6)",
+      };
+
+      const presetOverrides = {
+        blush: "linear-gradient(135deg, #831843, #be185d)",
+        violet: "linear-gradient(135deg, #2e1065, #6d28d9)",
+        ocean: "linear-gradient(135deg, #0c4a6e, #0284c7)",
+        sunset: "linear-gradient(135deg, #7c2d12, #ea580c)",
+        gold: "linear-gradient(135deg, #713f12, #b45309)",
+      };
+
+      let bg = templateGradients[this.template] || templateGradients.rose;
+      if (this.customSettings.colorPreset !== "template") {
+        bg = presetOverrides[this.customSettings.colorPreset] || bg;
+      }
+
+      return { background: bg };
+    },
+    previewTitleStyles() {
+      const fontFamilies = {
+        playfair: '"Playfair Display", serif',
+        dancing: '"Dancing Script", cursive',
+        poppins: '"Poppins", sans-serif',
+        montserrat: '"Montserrat", sans-serif',
+      };
+
+      const fontSizes = {
+        small: "0.9rem",
+        medium: "1.1rem",
+        large: "1.3rem",
+        xlarge: "1.5rem",
+      };
+
+      return {
+        fontFamily:
+          fontFamilies[this.customSettings.titleFont] || fontFamilies.playfair,
+        fontSize: fontSizes[this.customSettings.titleSize] || fontSizes.large,
+      };
     },
   },
   methods: {
@@ -540,6 +780,7 @@ export default {
               youtube_start_time: this.youtubeStartTime || 0,
               memories_video_id: this.memoriesVideoId.trim() || null,
               use_video_sound: this.useVideoSound,
+              settings: this.customSettings,
               wishes_require_approval: this.wishesRequireApproval,
             },
           ])
@@ -567,6 +808,7 @@ export default {
                   youtube_start_time: this.youtubeStartTime || 0,
                   memories_video_id: this.memoriesVideoId.trim() || null,
                   use_video_sound: this.useVideoSound,
+                  settings: this.customSettings,
                   wishes_require_approval: this.wishesRequireApproval,
                 },
               ])
@@ -635,6 +877,13 @@ export default {
       this.heroFile = null;
       this.heroPreview = null;
       this.wishesRequireApproval = false;
+      this.customSettings = {
+        titleFont: "playfair",
+        titleSize: "large",
+        colorPreset: "template",
+        showParticles: true,
+        showHearts: true,
+      };
       this.created = false;
       this.createdPageId = null;
       this.createdSlug = null;
@@ -645,7 +894,7 @@ export default {
 </script>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;600;700&family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;500;600&family=Montserrat:wght@400;600;700&display=swap");
 
 .create-page {
   min-height: 100vh;
@@ -1460,5 +1709,361 @@ export default {
   background: rgba(0, 0, 0, 0.3);
   padding: 0.2rem 0.5rem;
   border-radius: 0.3rem;
+}
+
+/* ===== STEP 4: CUSTOMIZE LOOK ===== */
+.customize-step {
+  max-width: 100%;
+}
+
+.customize-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+@media (max-width: 700px) {
+  .customize-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.customize-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+/* Font Options */
+.font-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.6rem;
+}
+
+.font-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.8rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.font-option:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.font-option.selected {
+  border-color: #8b5cf6;
+  background: rgba(139, 92, 246, 0.15);
+}
+
+.font-option input {
+  display: none;
+}
+
+.font-preview {
+  font-size: 1.5rem;
+  color: white;
+}
+
+.font-name {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Size Options */
+.size-options {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.size-btn {
+  flex: 1;
+  padding: 0.6rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.size-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.size-btn.selected {
+  border-color: #8b5cf6;
+  background: rgba(139, 92, 246, 0.2);
+}
+
+/* Color Presets */
+.color-presets {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.color-preset {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.color-preset:hover {
+  transform: scale(1.1);
+}
+
+.color-preset.selected {
+  border-color: white;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+}
+
+.preset-icon {
+  font-size: 1.2rem;
+}
+
+/* Effect Toggles */
+.effect-toggles {
+  display: flex;
+  gap: 1rem;
+}
+
+.effect-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+}
+
+.effect-toggle input {
+  display: none;
+}
+
+.toggle-box {
+  width: 40px;
+  height: 22px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 11px;
+  position: relative;
+  transition: all 0.3s;
+}
+
+.toggle-box::after {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  background: white;
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  transition: all 0.3s;
+}
+
+.effect-toggle input:checked + .toggle-box {
+  background: #8b5cf6;
+}
+
+.effect-toggle input:checked + .toggle-box::after {
+  left: 20px;
+}
+
+/* Live Preview Panel */
+.preview-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.preview-label {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.8rem;
+  margin-bottom: 0.8rem;
+}
+
+.preview-screen {
+  width: 180px;
+  height: 320px;
+  border-radius: 1.5rem;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.preview-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  text-align: center;
+  z-index: 10;
+}
+
+.preview-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  animation: previewBounce 2s ease-in-out infinite;
+}
+
+@keyframes previewBounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.preview-title {
+  color: white;
+  margin: 0 0 0.3rem;
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+.preview-subtitle {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.6rem;
+  margin: 0;
+}
+
+.preview-template-badge {
+  margin-top: 0.8rem;
+  font-size: 0.55rem;
+  color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.2rem 0.5rem;
+  border-radius: 100px;
+}
+
+.preview-stars {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.preview-star {
+  position: absolute;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.6rem;
+  animation: previewTwinkle 2s ease-in-out infinite;
+}
+
+.preview-star:nth-child(1) {
+  top: 10%;
+  left: 15%;
+  animation-delay: 0s;
+}
+.preview-star:nth-child(2) {
+  top: 20%;
+  right: 20%;
+  animation-delay: 0.3s;
+}
+.preview-star:nth-child(3) {
+  top: 60%;
+  left: 10%;
+  animation-delay: 0.6s;
+}
+.preview-star:nth-child(4) {
+  top: 80%;
+  right: 15%;
+  animation-delay: 0.9s;
+}
+.preview-star:nth-child(5) {
+  top: 40%;
+  left: 80%;
+  animation-delay: 1.2s;
+}
+.preview-star:nth-child(6) {
+  top: 70%;
+  left: 25%;
+  animation-delay: 1.5s;
+}
+.preview-star:nth-child(7) {
+  top: 15%;
+  left: 70%;
+  animation-delay: 1.8s;
+}
+.preview-star:nth-child(8) {
+  top: 85%;
+  right: 30%;
+  animation-delay: 2.1s;
+}
+
+@keyframes previewTwinkle {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.preview-hearts {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.preview-heart {
+  position: absolute;
+  font-size: 0.7rem;
+  animation: previewFloat 4s ease-in-out infinite;
+}
+
+.preview-heart:nth-child(1) {
+  left: 10%;
+  animation-delay: 0s;
+}
+.preview-heart:nth-child(2) {
+  left: 30%;
+  animation-delay: 1s;
+}
+.preview-heart:nth-child(3) {
+  left: 60%;
+  animation-delay: 2s;
+}
+.preview-heart:nth-child(4) {
+  left: 80%;
+  animation-delay: 3s;
+}
+
+@keyframes previewFloat {
+  0% {
+    bottom: -10%;
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.7;
+  }
+  80% {
+    opacity: 0.7;
+  }
+  100% {
+    bottom: 100%;
+    opacity: 0;
+  }
 }
 </style>
