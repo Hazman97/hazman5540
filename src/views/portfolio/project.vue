@@ -319,8 +319,7 @@ export default {
       ],
       standardProjects: [
         {
-          image:
-            "https://lh3.googleusercontent.com/pw/AP1GczOM_4ZSYKloc9t-F4PaoW0b9f9hXPtyxbLPoKOUgHkAgweKt96a989MlFlreeZyahfJQxQR5XTOFvyZseXKr6hnotvGl39nvVJ90diEya0Dc5k3bl5u0KZxUist_uFRG9ybMFqtGrQkSY60tDMfaRRRAg=w651-h869-s-no-gm?authuser=3",
+          image: "/img/photo_collection.png",
           title: "Photo Collection",
           description:
             "I enjoy photography, traveling, and creating wonderful memories. A curated collection of my best shots from various locations.",
@@ -351,7 +350,7 @@ export default {
           title: "Organization Chart",
           description:
             "Interactive organization chart visualization tool helping teams understand structure and hierarchy.",
-          url: "#",
+          url: "/org-demo",
           tech: ["Vue.js", "D3.js", "Tailwind"],
         },
         {

@@ -5,7 +5,6 @@ import Nav from "../views/portfolio/header.vue"; // Import the Nav component
 import Contact from "../views/portfolio/contact.vue"; // Import the Contact component
 import about from "../views/portfolio/about.vue"; // Import the About component
 import project from "../views/portfolio/project.vue"; // Import the Project component4
-import organizationChart from "../views/project/organizationchart.vue";
 import NotFound from "../views/notfoundpage/notfoundpage.vue";
 import todolist from "@/views/project/todolist.vue";
 import PostImage from "@/views/photo_collection/PostImage.vue";
@@ -22,6 +21,12 @@ import CountryView from "../views/photocollection/CountryView.vue";
 import LocationView from "../views/photocollection/LocationView.vue";
 import UploadView from "../views/photocollection/UploadView.vue";
 import topbar from "../views/photocollection/Topbar.vue";
+// Organization Chart components
+import OrgChartDemo from "@/views/orgchart/OrgChartDemo.vue";
+import OrgChartCreate from "@/views/orgchart/OrgChartCreate.vue";
+import OrgChartView from "@/views/orgchart/OrgChartView.vue";
+import OrgChartEdit from "@/views/orgchart/OrgChartEdit.vue";
+
 const routes = [
   { path: "/photocollection", name: "HomeCollection", component: Home },
   { path: "/country/:name", name: "CountryView",  components: { default: CountryView, nav: topbar } },
@@ -78,10 +83,26 @@ const routes = [
       nav: Nav, // This is the named view
     },
   },
+  // === Organization Chart System Routes ===
   {
-    path: "/organization-chart",
-    name: "organizationChart",
-    components: organizationChart,
+    path: "/org-demo",
+    name: "OrgChartDemo",
+    component: OrgChartDemo,
+  },
+  {
+    path: "/org/create",
+    name: "OrgChartCreate",
+    component: OrgChartCreate,
+  },
+  {
+    path: "/org/:slug",
+    name: "OrgChartView",
+    component: OrgChartView,
+  },
+  {
+    path: "/org/:slug/edit",
+    name: "OrgChartEdit",
+    component: OrgChartEdit,
   },
   {
     path: "/about",
