@@ -115,22 +115,25 @@
     <!-- Department Legend -->
     <div class="department-legend">
       <span class="legend-label">Departments:</span>
-      <div
-        v-for="dept in departments"
-        :key="dept.name"
-        class="dept-tag"
-        :style="{
-          background: dept.color + '20',
-          borderColor: dept.color,
-          color: dept.color,
-        }"
-      >
-        <span class="dept-dot" :style="{ background: dept.color }"></span>
-        {{ dept.name }} ({{ dept.count }})
-      </div>
+      <template v-if="departments && departments.length > 0">
+        <div
+          v-for="dept in departments"
+          :key="dept.name"
+          class="dept-tag"
+          :style="{
+            background: dept.color + '20',
+            borderColor: dept.color,
+            color: dept.color,
+          }"
+        >
+          <span class="dept-dot" :style="{ background: dept.color }"></span>
+          {{ dept.name }} ({{ dept.count }})
+        </div>
+      </template>
+      <div v-else class="no-depts">No departments defined</div>
       <div class="legend-stats">
         <span class="stat">👥 {{ nodes.length }} employees</span>
-        <span v-if="orphanNodes.length" class="stat warning"
+        <span v-if="orphanNodes && orphanNodes.length" class="stat warning"
           >⚠️ {{ orphanNodes.length }} orphan(s)</span
         >
       </div>
@@ -208,16 +211,73 @@
           </div>
           <div class="field">
             <label>Reports To (Parent)</label>
-            <select v-model="selectedParentId" class="parent-select">
-              <option :value="null">-- No Manager (Root Level) --</option>
-              <option
-                v-for="node in availableParents"
-                :key="node.id"
-                :value="node.id"
+            <div class="custom-select" v-click-outside="closeParentDropdown">
+              <div
+                class="selected-option"
+                :class="{ active: showParentDropdown }"
+                @click="toggleParentDropdown"
               >
-                {{ node.name }} ({{ node.position }})
-              </option>
-            </select>
+                <div v-if="selectedParentNode" class="selected-content">
+                  <span class="selected-avatar">{{
+                    getInitials(selectedParentNode.name)
+                  }}</span>
+                  <div class="selected-info">
+                    <strong>{{ selectedParentNode.name }}</strong>
+                    <small>{{ selectedParentNode.position }}</small>
+                  </div>
+                </div>
+                <div v-else class="placeholder">
+                  -- No Manager (Root Level) --
+                </div>
+                <span class="chevron">▼</span>
+              </div>
+
+              <div v-if="showParentDropdown" class="dropdown-options">
+                <div class="dropdown-search">
+                  <input
+                    ref="parentSearchInput"
+                    v-model="parentSearchQuery"
+                    type="text"
+                    placeholder="Search people..."
+                    @click.stop
+                  />
+                </div>
+                <div class="options-list">
+                  <div
+                    class="option-item root-option"
+                    :class="{ selected: selectedParentId === null }"
+                    @click="selectParent(null)"
+                  >
+                    <div class="option-avatar">🚫</div>
+                    <div class="option-info">
+                      <strong>No Manager</strong>
+                      <small>Set as Root Level Node</small>
+                    </div>
+                  </div>
+                  <div
+                    v-for="parent in filteredParents"
+                    :key="parent.id"
+                    class="option-item"
+                    :class="{ selected: selectedParentId === parent.id }"
+                    @click="selectParent(parent.id)"
+                  >
+                    <div
+                      class="option-avatar"
+                      :style="{ background: getColorValue(parent.color) }"
+                    >
+                      {{ getInitials(parent.name) }}
+                    </div>
+                    <div class="option-info">
+                      <strong>{{ parent.name }}</strong>
+                      <small>{{ parent.position }}</small>
+                    </div>
+                  </div>
+                  <div v-if="filteredParents.length === 0" class="no-results">
+                    No matching people found
+                  </div>
+                </div>
+              </div>
+            </div>
             <small class="form-hint"
               >Select who this person reports to in the hierarchy</small
             >
@@ -376,6 +436,21 @@ import html2canvas from "html2canvas";
 import { supabase } from "@/supabase";
 
 export default {
+  directives: {
+    clickOutside: {
+      mounted(el, binding) {
+        el.clickOutsideEvent = function (event) {
+          if (!(el === event.target || el.contains(event.target))) {
+            binding.value(event);
+          }
+        };
+        document.body.addEventListener("click", el.clickOutsideEvent);
+      },
+      unmounted(el) {
+        document.body.removeEventListener("click", el.clickOutsideEvent);
+      },
+    },
+  },
   name: "OrgChartDemo",
   data() {
     return {
@@ -392,6 +467,8 @@ export default {
       selectedNode: null,
       parentForNewNode: null,
       selectedParentId: null,
+      parentSearchQuery: "",
+      showParentDropdown: false,
       isReplacing: false,
       workerIdError: "",
       nextIdNumber: 9,
@@ -457,21 +534,45 @@ export default {
       return "Add Person";
     },
     departments() {
+      console.log(
+        "departments computed called, nodes:",
+        this.nodes?.length,
+        "first node dept:",
+        this.nodes?.[0]?.department
+      );
+
+      if (
+        !this.nodes ||
+        !Array.isArray(this.nodes) ||
+        this.nodes.length === 0
+      ) {
+        console.log("departments: returning empty - nodes check failed");
+        return [];
+      }
+
       const depts = {};
       this.nodes.forEach((n) => {
-        if (n.department) {
-          if (!depts[n.department])
-            depts[n.department] = {
-              name: n.department,
+        const deptName = n.department || "";
+        console.log("Node:", n.name, "Department:", deptName);
+        if (deptName && deptName.trim()) {
+          const key = deptName.trim();
+          if (!depts[key]) {
+            depts[key] = {
+              name: key,
               count: 0,
               color:
-                this.departmentColors[n.department] ||
-                this.getColorValue(n.color),
+                this.departmentColors[key] ||
+                this.getColorValue(n.color) ||
+                "#3b82f6",
             };
-          depts[n.department].count++;
+          }
+          depts[key].count++;
         }
       });
-      return Object.values(depts);
+
+      const result = Object.values(depts).sort((a, b) => b.count - a.count);
+      console.log("Departments FINAL result:", result);
+      return result;
     },
     uniqueDepartments() {
       return [...new Set(this.nodes.map((n) => n.department).filter(Boolean))];
@@ -514,6 +615,17 @@ export default {
     window.removeEventListener("resize", this.handleResize);
   },
   methods: {
+    getDepartmentColor(deptName) {
+      if (this.departmentColors[deptName])
+        return this.departmentColors[deptName];
+      // Consistent color hasing for unknown departments
+      const colors = Object.values(this.colors).map((c) => c.value);
+      let hash = 0;
+      for (let i = 0; i < deptName.length; i++) {
+        hash = deptName.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      return colors[Math.abs(hash) % colors.length];
+    },
     async loadChart() {
       try {
         this.loading = true;
@@ -531,6 +643,7 @@ export default {
 
         if (data) {
           this.nodes = data.chart_data || [];
+          console.log(this.nodes);
           this.selectedTheme = data.custom_settings?.theme || "dark";
           this.selectedStyle = data.custom_settings?.style || "modern";
         }
@@ -540,6 +653,26 @@ export default {
       } finally {
         this.loading = false;
       }
+    },
+    toggleParentDropdown() {
+      this.showParentDropdown = !this.showParentDropdown;
+      if (this.showParentDropdown) {
+        this.$nextTick(() => {
+          this.$refs.parentSearchInput?.focus();
+        });
+      }
+    },
+    selectParent(nodeId) {
+      if (this.selectedParentId === nodeId) {
+        this.selectedParentId = null; // Toggle off if already selected
+      } else {
+        this.selectedParentId = nodeId;
+      }
+      this.showParentDropdown = false;
+      this.parentSearchQuery = "";
+    },
+    closeParentDropdown() {
+      this.showParentDropdown = false;
     },
     getTheme() {
       const configs = {
@@ -651,7 +784,7 @@ export default {
       this.workerIdError = "";
     },
     validateWorkerId() {
-      const id = this.nodeForm.workerId.trim();
+      const id = (this.nodeForm.workerId || "").trim();
       if (!id) {
         this.workerIdError = "Worker ID is required";
         return false;
@@ -998,6 +1131,7 @@ export default {
         color: "blue",
       };
       this.generateWorkerId();
+      this.selectedParentId = null;
       this.photoMode = "upload";
       this.showEditor = true;
     },
@@ -1016,6 +1150,7 @@ export default {
         color: "blue",
       };
       this.generateWorkerId();
+      this.selectedParentId = parentId;
       this.photoMode = "upload";
       this.showEditor = true;
     },
@@ -1025,6 +1160,7 @@ export default {
         this.editingNode = node;
         this.isReplacing = false;
         this.nodeForm = { ...node };
+        this.selectedParentId = node.parentId || null;
         this.photoMode = node.imageUrl?.startsWith("data:") ? "upload" : "url";
         this.showEditor = true;
       }
@@ -1077,6 +1213,7 @@ export default {
       this.workerIdError = "";
     },
     saveNode() {
+      this.nodeForm.parentId = this.selectedParentId || "";
       if (!this.validateWorkerId()) return;
 
       if (this.editingNode) {
@@ -1134,6 +1271,17 @@ export default {
       }
       return this.nodes;
     },
+    filteredParents() {
+      const query = this.parentSearchQuery.toLowerCase();
+      return this.availableParents.filter(
+        (p) =>
+          p.name.toLowerCase().includes(query) ||
+          p.position.toLowerCase().includes(query)
+      );
+    },
+    selectedParentNode() {
+      return this.nodes.find((n) => n.id === this.selectedParentId);
+    },
     orphanNodes() {
       if (!this.nodes || this.nodes.length === 0) return [];
       const validIds = new Set(this.nodes.map((n) => n.id));
@@ -1152,6 +1300,47 @@ export default {
     uniqueDepartments() {
       if (!this.nodes || this.nodes.length === 0) return [];
       return [...new Set(this.nodes.map((n) => n.department).filter(Boolean))];
+    },
+    departments() {
+      console.log("departments computed called (second block)");
+      if (
+        !this.nodes ||
+        !Array.isArray(this.nodes) ||
+        this.nodes.length === 0
+      ) {
+        return [];
+      }
+
+      const depts = {};
+      this.nodes.forEach((n) => {
+        const deptName = n.department || "";
+        if (deptName && deptName.trim()) {
+          const key = deptName.trim();
+          if (!depts[key]) {
+            const colorMap = {
+              Executive: "#3b82f6",
+              Technology: "#06b6d4",
+              Finance: "#10b981",
+              Operations: "#f97316",
+              Design: "#ec4899",
+              HR: "#8b5cf6",
+              Marketing: "#f59e0b",
+              Sales: "#ef4444",
+              "Human Resources": "#8b5cf6",
+            };
+            depts[key] = {
+              name: key,
+              count: 0,
+              color: colorMap[key] || "#3b82f6",
+            };
+          }
+          depts[key].count++;
+        }
+      });
+
+      const result = Object.values(depts).sort((a, b) => b.count - a.count);
+      console.log("Departments result:", result);
+      return result;
     },
     modalTitle() {
       if (this.isReplacing) return "Replace Person";
@@ -1527,8 +1716,9 @@ export default {
 }
 
 /* Floating Legend Widget */
+/* Floating Legend Widget */
 .department-legend {
-  position: absolute;
+  position: fixed;
   bottom: 2rem;
   right: 2rem;
   display: flex;
@@ -1540,9 +1730,9 @@ export default {
   border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: 16px;
   box-shadow: 0 10px 40px -5px rgba(0, 0, 0, 0.1);
-  z-index: 20;
+  z-index: 100;
   min-width: 200px;
-  max-width: 300px;
+  max-width: 280px;
 }
 .legend-label {
   font-size: 0.75rem;
@@ -1556,17 +1746,23 @@ export default {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 8px;
-  border-radius: 6px;
+  padding: 6px 10px;
+  border-radius: 8px;
   font-size: 0.75rem;
   font-weight: 600;
-  background: transparent;
-  border: none;
-  color: #334155;
+  background: white;
+  border: 1px solid transparent; /* Logic fix: allows inline borderColor to works */
   transition: 0.2s;
 }
 .dept-tag:hover {
-  background: rgba(0, 0, 0, 0.04);
+  transform: translateX(2px);
+}
+
+.no-depts {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-style: italic;
+  padding: 0.5rem 0;
 }
 .dept-dot {
   width: 8px;
@@ -1589,6 +1785,255 @@ export default {
   display: flex;
   align-items: center;
   gap: 4px;
+}
+
+/* Dark Theme: Department Legend */
+.theme-dark .department-legend,
+.theme-blue .department-legend,
+.theme-purple .department-legend,
+.theme-green .department-legend,
+.theme-warm .department-legend {
+  background: rgba(30, 41, 59, 0.95);
+  border-color: rgba(71, 85, 105, 0.5);
+}
+.theme-dark .legend-label,
+.theme-blue .legend-label,
+.theme-purple .legend-label,
+.theme-green .legend-label,
+.theme-warm .legend-label {
+  color: #94a3b8;
+}
+.theme-dark .dept-tag,
+.theme-blue .dept-tag,
+.theme-purple .dept-tag,
+.theme-green .dept-tag,
+.theme-warm .dept-tag {
+  background: rgba(30, 41, 59, 0.8) !important;
+}
+.theme-dark .legend-stats,
+.theme-blue .legend-stats,
+.theme-purple .legend-stats,
+.theme-green .legend-stats,
+.theme-warm .legend-stats {
+  border-top-color: #475569;
+  color: #94a3b8;
+}
+.theme-dark .no-depts,
+.theme-blue .no-depts,
+.theme-purple .no-depts,
+.theme-green .no-depts,
+.theme-warm .no-depts {
+  color: #64748b;
+}
+
+/* Dark Theme: Toolbar */
+.theme-dark .toolbar,
+.theme-blue .toolbar,
+.theme-purple .toolbar,
+.theme-green .toolbar,
+.theme-warm .toolbar {
+  background: rgba(30, 41, 59, 0.95);
+  border-color: rgba(71, 85, 105, 0.5);
+}
+.theme-dark .tool-btn,
+.theme-blue .tool-btn,
+.theme-purple .tool-btn,
+.theme-green .tool-btn,
+.theme-warm .tool-btn {
+  color: #94a3b8;
+}
+.theme-dark .tool-btn:hover,
+.theme-blue .tool-btn:hover,
+.theme-purple .tool-btn:hover,
+.theme-green .tool-btn:hover,
+.theme-warm .tool-btn:hover {
+  background: rgba(71, 85, 105, 0.5);
+  color: #f1f5f9;
+}
+.theme-dark .tool-btn.primary,
+.theme-blue .tool-btn.primary,
+.theme-purple .tool-btn.primary,
+.theme-green .tool-btn.primary,
+.theme-warm .tool-btn.primary {
+  background: rgba(37, 99, 235, 0.3);
+  color: #93c5fd;
+}
+.theme-dark .divider,
+.theme-blue .divider,
+.theme-purple .divider,
+.theme-green .divider,
+.theme-warm .divider {
+  background: #475569;
+}
+.theme-dark .label,
+.theme-blue .label,
+.theme-purple .label,
+.theme-green .label,
+.theme-warm .label {
+  color: #64748b;
+}
+.theme-dark .style-select,
+.theme-blue .style-select,
+.theme-purple .style-select,
+.theme-green .style-select,
+.theme-warm .style-select {
+  color: #f1f5f9;
+  background: transparent;
+}
+.theme-dark .search-box input,
+.theme-blue .search-box input,
+.theme-purple .search-box input,
+.theme-green .search-box input,
+.theme-warm .search-box input {
+  color: #f1f5f9;
+}
+.theme-dark .search-box input:focus,
+.theme-blue .search-box input:focus,
+.theme-purple .search-box input:focus,
+.theme-green .search-box input:focus,
+.theme-warm .search-box input:focus {
+  background: rgba(30, 41, 59, 0.95);
+  border-color: #475569;
+  color: #f1f5f9;
+}
+.theme-dark .search-results,
+.theme-blue .search-results,
+.theme-purple .search-results,
+.theme-green .search-results,
+.theme-warm .search-results {
+  background: #1e293b;
+}
+.theme-dark .search-item,
+.theme-blue .search-item,
+.theme-purple .search-item,
+.theme-green .search-item,
+.theme-warm .search-item {
+  color: #f1f5f9;
+}
+.theme-dark .search-item:hover,
+.theme-blue .search-item:hover,
+.theme-purple .search-item:hover,
+.theme-green .search-item:hover,
+.theme-warm .search-item:hover {
+  background: #334155;
+}
+
+/* Dark Theme: Header */
+.theme-dark .demo-header,
+.theme-blue .demo-header,
+.theme-purple .demo-header,
+.theme-green .demo-header,
+.theme-warm .demo-header {
+  background: linear-gradient(
+    180deg,
+    rgba(15, 23, 42, 0.9) 0%,
+    rgba(15, 23, 42, 0) 100%
+  );
+}
+.theme-dark .back-link,
+.theme-blue .back-link,
+.theme-purple .back-link,
+.theme-green .back-link,
+.theme-warm .back-link {
+  background: rgba(30, 41, 59, 0.8);
+  color: #94a3b8;
+}
+.theme-dark .back-link:hover,
+.theme-blue .back-link:hover,
+.theme-purple .back-link:hover,
+.theme-green .back-link:hover,
+.theme-warm .back-link:hover {
+  background: #1e293b;
+  color: #f1f5f9;
+}
+.theme-dark .demo-title,
+.theme-blue .demo-title,
+.theme-purple .demo-title,
+.theme-green .demo-title,
+.theme-warm .demo-title {
+  color: #f1f5f9;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Theme-Specific Accent Colors */
+.theme-blue .department-legend {
+  background: rgba(12, 25, 41, 0.95);
+  border-color: rgba(37, 99, 235, 0.4);
+}
+.theme-blue .toolbar {
+  background: rgba(12, 25, 41, 0.95);
+  border-color: rgba(37, 99, 235, 0.4);
+}
+.theme-blue .tool-btn.primary {
+  background: rgba(37, 99, 235, 0.3);
+  color: #60a5fa;
+}
+.theme-blue .demo-header {
+  background: linear-gradient(
+    180deg,
+    rgba(12, 25, 41, 0.95) 0%,
+    transparent 100%
+  );
+}
+
+.theme-purple .department-legend {
+  background: rgba(30, 16, 51, 0.95);
+  border-color: rgba(124, 58, 237, 0.4);
+}
+.theme-purple .toolbar {
+  background: rgba(30, 16, 51, 0.95);
+  border-color: rgba(124, 58, 237, 0.4);
+}
+.theme-purple .tool-btn.primary {
+  background: rgba(124, 58, 237, 0.3);
+  color: #a78bfa;
+}
+.theme-purple .demo-header {
+  background: linear-gradient(
+    180deg,
+    rgba(30, 16, 51, 0.95) 0%,
+    transparent 100%
+  );
+}
+
+.theme-green .department-legend {
+  background: rgba(2, 44, 34, 0.95);
+  border-color: rgba(5, 150, 105, 0.4);
+}
+.theme-green .toolbar {
+  background: rgba(2, 44, 34, 0.95);
+  border-color: rgba(5, 150, 105, 0.4);
+}
+.theme-green .tool-btn.primary {
+  background: rgba(5, 150, 105, 0.3);
+  color: #34d399;
+}
+.theme-green .demo-header {
+  background: linear-gradient(
+    180deg,
+    rgba(2, 44, 34, 0.95) 0%,
+    transparent 100%
+  );
+}
+
+.theme-warm .department-legend {
+  background: rgba(28, 18, 16, 0.95);
+  border-color: rgba(234, 88, 12, 0.4);
+}
+.theme-warm .toolbar {
+  background: rgba(28, 18, 16, 0.95);
+  border-color: rgba(234, 88, 12, 0.4);
+}
+.theme-warm .tool-btn.primary {
+  background: rgba(234, 88, 12, 0.3);
+  color: #fb923c;
+}
+.theme-warm .demo-header {
+  background: linear-gradient(
+    180deg,
+    rgba(28, 18, 16, 0.95) 0%,
+    transparent 100%
+  );
 }
 
 .chart-area {
@@ -1687,12 +2132,66 @@ export default {
   color: rgba(255, 255, 255, 0.9);
 }
 .theme-dark .tool-btn:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
 }
 .theme-dark .search-box input {
-  background: rgba(0, 0, 0, 0.2);
-  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 255, 255, 0.2);
   color: white;
+}
+.theme-dark .modal,
+.theme-dark .action-menu-modal,
+.theme-dark .orphan-modal-body,
+.theme-dark .orphan-modal .modal-header {
+  background: #1e293b;
+  color: #f1f5f9;
+  border-color: #334155;
+}
+.theme-dark .modal-header,
+.theme-dark .action-menu-header,
+.theme-dark .field input,
+.theme-dark .photo-tabs button,
+.theme-dark .btn-secondary {
+  border-color: #334155;
+  color: #f1f5f9;
+}
+.theme-dark .field input,
+.theme-dark .photo-tabs button,
+.theme-dark .btn-secondary,
+.theme-dark .generate-id-btn {
+  background: #0f172a;
+}
+.theme-dark .field label {
+  color: #94a3b8;
+}
+.theme-dark .close-btn {
+  background: #334155;
+  color: #94a3b8;
+}
+.theme-dark .close-btn:hover {
+  background: #475569;
+  color: white;
+}
+.theme-dark .action-item:hover {
+  background: #334155;
+}
+.theme-dark .action-text strong {
+  color: #f1f5f9;
+}
+.theme-dark .action-text small {
+  color: #94a3b8;
+}
+.theme-dark .upload-area {
+  border-color: #334155;
+}
+.theme-dark .style-select {
+  background: rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+.theme-dark .style-select:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 /* Modal */
@@ -1961,7 +2460,164 @@ export default {
   color: #ef4444;
 }
 
-/* Orphan Fixer Modal */
+/* Custom Searchable Select */
+.custom-select {
+  position: relative;
+  width: 100%;
+}
+.selected-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 5px;
+  background: white;
+  cursor: pointer;
+  min-height: 42px;
+}
+.selected-option.active {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+.selected-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.selected-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #3b82f6;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+.selected-info strong {
+  display: block;
+  font-size: 0.85rem;
+  line-height: 1.2;
+}
+.selected-info small {
+  display: block;
+  font-size: 0.7rem;
+  color: #64748b;
+  line-height: 1.2;
+}
+.placeholder {
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+.chevron {
+  font-size: 0.7rem;
+  color: #94a3b8;
+}
+.dropdown-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 4px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  z-index: 50;
+  max-height: 250px;
+  display: flex;
+  flex-direction: column;
+}
+.dropdown-search {
+  padding: 8px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.dropdown-search input {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+.dropdown-search input:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+.options-list {
+  overflow-y: auto;
+  max-height: 200px;
+}
+.option-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.option-item:hover {
+  background: #f1f5f9;
+}
+.option-item.selected {
+  background: #eff6ff;
+}
+.option-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #cbd5e1;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+.option-info strong {
+  display: block;
+  font-size: 0.85rem;
+  color: #1e293b;
+}
+.option-info small {
+  display: block;
+  font-size: 0.7rem;
+  color: #64748b;
+}
+.no-results {
+  padding: 1rem;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
+
+/* Dark Mode Support for Select */
+.theme-dark .selected-option,
+.theme-dark .dropdown-options {
+  background: #1e293b;
+  border-color: #334155;
+}
+.theme-dark .selected-info strong,
+.theme-dark .option-info strong {
+  color: #f1f5f9;
+}
+.theme-dark .dropdown-search {
+  border-color: #334155;
+}
+.theme-dark .dropdown-search input {
+  background: #0f172a;
+  border-color: #334155;
+  color: white;
+}
+.theme-dark .option-item:hover {
+  background: #334155;
+}
+.theme-dark .option-item.selected {
+  background: #1e3a8a;
+}
+
 .orphan-modal {
   background: white;
   border-radius: 14px;

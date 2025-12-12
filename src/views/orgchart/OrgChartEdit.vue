@@ -1,9 +1,6 @@
 <template>
-  <div class="org-edit-page" :class="'theme-' + theme">
-    <!-- Background -->
-    <div class="bg-gradient"></div>
-    <div class="floating-orb orb-1"></div>
-    <div class="floating-orb orb-2"></div>
+  <div class="org-edit-page">
+    <div class="page-bg"></div>
 
     <!-- Loading/Error States -->
     <div v-if="loading" class="loading-screen">
@@ -12,205 +9,231 @@
     </div>
 
     <div v-else-if="error" class="error-screen">
-      <div class="error-icon">🔒</div>
-      <h2>Access Denied</h2>
-      <p>{{ error }}</p>
-      <router-link to="/org-demo" class="go-demo-btn">Try Demo</router-link>
+      <div class="error-content">
+        <div class="error-icon">🔒</div>
+        <h2>Access Denied</h2>
+        <p>{{ error }}</p>
+        <router-link to="/org-demo" class="go-demo-btn">Try Demo</router-link>
+      </div>
     </div>
 
     <!-- Edit Mode -->
-    <div v-else class="edit-container">
-      <!-- Header -->
-      <header class="edit-header">
-        <div class="header-left">
-          <router-link :to="'/org/' + slug" class="back-link"
-            >← View Chart</router-link
+    <div v-else class="edit-layout">
+      <!-- Navbar -->
+      <header class="edit-navbar">
+        <div class="nav-left">
+          <router-link :to="'/org/' + slug" class="back-link">
+            <span>←</span> View Chart
+          </router-link>
+        </div>
+        <div class="nav-center">
+          <h1 class="chart-title">{{ chart.title }}</h1>
+        </div>
+        <div class="nav-right">
+          <div class="save-status" v-if="lastSaved || hasChanges">
+            <span v-if="hasChanges" class="status-unsaved"
+              >Unsaved changes</span
+            >
+            <span v-else class="status-saved"
+              >Saved {{ formatTime(lastSaved) }}</span
+            >
+          </div>
+          <button
+            @click="saveChanges"
+            :disabled="saving"
+            class="primary-btn save-btn"
           >
-        </div>
-        <div class="header-center">
-          <h1 class="edit-title">✏️ Editing: {{ chart.title }}</h1>
-        </div>
-        <div class="header-right">
-          <button @click="saveChanges" :disabled="saving" class="save-btn">
-            {{ saving ? "Saving..." : "💾 Save Changes" }}
+            {{ saving ? "Saving..." : "Save Changes" }}
           </button>
         </div>
       </header>
 
-      <!-- Share URL Bar -->
-      <div class="share-bar">
-        <span class="share-label">📤 Public Link:</span>
-        <input
-          type="text"
-          :value="publicUrl"
-          readonly
-          class="share-input"
-          ref="shareInput"
-        />
-        <button @click="copyPublicUrl" class="copy-btn">
-          {{ copied ? "✓ Copied!" : "📋 Copy" }}
-        </button>
-        <router-link :to="'/org/' + slug" class="view-btn" target="_blank">
-          👁️ View
-        </router-link>
-      </div>
-
-      <!-- Edit Panels -->
-      <div class="edit-panels">
-        <!-- Left Sidebar - Settings -->
-        <aside class="settings-panel">
-          <h3>⚙️ Settings</h3>
-
-          <div class="setting-group">
-            <label>Company Name</label>
-            <input v-model="chart.title" type="text" />
+      <div class="main-content">
+        <!-- Left Sidebar: Settings -->
+        <aside class="sidebar settings-sidebar">
+          <div class="sidebar-header">
+            <h3>⚙️ Settings</h3>
           </div>
-
-          <div class="setting-group">
-            <label>Description</label>
-            <textarea v-model="chart.description" rows="3"></textarea>
-          </div>
-
-          <div class="setting-group">
-            <label>Theme</label>
-            <div class="theme-picker">
-              <button
-                v-for="t in themes"
-                :key="t.id"
-                class="theme-swatch"
-                :class="{ active: theme === t.id }"
-                :style="{ background: t.color }"
-                @click="theme = t.id"
-                :title="t.name"
-              ></button>
+          <div class="sidebar-content">
+            <div class="form-group">
+              <label>Company Name</label>
+              <input v-model="chart.title" type="text" class="form-input" />
             </div>
-          </div>
 
-          <div class="setting-group">
-            <label>Card Style</label>
-            <select v-model="cardStyle" class="style-select">
-              <option v-for="s in cardStyles" :key="s.id" :value="s.id">
-                {{ s.name }}
-              </option>
-            </select>
-          </div>
+            <div class="form-group">
+              <label>Description</label>
+              <textarea
+                v-model="chart.description"
+                rows="3"
+                class="form-textarea"
+              ></textarea>
+            </div>
 
-          <div class="setting-group checkbox">
-            <label>
-              <input type="checkbox" v-model="allowExport" />
-              Allow viewers to export
-            </label>
-          </div>
+            <div class="form-group">
+              <label>Theme</label>
+              <div class="theme-grid">
+                <button
+                  v-for="t in themes"
+                  :key="t.id"
+                  class="theme-card"
+                  :class="{ active: theme === t.id }"
+                  :style="{ background: t.gradient }"
+                  @click="theme = t.id"
+                  :title="t.name"
+                >
+                  <span v-if="theme === t.id" class="check-icon">✓</span>
+                </button>
+              </div>
+            </div>
 
-          <div class="danger-zone">
-            <h4>Danger Zone</h4>
-            <button @click="deleteChart" class="delete-btn">
-              🗑️ Delete Chart
-            </button>
+            <div class="form-group checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" v-model="allowExport" />
+                <span class="checkbox-custom"></span>
+                <span>Allow viewers to export</span>
+              </label>
+            </div>
+
+            <div class="sharing-section">
+              <h4>📤 Sharing</h4>
+              <div class="share-box">
+                <input
+                  type="text"
+                  :value="publicUrl"
+                  readonly
+                  class="share-input"
+                />
+                <button
+                  @click="copyPublicUrl"
+                  class="icon-btn"
+                  title="Copy Link"
+                >
+                  {{ copied ? "✓" : "📋" }}
+                </button>
+              </div>
+              <a :href="publicUrl" target="_blank" class="view-external-link">
+                Open public link ↗
+              </a>
+            </div>
+
+            <div class="danger-zone">
+              <button @click="deleteChart" class="delete-chart-btn">
+                Delete Chart
+              </button>
+            </div>
           </div>
         </aside>
 
-        <!-- Main - Chart Editor -->
-        <main class="chart-editor">
-          <div class="editor-toolbar">
-            <button @click="addRootNode" class="add-btn">➕ Add Person</button>
-            <button @click="expandAll" class="tool-btn">📂 Expand All</button>
+        <!-- Center: Tree Editor -->
+        <main class="editor-canvas">
+          <div class="canvas-header">
+            <h2>Structure</h2>
+            <div class="canvas-actions">
+              <button @click="addRootNode" class="secondary-btn small">
+                <span>➕</span> Add Root Person
+              </button>
+            </div>
           </div>
 
-          <div class="nodes-list" v-if="nodes.length">
-            <div
-              v-for="node in flatNodes"
-              :key="node.id"
-              class="node-row"
-              :style="{ paddingLeft: node.level * 24 + 'px' }"
-            >
-              <span class="node-connector" v-if="node.level > 0">└─</span>
-              <span class="node-avatar">{{ getAvatarIcon(node.avatar) }}</span>
-              <div class="node-info">
-                <strong>{{ node.name }}</strong>
-                <span>{{ node.position }}</span>
-              </div>
-              <div class="node-actions">
-                <button @click="addChild(node.id)" title="Add subordinate">
-                  ➕
-                </button>
-                <button @click="editNode(node.id)" title="Edit">✏️</button>
-                <button @click="deleteNode(node.id)" class="del" title="Delete">
-                  🗑️
-                </button>
+          <div class="nodes-container" v-if="nodes.length">
+            <div class="nodes-list">
+              <div
+                v-for="node in flatNodes"
+                :key="node.id"
+                class="node-row"
+                :style="{ paddingLeft: node.level * 24 + 'px' }"
+              >
+                <div class="node-connector" v-if="node.level > 0"></div>
+                <div class="node-card">
+                  <span class="node-avatar" v-html="getAvatarIcon(node)"></span>
+                  <div class="node-info">
+                    <span class="node-name">{{ node.name }}</span>
+                    <span class="node-role">{{ node.position }}</span>
+                  </div>
+                  <div class="node-controls">
+                    <button
+                      @click="addChild(node.id)"
+                      class="control-btn"
+                      title="Add Report"
+                    >
+                      ➕
+                    </button>
+                    <button
+                      @click="editNode(node.id)"
+                      class="control-btn"
+                      title="Edit"
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      @click="deleteNode(node.id)"
+                      class="control-btn delete"
+                      title="Delete"
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          <div v-else class="empty-editor">
-            <p>
-              No members yet. Click "Add Person" to start building your org
-              chart.
-            </p>
+          <div v-else class="empty-state">
+            <div class="empty-icon">👥</div>
+            <h3>Start building your chart</h3>
+            <p>Add people to create your organization structure</p>
+            <button @click="addRootNode" class="primary-btn">
+              Add First Person
+            </button>
           </div>
         </main>
 
-        <!-- Right - Preview -->
-        <aside class="preview-panel">
-          <h3>👁️ Live Preview</h3>
-          <div class="preview-container" :class="'theme-' + theme">
-            <div class="preview-tree" v-if="rootNodes.length">
-              <div
-                v-for="node in rootNodes"
-                :key="node.id"
-                class="preview-node-wrapper"
-              >
-                <div class="preview-card" :class="'color-' + node.color">
-                  <span class="preview-avatar">{{
-                    getAvatarIcon(node.avatar)
-                  }}</span>
-                  <div class="preview-info">
-                    <strong>{{ node.name }}</strong>
-                    <small>{{ node.position }}</small>
-                  </div>
-                </div>
-                <!-- Show children -->
+        <!-- Right Sidebar: Preview -->
+        <aside class="sidebar preview-sidebar">
+          <div class="sidebar-header">
+            <h3>📱 Preview</h3>
+          </div>
+          <div class="sidebar-content preview-bg">
+            <div class="preview-chart" :class="'theme-' + theme">
+              <div class="preview-mini-tree" v-if="rootNodes.length">
                 <div
-                  v-if="getChildren(node.id).length"
-                  class="preview-children"
+                  v-for="node in rootNodes"
+                  :key="node.id"
+                  class="mini-node-wrapper"
                 >
-                  <div
-                    v-for="child in getChildren(node.id)"
-                    :key="child.id"
-                    class="preview-child-card"
-                    :class="'color-' + child.color"
-                  >
-                    <span>{{ getAvatarIcon(child.avatar) }}</span>
-                    <small>{{ child.name }}</small>
+                  <div class="mini-card" :class="'color-' + node.color">
+                    <span
+                      class="mini-avatar"
+                      v-html="getAvatarIcon(node)"
+                    ></span>
+                    <div class="mini-info">
+                      <strong>{{ node.name }}</strong>
+                      <small>{{ node.position }}</small>
+                    </div>
+                  </div>
+                  <!-- First level children preview only -->
+                  <div class="mini-children" v-if="getChildren(node.id).length">
+                    <div
+                      v-for="child in getChildren(node.id)"
+                      :key="child.id"
+                      class="mini-child"
+                    >
+                      <span
+                        class="tiny-avatar"
+                        v-html="getAvatarIcon(child)"
+                      ></span>
+                    </div>
                   </div>
                 </div>
               </div>
+              <p v-else class="preview-empty">Add people to see preview</p>
             </div>
-            <p v-else class="preview-empty">Add people to see preview</p>
           </div>
-          <router-link
-            :to="'/org/' + slug"
-            class="preview-view-btn"
-            target="_blank"
-          >
-            🔗 Open Full View
-          </router-link>
         </aside>
-      </div>
-
-      <!-- Status Bar -->
-      <div class="status-bar">
-        <span class="status-item">📊 {{ nodes.length }} members</span>
-        <span class="status-item" v-if="lastSaved"
-          >💾 Last saved: {{ formatTime(lastSaved) }}</span
-        >
-        <span class="status-item unsaved" v-if="hasChanges"
-          >⚠️ Unsaved changes</span
-        >
       </div>
     </div>
 
-    <!-- Node Editor Modal -->
+    <!-- Editor Modal -->
     <transition name="fade">
       <div v-if="showEditor" class="modal-overlay" @click.self="closeEditor">
         <div class="editor-modal">
@@ -219,67 +242,95 @@
             <button class="close-btn" @click="closeEditor">×</button>
           </div>
           <form @submit.prevent="saveNode" class="node-form">
-            <div class="form-row">
+            <div class="form-grid">
               <div class="form-group">
                 <label>Name *</label>
-                <input v-model="nodeForm.name" type="text" required />
+                <input
+                  v-model="nodeForm.name"
+                  type="text"
+                  class="form-input"
+                  required
+                  placeholder="Jane Doe"
+                />
               </div>
               <div class="form-group">
                 <label>Position *</label>
-                <input v-model="nodeForm.position" type="text" required />
+                <input
+                  v-model="nodeForm.position"
+                  type="text"
+                  class="form-input"
+                  required
+                  placeholder="Software Engineer"
+                />
               </div>
-            </div>
-            <div class="form-row">
               <div class="form-group">
                 <label>Department</label>
-                <input v-model="nodeForm.department" type="text" />
+                <input
+                  v-model="nodeForm.department"
+                  type="text"
+                  class="form-input"
+                  placeholder="Engineering"
+                />
               </div>
               <div class="form-group">
                 <label>Email</label>
-                <input v-model="nodeForm.email" type="email" />
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group full-width">
-                <label>Photo URL (Optional)</label>
                 <input
-                  v-model="nodeForm.imageUrl"
-                  type="url"
-                  placeholder="https://i.imgur.com/example.jpg"
+                  v-model="nodeForm.email"
+                  type="email"
+                  class="form-input"
+                  placeholder="jane@example.com"
                 />
-                <small class="form-hint"
-                  >💡 Upload your photo to
-                  <a href="https://imgur.com/upload" target="_blank"
-                    >imgur.com</a
-                  >
-                  and paste the URL here</small
-                >
               </div>
             </div>
-            <div class="form-row">
-              <div class="form-group full-width">
-                <label>Reports To (Parent)</label>
-                <select v-model="selectedParentId" class="parent-select">
-                  <option :value="null">-- No Manager (Root Level) --</option>
-                  <option
-                    v-for="node in availableParents"
-                    :key="node.id"
-                    :value="node.id"
-                  >
-                    {{ node.name }} ({{ node.position }})
-                  </option>
-                </select>
-                <small class="form-hint"
-                  >Select who this person reports to in the hierarchy</small
-                >
+
+            <div class="form-group">
+              <label>Photo URL (Optional)</label>
+              <input
+                v-model="nodeForm.imageUrl"
+                type="url"
+                class="form-input"
+                placeholder="https://example.com/photo.jpg"
+              />
+              <small class="form-hint"
+                >Paste a link to an image (e.g. from Imgur or LinkedIn)</small
+              >
+            </div>
+
+            <div class="form-group">
+              <label>Card Color</label>
+              <div class="color-grid">
+                <button
+                  v-for="color in cardColors"
+                  :key="color.id"
+                  type="button"
+                  class="color-select-btn"
+                  :class="{ selected: nodeForm.color === color.id }"
+                  :style="{ background: color.value }"
+                  @click="nodeForm.color = color.id"
+                ></button>
               </div>
             </div>
-            <div class="form-actions">
-              <button type="button" class="cancel-btn" @click="closeEditor">
+
+            <div class="form-group">
+              <label>Reports To</label>
+              <select v-model="selectedParentId" class="form-select">
+                <option :value="null">-- No Manager (Root Level) --</option>
+                <option
+                  v-for="node in availableParents"
+                  :key="node.id"
+                  :value="node.id"
+                >
+                  {{ node.name }} - {{ node.position }}
+                </option>
+              </select>
+            </div>
+
+            <div class="modal-actions">
+              <button type="button" class="secondary-btn" @click="closeEditor">
                 Cancel
               </button>
-              <button type="submit" class="save-btn">
-                {{ editingNode ? "Update" : "Add" }}
+              <button type="submit" class="primary-btn">
+                {{ editingNode ? "Save Update" : "Add Person" }}
               </button>
             </div>
           </form>
@@ -300,8 +351,7 @@ export default {
       error: null,
       chart: { title: "", description: "" },
       nodes: [],
-      theme: "dark",
-      cardStyle: "modern",
+      theme: "corporate",
       allowExport: true,
       saving: false,
       hasChanges: false,
@@ -320,38 +370,40 @@ export default {
         department: "",
         email: "",
         imageUrl: "",
-        avatar: "person",
         color: "blue",
       },
 
       themes: [
-        { id: "light", name: "Light", color: "#ffffff" },
-        { id: "modern-white", name: "Modern White", color: "#f8fafc" },
-        { id: "dark", name: "Dark", color: "#1e293b" },
-        { id: "blue", name: "Ocean", color: "#1e3a5f" },
-        { id: "purple", name: "Violet", color: "#4c1d95" },
-        { id: "green", name: "Forest", color: "#064e3b" },
-        { id: "warm", name: "Sunset", color: "#7c2d12" },
-      ],
-      cardStyles: [
-        { id: "modern", name: "1. Modern Clean" },
-        { id: "gradient", name: "2. Gradient Glow" },
-        { id: "minimal", name: "3. Minimal Line" },
-        { id: "rounded", name: "4. Rounded Bubble" },
-        { id: "shadow", name: "5. Deep Shadow" },
-        { id: "glass", name: "6. Glassmorphism" },
-        { id: "neon", name: "7. Neon Border" },
-        { id: "flat", name: "8. Flat Material" },
-        { id: "elegant", name: "9. Elegant Gold" },
-        { id: "tech", name: "10. Tech Circuit" },
-      ],
-      avatarStyles: [
-        { id: "person", icon: "🧑" },
-        { id: "male", icon: "👨" },
-        { id: "female", icon: "👩" },
-        { id: "business", icon: "👔" },
-        { id: "developer", icon: "👨‍💻" },
-        { id: "manager", icon: "👨‍💼" },
+        {
+          id: "light",
+          name: "Light",
+          gradient: "linear-gradient(135deg, #f0f4f8, #d9e2ec)",
+        },
+        {
+          id: "dark",
+          name: "Dark",
+          gradient: "linear-gradient(135deg, #0f172a, #1e293b)",
+        },
+        {
+          id: "blue",
+          name: "Ocean",
+          gradient: "linear-gradient(135deg, #0c1929, #1e3a5f)",
+        },
+        {
+          id: "purple",
+          name: "Violet",
+          gradient: "linear-gradient(135deg, #1e1033, #4c1d95)",
+        },
+        {
+          id: "green",
+          name: "Forest",
+          gradient: "linear-gradient(135deg, #022c22, #064e3b)",
+        },
+        {
+          id: "warm",
+          name: "Sunset",
+          gradient: "linear-gradient(135deg, #1c1210, #7c2d12)",
+        },
       ],
       cardColors: [
         { id: "blue", value: "#3b82f6" },
@@ -379,17 +431,9 @@ export default {
       addWithLevel(this.rootNodes, 0);
       return result;
     },
-    selectedParentId: {
-      get() {
-        return this.parentForNewNode;
-      },
-      set(val) {
-        this.parentForNewNode = val;
-      },
-    },
     availableParents() {
-      // When editing, exclude the current node and its descendants
       if (this.editingNode) {
+        // Exclude the node being edited and its descendants to prevent cycles
         const descendants = new Set();
         const addDescendants = (nodeId) => {
           this.nodes
@@ -417,9 +461,6 @@ export default {
       },
     },
     theme() {
-      this.hasChanges = true;
-    },
-    cardStyle() {
       this.hasChanges = true;
     },
     allowExport() {
@@ -454,7 +495,6 @@ export default {
         this.chart = data;
         this.nodes = data.chart_data || [];
         this.theme = data.theme || "corporate";
-        this.cardStyle = data.custom_settings?.style || "modern";
         this.allowExport = data.custom_settings?.allowExport !== false;
         this.lastSaved = new Date(data.updated_at);
         this.hasChanges = false;
@@ -476,7 +516,6 @@ export default {
             chart_data: this.nodes,
             custom_settings: {
               allowExport: this.allowExport,
-              style: this.cardStyle,
             },
             updated_at: new Date().toISOString(),
           })
@@ -511,19 +550,17 @@ export default {
         alert("Failed to delete: " + err.message);
       }
     },
-    getAvatarIcon(id) {
-      const icons = {
-        person: "🧑",
-        male: "👨",
-        female: "👩",
-        business: "👔",
-        developer: "👨‍💻",
-        manager: "👨‍💼",
-      };
-      return icons[id] || "👤";
+    getAvatarIcon(node) {
+      if (node.imageUrl) {
+        return `<img src="${node.imageUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`;
+      }
+      return node.name ? node.name.charAt(0).toUpperCase() : "👤";
     },
     formatTime(date) {
-      return new Date(date).toLocaleTimeString();
+      return new Date(date).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
     },
     getChildren(parentId) {
       return this.nodes.filter((n) => n.parentId === parentId);
@@ -533,42 +570,33 @@ export default {
       this.copied = true;
       setTimeout(() => (this.copied = false), 2000);
     },
-    expandAll() {
-      /* Placeholder */
-    },
     addRootNode() {
-      console.log("addRootNode called");
       this.editingNode = null;
       this.parentForNewNode = null;
+      this.selectedParentId = null;
       this.resetForm();
       this.showEditor = true;
-      console.log("showEditor is now:", this.showEditor);
     },
     addChild(parentId) {
-      console.log("addChild called with parentId:", parentId);
       this.editingNode = null;
       this.parentForNewNode = parentId;
+      this.selectedParentId = parentId;
       this.resetForm();
       this.showEditor = true;
-      console.log("showEditor is now:", this.showEditor);
     },
     editNode(nodeId) {
-      console.log("editNode called with nodeId:", nodeId);
       const node = this.nodes.find((n) => n.id === nodeId);
       if (node) {
         this.editingNode = node;
         this.parentForNewNode = node.parentId || null;
+        this.selectedParentId = node.parentId || null;
         this.nodeForm = { ...node };
         this.showEditor = true;
-        console.log("showEditor is now:", this.showEditor);
-      } else {
-        console.log("Node not found!");
       }
     },
     async deleteNode(nodeId) {
       if (!confirm("Delete this person and all subordinates?")) return;
 
-      // Collect all IDs to delete (recursively)
       const idsToDelete = new Set();
       const collectIds = (id) => {
         idsToDelete.add(id);
@@ -578,10 +606,7 @@ export default {
       };
       collectIds(nodeId);
 
-      // Filter out all nodes to delete
       this.nodes = this.nodes.filter((n) => !idsToDelete.has(n.id));
-
-      // Auto-save to database
       await this.saveChanges();
     },
     resetForm() {
@@ -601,38 +626,24 @@ export default {
     },
     async saveNode() {
       if (this.editingNode) {
-        // Update existing node
         const idx = this.nodes.findIndex((n) => n.id === this.editingNode.id);
         if (idx !== -1) {
           const updatedNode = {
             ...this.nodes[idx],
-            name: this.nodeForm.name,
-            position: this.nodeForm.position,
-            department: this.nodeForm.department,
-            email: this.nodeForm.email,
-            avatar: this.nodeForm.avatar,
-            color: this.nodeForm.color,
-            parentId: this.parentForNewNode,
+            ...this.nodeForm,
+            parentId: this.selectedParentId || null,
           };
-          // Use splice for Vue reactivity
           this.nodes.splice(idx, 1, updatedNode);
         }
       } else {
-        // Add new node
         const newNode = {
           id: Date.now().toString(),
-          name: this.nodeForm.name,
-          position: this.nodeForm.position,
-          department: this.nodeForm.department,
-          email: this.nodeForm.email,
-          avatar: this.nodeForm.avatar,
-          color: this.nodeForm.color,
-          parentId: this.parentForNewNode,
+          ...this.nodeForm,
+          parentId: this.selectedParentId || null,
         };
         this.nodes.push(newNode);
       }
       this.closeEditor();
-      // Auto-save to database
       await this.saveChanges();
     },
   },
@@ -640,361 +651,233 @@ export default {
 </script>
 
 <style scoped>
+/* Base Layout */
 .org-edit-page {
   min-height: 100vh;
-  background: #0a0a1a;
-  position: relative;
-}
-
-.bg-gradient {
-  position: fixed;
-  inset: 0;
-  background: linear-gradient(135deg, #0f0f23, #1a1a3e);
-  z-index: 0;
-}
-
-.floating-orb {
-  position: fixed;
-  border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.3;
-  z-index: 0;
-}
-
-.orb-1 {
-  width: 400px;
-  height: 400px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  top: -100px;
-  right: -100px;
-}
-.orb-2 {
-  width: 300px;
-  height: 300px;
-  background: linear-gradient(135deg, #14b8a6, #06b6d4);
-  bottom: -50px;
-  left: -50px;
-}
-
-/* Loading/Error */
-.loading-screen,
-.error-screen {
-  position: fixed;
-  inset: 0;
+  background: #f8fafc;
   display: flex;
   flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  font-family: "Inter", system-ui, sans-serif;
+  color: #1e293b;
+}
+
+.loading-screen,
+.error-screen {
+  flex: 1;
+  display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 100;
+  flex-direction: column;
 }
 
 .loader {
+  border: 3px solid #e2e8f0;
+  border-top: 3px solid #0f172a;
+  border-radius: 50%;
   width: 40px;
   height: 40px;
-  border: 3px solid rgba(255, 255, 255, 0.2);
-  border-top-color: #14b8a6;
-  border-radius: 50%;
   animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
 }
 
 @keyframes spin {
-  to {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
     transform: rotate(360deg);
   }
 }
 
-.error-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-}
-.error-screen h2 {
-  color: white;
-}
-.error-screen p {
-  color: rgba(255, 255, 255, 0.6);
-  margin-bottom: 1rem;
-}
-.go-demo-btn {
-  padding: 0.75rem 1.5rem;
-  background: #14b8a6;
-  color: white;
-  text-decoration: none;
-  border-radius: 8px;
-}
-
-/* Edit Container */
-.edit-container {
-  position: relative;
-  z-index: 10;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Header */
-.edit-header {
+/* Navbar */
+.edit-navbar {
+  height: 60px;
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 1.5rem;
-  background: rgba(0, 0, 0, 0.4);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* Share Bar */
-.share-bar {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1.5rem;
-  background: rgba(20, 184, 166, 0.1);
-  border-bottom: 1px solid rgba(20, 184, 166, 0.2);
-}
-
-.share-label {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 0.85rem;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.share-input {
-  flex: 1;
-  padding: 0.5rem 0.75rem;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 6px;
-  color: white;
-  font-size: 0.85rem;
-}
-
-.copy-btn {
-  padding: 0.5rem 1rem;
-  background: #14b8a6;
-  border: none;
-  border-radius: 6px;
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  white-space: nowrap;
-}
-
-.copy-btn:hover {
-  background: #0d9488;
-}
-
-.view-btn {
-  padding: 0.5rem 1rem;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 6px;
-  color: white;
-  text-decoration: none;
-  font-size: 0.85rem;
-  font-weight: 600;
-  transition: all 0.2s;
-  white-space: nowrap;
-}
-
-.view-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.header-left,
-.header-right {
-  flex: 1;
-}
-.header-center {
-  flex: 2;
-  text-align: center;
-}
-.header-right {
-  text-align: right;
+  padding: 0 1.5rem;
+  z-index: 10;
+  flex-shrink: 0;
 }
 
 .back-link {
-  color: rgba(255, 255, 255, 0.6);
   text-decoration: none;
-}
-.edit-title {
-  color: white;
-  font-size: 1.25rem;
-  margin: 0;
-}
-
-.save-btn {
-  padding: 0.6rem 1.25rem;
-  background: linear-gradient(135deg, #14b8a6, #06b6d4);
-  border: none;
-  border-radius: 8px;
-  color: white;
   font-weight: 600;
-  cursor: pointer;
-}
-
-.save-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* Panels */
-.edit-panels {
-  flex: 1;
-  display: grid;
-  grid-template-columns: 280px 1fr 260px;
-  gap: 1px;
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.settings-panel,
-.preview-panel {
-  background: rgba(0, 0, 0, 0.3);
-  padding: 1.25rem;
-}
-
-.settings-panel h3,
-.preview-panel h3 {
-  color: white;
-  font-size: 1rem;
-  margin: 0 0 1rem;
-}
-
-.setting-group {
-  margin-bottom: 1rem;
-}
-
-.setting-group label {
-  display: block;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 0.85rem;
-  margin-bottom: 0.4rem;
-}
-
-.setting-group input,
-.setting-group textarea,
-.setting-group select {
-  width: 100%;
-  padding: 0.6rem;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 6px;
-  color: white;
+  color: #64748b;
   font-size: 0.9rem;
-}
-
-.setting-group select option {
-  background: #1a1a3e;
-  color: white;
-}
-
-.theme-picker {
-  display: flex;
-  gap: 0.4rem;
-}
-
-.theme-swatch {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  border: 2px solid transparent;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.theme-swatch:hover {
-  transform: scale(1.1);
-}
-
-.theme-swatch.active {
-  border-color: #14b8a6;
-  box-shadow: 0 0 10px rgba(20, 184, 166, 0.5);
-}
-
-.setting-group.checkbox label {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  cursor: pointer;
 }
 
-.danger-zone {
-  margin-top: 2rem;
-  padding-top: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+.back-link:hover {
+  color: #0f172a;
 }
 
-.danger-zone h4 {
-  color: #ef4444;
-  font-size: 0.85rem;
-  margin-bottom: 0.5rem;
+.chart-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0;
+  color: #0f172a;
 }
 
-.delete-btn {
-  width: 100%;
-  padding: 0.6rem;
-  background: rgba(239, 68, 68, 0.2);
-  border: 1px solid #ef4444;
-  border-radius: 6px;
-  color: #ef4444;
-  cursor: pointer;
-}
-
-/* Chart Editor */
-.chart-editor {
-  background: rgba(0, 0, 0, 0.2);
-  padding: 1rem;
-  overflow-y: auto;
-}
-
-.editor-toolbar {
+.nav-right {
   display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+  align-items: center;
+  gap: 1.5rem;
 }
 
-.add-btn {
-  padding: 0.5rem 1rem;
-  background: linear-gradient(135deg, #14b8a6, #06b6d4);
-  border: none;
-  border-radius: 6px;
-  color: white;
+.save-status {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.status-unsaved {
+  color: #f59e0b;
   font-weight: 600;
-  cursor: pointer;
 }
 
-.tool-btn {
-  padding: 0.5rem 1rem;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 6px;
-  color: white;
-  cursor: pointer;
+/* Layout Grid */
+.edit-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.main-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.sidebar {
+  width: 300px;
+  background: white;
+  border-right: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.preview-sidebar {
+  border-right: none;
+  border-left: 1px solid #e2e8f0;
+  width: 320px;
+}
+
+.sidebar-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.sidebar-header h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #334155;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+
+.preview-bg {
+  background: #f8fafc;
+  padding: 0;
+}
+
+/* Canvas / Editor */
+.editor-canvas {
+  flex: 1;
+  background: #f1f5f9;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.canvas-header {
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.canvas-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #1e293b;
+}
+
+.nodes-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 2rem 2rem;
 }
 
 .nodes-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
 .node-row {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.6rem 0.75rem;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  border-left: 3px solid #14b8a6;
+  align-items: stretch;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.1s;
+}
+
+.node-row:last-child {
+  border-bottom: none;
+}
+
+.node-row:hover {
+  background: #f8fafc;
 }
 
 .node-connector {
-  color: rgba(255, 255, 255, 0.3);
-  font-family: monospace;
+  width: 20px;
+  border-left: 1px solid #cbd5e1;
+  position: relative;
+}
+
+.node-connector::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 10px;
+  height: 1px;
+  background: #cbd5e1;
+}
+
+.node-card {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  gap: 1rem;
 }
 
 .node-avatar {
-  font-size: 1.25rem;
+  width: 36px;
+  height: 36px;
+  background: #e2e8f0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
 }
 
 .node-info {
@@ -1003,399 +886,445 @@ export default {
   flex-direction: column;
 }
 
-.node-info strong {
-  color: white;
-  font-size: 0.9rem;
-}
-.node-info span {
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 0.8rem;
-}
-
-.node-actions {
-  display: flex;
-  gap: 0.25rem;
-}
-
-.node-actions button {
-  width: 28px;
-  height: 28px;
-  border: none;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.1);
-  cursor: pointer;
-}
-
-.node-actions button:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-.node-actions button.del:hover {
-  background: #ef4444;
-}
-
-.empty-editor {
-  text-align: center;
-  padding: 3rem;
-  color: rgba(255, 255, 255, 0.5);
-}
-
-/* Preview Panel */
-.preview-container {
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 10px;
-  padding: 1rem;
-  min-height: 200px;
-  overflow-y: auto;
-  max-height: 400px;
-}
-
-.preview-tree {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-}
-
-.preview-node-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.preview-card {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
-  border-left: 4px solid #3b82f6;
-}
-
-.preview-card.color-teal {
-  border-left-color: #14b8a6;
-}
-.preview-card.color-purple {
-  border-left-color: #8b5cf6;
-}
-.preview-card.color-pink {
-  border-left-color: #ec4899;
-}
-.preview-card.color-orange {
-  border-left-color: #f97316;
-}
-.preview-card.color-green {
-  border-left-color: #22c55e;
-}
-
-.preview-avatar {
-  font-size: 1.5rem;
-}
-
-.preview-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.preview-info strong {
-  color: white;
-  font-size: 0.85rem;
-}
-
-.preview-info small {
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 0.75rem;
-}
-
-.preview-children {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
-  padding-top: 0.75rem;
-  border-top: 1px dashed rgba(255, 255, 255, 0.2);
-}
-
-.preview-child-card {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.4rem 0.75rem;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-  border-left: 3px solid #3b82f6;
-}
-
-.preview-child-card.color-teal {
-  border-left-color: #14b8a6;
-}
-.preview-child-card.color-purple {
-  border-left-color: #8b5cf6;
-}
-.preview-child-card.color-pink {
-  border-left-color: #ec4899;
-}
-.preview-child-card.color-orange {
-  border-left-color: #f97316;
-}
-.preview-child-card.color-green {
-  border-left-color: #22c55e;
-}
-
-.preview-child-card span {
-  font-size: 1rem;
-}
-
-.preview-child-card small {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 0.7rem;
-}
-
-.preview-view-btn {
-  display: block;
-  margin-top: 1rem;
-  padding: 0.6rem;
-  background: rgba(20, 184, 166, 0.2);
-  border: 1px solid rgba(20, 184, 166, 0.4);
-  border-radius: 8px;
-  color: #14b8a6;
-  text-decoration: none;
-  text-align: center;
-  font-size: 0.85rem;
+.node-name {
   font-weight: 600;
+  color: #1e293b;
+  font-size: 0.95rem;
+}
+
+.node-role {
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.node-controls {
+  display: flex;
+  gap: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.node-row:hover .node-controls {
+  opacity: 1;
+}
+
+.control-btn {
+  width: 32px;
+  height: 32px;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.2s;
 }
 
-.preview-view-btn:hover {
-  background: rgba(20, 184, 166, 0.3);
+.control-btn:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
 }
 
-.preview-empty {
-  color: rgba(255, 255, 255, 0.4);
-  text-align: center;
+.control-btn.delete:hover {
+  background: #fef2f2;
+  border-color: #fee2e2;
 }
 
-/* Status Bar */
-.status-bar {
-  display: flex;
-  gap: 1.5rem;
-  padding: 0.75rem 1.5rem;
-  background: rgba(0, 0, 0, 0.4);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+/* Forms & Inputs */
+.form-group {
+  margin-bottom: 1.5rem;
 }
 
-.status-item {
-  color: rgba(255, 255, 255, 0.6);
+.form-group label {
+  display: block;
   font-size: 0.85rem;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 0.5rem;
 }
-.status-item.unsaved {
-  color: #fbbf24;
+
+.form-input,
+.form-textarea,
+.form-select {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #1e293b;
+  background: white;
+  transition: all 0.2s;
+}
+
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Theme Grid */
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.theme-card {
+  height: 40px;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-card.active {
+  border-color: #0f172a;
+}
+
+.check-icon {
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Buttons */
+.primary-btn {
+  background: #0f172a;
+  color: white;
+  padding: 0.6rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.primary-btn:hover {
+  background: #1e293b;
+}
+
+.primary-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.secondary-btn {
+  background: white;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+  padding: 0.6rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.secondary-btn.small {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+}
+
+.icon-btn {
+  padding: 0.5rem;
+  border: 1px solid #e2e8f0;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.delete-chart-btn {
+  width: 100%;
+  padding: 0.75rem;
+  color: #ef4444;
+  border: 1px solid #fee2e2;
+  background: #fef2f2;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.delete-chart-btn:hover {
+  background: #fee2e2;
+}
+
+/* Checkbox */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+}
+
+.checkbox-label input {
+  display: none;
+}
+
+.checkbox-custom {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #cbd5e1;
+  border-radius: 4px;
+  position: relative;
+}
+
+.checkbox-label input:checked + .checkbox-custom {
+  background: #0f172a;
+  border-color: #0f172a;
+}
+
+.checkbox-label input:checked + .checkbox-custom::after {
+  content: "✓";
+  position: absolute;
+  color: white;
+  font-size: 0.8rem;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Empty State */
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+}
+
+.empty-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  background: white;
+  padding: 1rem;
+  border-radius: 50%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* Preview */
+.preview-chart {
+  padding: 2rem 1rem;
+  min-height: 100%;
+}
+
+.mini-node-wrapper {
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mini-card {
+  width: 100%;
+  background: white;
+  padding: 0.75rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-left: 3px solid #3b82f6;
+}
+.mini-card.color-teal {
+  border-left-color: #14b8a6;
+}
+.mini-card.color-purple {
+  border-left-color: #8b5cf6;
+}
+.mini-card.color-pink {
+  border-left-color: #ec4899;
+}
+.mini-card.color-orange {
+  border-left-color: #f97316;
+}
+.mini-card.color-green {
+  border-left-color: #22c55e;
+}
+
+.mini-avatar {
+  font-size: 1.2rem;
+}
+.mini-info {
+  display: flex;
+  flex-direction: column;
+}
+.mini-info strong {
+  font-size: 0.85rem;
+  color: #1e293b;
+}
+.mini-info small {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.mini-children {
+  display: flex;
+  gap: 4px;
+  margin-top: 8px;
+  padding-left: 1rem;
+  border-left: 2px solid #e2e8f0;
+}
+
+.mini-child {
+  background: white;
+  padding: 4px;
+  border-radius: 50%;
+  border: 1px solid #e2e8f0;
+  font-size: 0.8rem;
+}
+
+/* Share Box */
+.share-box {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.share-input {
+  flex: 1;
+  border: 1px solid #e2e8f0;
+  background: #f1f5f9;
+  padding: 0.5rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.view-external-link {
+  font-size: 0.8rem;
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+.view-external-link:hover {
+  text-decoration: underline;
 }
 
 /* Modal */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+  z-index: 100;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 200;
-  padding: 1rem;
 }
 
 .editor-modal {
-  background: linear-gradient(135deg, #1a1a3e, #2d2d5a);
+  background: white;
+  width: 90%;
+  max-width: 500px;
   border-radius: 16px;
-  width: 100%;
-  max-width: 550px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
 }
 
 .modal-header {
+  padding: 1.25rem;
+  border-bottom: 1px solid #e2e8f0;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .modal-header h3 {
-  color: white;
   margin: 0;
+  color: #0f172a;
+  font-size: 1.1rem;
 }
+
 .close-btn {
+  background: #f1f5f9;
+  border: none;
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  border: none;
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+  cursor: pointer;
+  color: #64748b;
+}
+
+.node-form {
+  padding: 1.5rem;
+}
+
+.form-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.avatar-grid {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.avatar-select-btn {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  border-radius: 8px;
   font-size: 1.2rem;
   cursor: pointer;
 }
 
-.node-form {
-  padding: 1.25rem;
+.avatar-select-btn.selected {
+  border-color: #0f172a;
+  background: #f1f5f9;
 }
 
-.form-row {
+.color-grid {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-.form-row .form-group {
-  flex: 1;
+  gap: 0.5rem;
 }
 
-.form-group label {
-  display: block;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 0.85rem;
-  margin-bottom: 0.3rem;
-}
-.form-group input {
-  width: 100%;
-  padding: 0.6rem;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 6px;
-  color: white;
-}
-
-.avatar-options,
-.color-options {
-  display: flex;
-  gap: 0.3rem;
-  flex-wrap: wrap;
-}
-.avatar-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 6px;
-  border: 2px solid transparent;
-  background: rgba(255, 255, 255, 0.1);
-  font-size: 1.1rem;
-  cursor: pointer;
-}
-.avatar-btn.selected {
-  border-color: #14b8a6;
-}
-.color-btn {
-  width: 28px;
-  height: 28px;
-  border-radius: 4px;
-  border: 2px solid transparent;
-  cursor: pointer;
-}
-.color-btn.selected {
-  border-color: white;
-}
-
-.form-actions {
-  display: flex;
-  gap: 0.75rem;
-  margin-top: 1rem;
-}
-.cancel-btn,
-.save-btn {
-  flex: 1;
-  padding: 0.7rem;
+.color-select-btn {
+  width: 32px;
+  height: 32px;
+  border: 2px solid white;
   border-radius: 8px;
-  font-weight: 600;
   cursor: pointer;
-}
-.cancel-btn {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: white;
-}
-.save-btn {
-  background: linear-gradient(135deg, #14b8a6, #06b6d4);
-  border: none;
-  color: white;
+  box-shadow: 0 0 0 1px #e2e8f0;
 }
 
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s;
+.color-select-btn.selected {
+  transform: scale(1.1);
+  box-shadow: 0 0 0 2px #0f172a;
 }
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
+
+.modal-actions {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
 }
 
 @media (max-width: 1024px) {
-  .edit-panels {
-    grid-template-columns: 1fr;
-  }
-  .settings-panel,
-  .preview-panel {
+  .preview-sidebar {
     display: none;
   }
-}
-
-/* Parent Select Styles */
-.form-group.full-width {
-  grid-column: 1 / -1;
-}
-
-.parent-select {
-  width: 100%;
-  padding: 0.6rem 0.75rem;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 6px;
-  color: white;
-  font-size: 0.9rem;
-  cursor: pointer;
-}
-
-.parent-select option {
-  background: #1a1a3e;
-  color: white;
-}
-
-.form-hint {
-  display: block;
-  margin-top: 0.4rem;
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 0.75rem;
-}
-
-/* Responsive improvements */
-@media (max-width: 768px) {
-  .form-row {
-    flex-direction: column;
-  }
-
-  .node-row {
-    flex-wrap: wrap;
-  }
-
-  .node-actions {
+  .sidebar {
     width: 100%;
-    justify-content: flex-end;
-    margin-top: 0.5rem;
+    border-right: none;
   }
-
-  .edit-header {
+  .main-content {
     flex-direction: column;
-    gap: 0.75rem;
-    text-align: center;
   }
-
-  .header-left,
-  .header-right {
-    text-align: center;
+  .editor-canvas {
+    flex: 1;
   }
-
-  .editor-modal {
-    max-width: 95%;
-    max-height: 90vh;
-    overflow-y: auto;
+  .settings-sidebar {
+    height: auto;
+    max-height: 200px;
+    border-bottom: 1px solid #e2e8f0;
   }
 }
 </style>
