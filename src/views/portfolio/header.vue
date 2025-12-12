@@ -1,6 +1,6 @@
 <template>
   <header
-    class="py-4 px-[5%] md:px-[10%] lg:px-[15%] glass sticky top-0 z-50 transition-all duration-300"
+    class="py-4 px-[5%] md:px-[10%] lg:px-[15%] sticky top-0 z-50 transition-all duration-300 backdrop-blur-md bg-white/70 dark:bg-[#0d1f3c]/80 border-b border-slate-200/50 dark:border-slate-700/50 shadow-sm"
   >
     <div class="container mx-auto flex items-center justify-between">
       <router-link
@@ -8,7 +8,7 @@
         class="group font-bold text-2xl text-slate-800 dark:text-heading font-mono flex items-center gap-1"
       >
         <span class="relative">
-          MAN
+          HAZMAN
           <span
             class="absolute -bottom-1 left-0 w-0 h-0.5 bg-teal-500 dark:bg-accent group-hover:w-full transition-all duration-300"
           ></span>

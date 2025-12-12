@@ -7,10 +7,10 @@
 
     <!-- Parallax Background Elements -->
     <div
-      class="absolute top-0 right-0 w-[700px] h-[700px] rounded-full transition-transform duration-500"
+      class="absolute top-0 right-0 w-[700px] h-[700px] rounded-full"
       :style="{
-        transform: `translate(${scrollOffset * 0.08}px, ${
-          scrollOffset * 0.04
+        transform: `translate(${scrollOffset * 0.05}px, ${
+          scrollOffset * 0.02
         }px)`,
         background:
           'radial-gradient(circle, rgba(20,184,166,0.15) 0%, rgba(6,182,212,0.08) 40%, transparent 70%)',
@@ -18,10 +18,10 @@
       }"
     ></div>
     <div
-      class="absolute bottom-0 left-0 w-[600px] h-[600px] rounded-full transition-transform duration-500"
+      class="absolute bottom-0 left-0 w-[600px] h-[600px] rounded-full"
       :style="{
-        transform: `translate(${scrollOffset * -0.06}px, ${
-          scrollOffset * -0.03
+        transform: `translate(${scrollOffset * -0.04}px, ${
+          scrollOffset * -0.02
         }px)`,
         background:
           'radial-gradient(circle, rgba(139,92,246,0.12) 0%, rgba(236,72,153,0.06) 40%, transparent 70%)',

@@ -23,7 +23,7 @@
         :style="{
           left: `${Math.random() * 100}%`,
           top: `${100 + Math.random() * 20}%`,
-          animationDuration: `${6 + Math.random() * 8}s`,
+          animationDuration: `${25 + Math.random() * 40}s`,
           animationDelay: `${Math.random() * 5}s`,
           width: `${3 + Math.random() * 8}px`,
           height: `${3 + Math.random() * 8}px`,
@@ -35,7 +35,7 @@
     <div
       class="parallax-orb absolute -top-20 -right-32 w-[600px] h-[600px] rounded-full"
       :style="{
-        transform: `translate(${mouseX * 0.05}px, ${mouseY * 0.05}px)`,
+        transform: `translate(${mouseX * 0.000005}px, ${mouseY * 0.000005}px)`,
         background:
           'radial-gradient(circle, rgba(20,184,166,0.3) 0%, rgba(6,182,212,0.15) 50%, transparent 70%)',
         filter: 'blur(40px)',
@@ -44,7 +44,9 @@
     <div
       class="parallax-orb absolute -bottom-40 -left-32 w-[500px] h-[500px] rounded-full"
       :style="{
-        transform: `translate(${mouseX * -0.04}px, ${mouseY * -0.04}px)`,
+        transform: `translate(${mouseX * -0.000004}px, ${
+          mouseY * -0.000004
+        }px)`,
         background:
           'radial-gradient(circle, rgba(139,92,246,0.25) 0%, rgba(236,72,153,0.1) 50%, transparent 70%)',
         filter: 'blur(60px)',
@@ -53,34 +55,36 @@
     <div
       class="parallax-orb absolute top-1/3 left-1/4 w-[350px] h-[350px] rounded-full animate-pulse-slow"
       :style="{
-        transform: `translate(${mouseX * 0.08}px, ${mouseY * 0.08}px)`,
+        transform: `translate(${mouseX * 0.000008}px, ${mouseY * 0.000008}px)`,
         background:
           'radial-gradient(circle, rgba(59,130,246,0.2) 0%, transparent 60%)',
         filter: 'blur(50px)',
       }"
     ></div>
 
-    <!-- Floating Geometric Shapes -->
+    <!-- Floating Geometric Shapes - minimal mouse effect -->
     <div
       class="absolute top-20 right-[15%] w-20 h-20 border-2 border-teal-500/30 dark:border-accent/30 rounded-xl rotate-45 animate-float-rotate"
       :style="{
-        transform: `rotate(${45 + mouseX * 0.1}deg) translate(${
-          mouseX * 0.03
-        }px, ${mouseY * 0.03}px)`,
+        transform: `rotate(${45 + mouseX * 0.00001}deg) translate(${
+          mouseX * 0.000003
+        }px, ${mouseY * 0.000003}px)`,
       }"
     ></div>
     <div
       class="absolute bottom-32 left-[10%] w-16 h-16 border-2 border-purple-500/30 rounded-full animate-float"
       :style="{
-        transform: `translate(${mouseX * -0.02}px, ${mouseY * -0.02}px)`,
+        transform: `translate(${mouseX * -0.000002}px, ${
+          mouseY * -0.000002
+        }px)`,
       }"
     ></div>
     <div
       class="absolute top-1/2 right-[8%] w-12 h-12 bg-gradient-to-br from-cyan-400/20 to-teal-500/20 rounded-lg rotate-12 animate-float-fast"
       :style="{
-        transform: `rotate(${12 + mouseX * 0.05}deg) translate(${
-          mouseX * 0.04
-        }px, ${mouseY * 0.04}px)`,
+        transform: `rotate(${12 + mouseX * 0.000005}deg) translate(${
+          mouseX * 0.000004
+        }px, ${mouseY * 0.000004}px)`,
       }"
     ></div>
 
@@ -93,28 +97,11 @@
         left: `${10 + i * 12}%`,
         top: `${20 + (i % 3) * 30}%`,
         animationDelay: `${i * 0.3}s`,
-        animationDuration: `${4 + i * 0.5}s`,
+        animationDuration: `${8 + i * 1}s`,
       }"
     ></div>
 
     <div class="flex flex-col justify-center z-10 max-w-4xl">
-      <!-- Greeting Badge with Glow -->
-      <div
-        class="inline-flex items-center gap-2 px-5 py-2.5 glass-card rounded-full w-fit mb-6 animate-fade-in-down glow-sm"
-      >
-        <span class="relative flex h-3 w-3">
-          <span
-            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"
-          ></span>
-          <span
-            class="relative inline-flex rounded-full h-3 w-3 bg-teal-500"
-          ></span>
-        </span>
-        <p class="text-teal-600 dark:text-accent font-mono text-sm font-medium">
-          Available for work
-        </p>
-      </div>
-
       <p
         class="text-teal-500 dark:text-accent font-mono mb-5 animate-fade-in-down text-lg tracking-wider"
       >
@@ -214,20 +201,39 @@
       </div>
     </div>
 
-    <!-- Enhanced Scroll Indicator -->
+    <!-- Enhanced Scroll Indicator with Available Badge -->
     <div
-      class="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-fade-in-up delay-600"
+      class="absolute bottom-8 right-8 flex items-end gap-4 animate-fade-in-up delay-600"
     >
-      <span
-        class="text-xs font-mono text-slate-400 dark:text-text/50 tracking-widest"
-        >SCROLL</span
-      >
+      <!-- Available for work badge -->
       <div
-        class="w-6 h-10 border-2 border-slate-300 dark:border-text/30 rounded-full flex justify-center pt-2"
+        class="inline-flex items-center gap-2 px-4 py-2 glass-card rounded-full glow-sm"
       >
+        <span class="relative flex h-2.5 w-2.5">
+          <span
+            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"
+          ></span>
+          <span
+            class="relative inline-flex rounded-full h-2.5 w-2.5 bg-teal-500"
+          ></span>
+        </span>
+        <p class="text-teal-600 dark:text-accent font-mono text-xs font-medium">
+          Available for work
+        </p>
+      </div>
+      <!-- Scroll indicator -->
+      <div class="flex flex-col items-center gap-2">
+        <span
+          class="text-xs font-mono text-slate-400 dark:text-text/50 tracking-widest"
+          >SCROLL</span
+        >
         <div
-          class="w-1.5 h-3 bg-teal-500 dark:bg-accent rounded-full animate-scroll-indicator"
-        ></div>
+          class="w-6 h-10 border-2 border-slate-300 dark:border-text/30 rounded-full flex justify-center pt-2"
+        >
+          <div
+            class="w-1.5 h-3 bg-teal-500 dark:bg-accent rounded-full animate-scroll-indicator"
+          ></div>
+        </div>
       </div>
     </div>
   </div>
@@ -258,9 +264,9 @@ export default {
   },
   methods: {
     handleMouseMove(e) {
-      // Smoother parallax with larger movement range
-      this.mouseX = (e.clientX - window.innerWidth / 2) / 8;
-      this.mouseY = (e.clientY - window.innerHeight / 2) / 8;
+      // Extremely minimal parallax movement
+      this.mouseX = (e.clientX - window.innerWidth / 2) / 500;
+      this.mouseY = (e.clientY - window.innerHeight / 2) / 500;
     },
     downloadResume() {
       const link = document.createElement("a");
@@ -383,42 +389,63 @@ export default {
   }
 }
 
-/* Parallax Orbs */
+/* Parallax Orbs - No transition for minimal movement */
 .parallax-orb {
   z-index: 0;
-  transition: transform 0.15s ease-out;
   will-change: transform;
 }
 
-/* Floating Rotation Animation */
+/* Floating Animations */
+.animate-float {
+  animation: float 12s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: float 16s ease-in-out infinite;
+}
+
+.animate-float-fast {
+  animation: float 8s ease-in-out infinite;
+}
+
 .animate-float-rotate {
-  animation: floatRotate 8s ease-in-out infinite;
+  animation: floatRotate 20s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(12deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(12deg);
+  }
 }
 
 @keyframes floatRotate {
   0%,
   100% {
-    transform: rotate(45deg) translateY(0);
+    transform: rotate(6deg) translateY(0);
   }
   50% {
-    transform: rotate(55deg) translateY(-20px);
+    transform: rotate(12deg) translateY(-15px);
   }
 }
 
 /* Pulse Slow */
 .animate-pulse-slow {
-  animation: pulseSlow 4s ease-in-out infinite;
+  animation: pulseSlow 10s ease-in-out infinite;
 }
 
 @keyframes pulseSlow {
   0%,
   100% {
-    opacity: 0.6;
+    opacity: 0.8;
     transform: scale(1);
   }
   50% {
     opacity: 1;
-    transform: scale(1.1);
+    transform: scale(1.05);
   }
 }
 
@@ -441,7 +468,7 @@ export default {
 
 /* Grid Movement Animation */
 .animate-grid-move {
-  animation: gridMove 20s linear infinite;
+  animation: gridMove 60s linear infinite;
 }
 
 @keyframes gridMove {
