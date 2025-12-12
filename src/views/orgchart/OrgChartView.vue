@@ -85,6 +85,37 @@
         <div ref="chartContainer" class="chart-container"></div>
       </div>
 
+      <!-- Collapsible Department Legend -->
+      <div class="department-legend" :class="{ collapsed: legendCollapsed }">
+        <button
+          class="legend-toggle"
+          @click="legendCollapsed = !legendCollapsed"
+        >
+          {{ legendCollapsed ? "◀" : "▶" }} Departments
+        </button>
+        <div v-if="!legendCollapsed" class="legend-content">
+          <template v-if="departments && departments.length > 0">
+            <div
+              v-for="dept in departments"
+              :key="dept.name"
+              class="dept-tag"
+              :style="{
+                background: dept.color + '20',
+                borderColor: dept.color,
+                color: dept.color,
+              }"
+            >
+              <span class="dept-dot" :style="{ background: dept.color }"></span>
+              {{ dept.name }} ({{ dept.count }})
+            </div>
+          </template>
+          <div v-else class="no-depts">No departments</div>
+          <div class="legend-stats">
+            <span class="stat">👥 {{ nodes.length }} employees</span>
+          </div>
+        </div>
+      </div>
+
       <!-- Footer -->
       <footer class="view-footer">
         <p>
@@ -151,6 +182,7 @@ export default {
       copied: false,
       searchQuery: "",
       searchResults: [],
+      legendCollapsed: false,
       colors: {
         blue: "#3b82f6",
         cyan: "#06b6d4",
@@ -181,6 +213,45 @@ export default {
         warm: "linear-gradient(135deg, #1c1210 0%, #7c2d12 50%, #1c1210 100%)",
       };
       return gradients[this.selectedTheme] || gradients.dark;
+    },
+    departments() {
+      if (
+        !this.nodes ||
+        !Array.isArray(this.nodes) ||
+        this.nodes.length === 0
+      ) {
+        return [];
+      }
+
+      const depts = {};
+      const colorMap = {
+        Executive: "#3b82f6",
+        Technology: "#06b6d4",
+        Finance: "#10b981",
+        Operations: "#f97316",
+        Design: "#ec4899",
+        HR: "#8b5cf6",
+        Marketing: "#f59e0b",
+        Sales: "#ef4444",
+        "Human Resources": "#8b5cf6",
+      };
+
+      this.nodes.forEach((n) => {
+        const deptName = n.department || "";
+        if (deptName && deptName.trim()) {
+          const key = deptName.trim();
+          if (!depts[key]) {
+            depts[key] = {
+              name: key,
+              count: 0,
+              color: colorMap[key] || this.colors[n.color] || "#3b82f6",
+            };
+          }
+          depts[key].count++;
+        }
+      });
+
+      return Object.values(depts).sort((a, b) => b.count - a.count);
     },
   },
   async mounted() {
@@ -311,7 +382,10 @@ export default {
       const text = theme.text;
       const sub = theme.sub;
 
-      const avatarContent = `<div style="width:100%;height:100%;background:${color};color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.2rem;border-radius:inherit;">${initials}</div>`;
+      // Support for photo/image URL
+      const avatarContent = data.imageUrl
+        ? `<img src="${data.imageUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" onerror="this.style.display='none';this.parentElement.innerHTML='<div style=\\'width:100%;height:100%;background:${color};color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.2rem;border-radius:inherit;\\'>${initials}</div>'" />`
+        : `<div style="width:100%;height:100%;background:${color};color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.2rem;border-radius:inherit;">${initials}</div>`;
 
       const deptBadge = data.department
         ? `<span style="padding:4px 10px;background:${color}15;color:${color};border-radius:20px;font-size:0.65rem;font-weight:600;text-transform:uppercase;border:1px solid ${color}30;">${data.department}</span>`
@@ -1185,6 +1259,129 @@ export default {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+/* ===== Collapsible Department Legend ===== */
+.department-legend {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: rgba(30, 41, 59, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  box-shadow: 0 15px 50px -10px rgba(0, 0, 0, 0.4);
+  z-index: 100;
+  min-width: 180px;
+  max-width: 260px;
+  transition: all 0.3s ease;
+}
+
+.department-legend.collapsed {
+  min-width: auto;
+  max-width: auto;
+  padding: 0.5rem;
+}
+
+.legend-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.legend-toggle:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #f1f5f9;
+}
+
+.legend-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.dept-tag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.dept-tag:hover {
+  transform: translateX(3px);
+}
+
+.dept-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.no-depts {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  font-style: italic;
+  padding: 0.5rem 0;
+}
+
+.legend-stats {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.legend-stats .stat {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* Light Theme: Department Legend */
+.theme-light .department-legend {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 15px 50px -10px rgba(0, 0, 0, 0.15);
+}
+
+.theme-light .legend-toggle {
+  color: #64748b;
+}
+
+.theme-light .legend-toggle:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #0f172a;
+}
+
+.theme-light .legend-stats {
+  border-top-color: rgba(0, 0, 0, 0.1);
+  color: #64748b;
+}
+
+.theme-light .no-depts {
+  color: #94a3b8;
 }
 
 /* ===== Responsive ===== */
