@@ -48,7 +48,7 @@ const routes = [
     component: SubmitWish,
   },
   {
-    path: "/",
+    path: "/todolist",
     name: "todolist",
     component: todolist,
   },
