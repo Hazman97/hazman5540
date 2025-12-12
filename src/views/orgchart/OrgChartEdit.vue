@@ -37,6 +37,24 @@
         </div>
       </header>
 
+      <!-- Share URL Bar -->
+      <div class="share-bar">
+        <span class="share-label">📤 Public Link:</span>
+        <input
+          type="text"
+          :value="publicUrl"
+          readonly
+          class="share-input"
+          ref="shareInput"
+        />
+        <button @click="copyPublicUrl" class="copy-btn">
+          {{ copied ? "✓ Copied!" : "📋 Copy" }}
+        </button>
+        <router-link :to="'/org/' + slug" class="view-btn" target="_blank">
+          👁️ View
+        </router-link>
+      </div>
+
       <!-- Edit Panels -->
       <div class="edit-panels">
         <!-- Left Sidebar - Settings -->
@@ -187,6 +205,24 @@
               </div>
             </div>
             <div class="form-row">
+              <div class="form-group full-width">
+                <label>Reports To (Parent)</label>
+                <select v-model="selectedParentId" class="parent-select">
+                  <option :value="null">-- No Manager (Root Level) --</option>
+                  <option
+                    v-for="node in availableParents"
+                    :key="node.id"
+                    :value="node.id"
+                  >
+                    {{ node.name }} ({{ node.position }})
+                  </option>
+                </select>
+                <small class="form-hint"
+                  >Select who this person reports to in the hierarchy</small
+                >
+              </div>
+            </div>
+            <div class="form-row">
               <div class="form-group">
                 <label>Avatar</label>
                 <div class="avatar-options">
@@ -250,6 +286,7 @@ export default {
       lastSaved: null,
       slug: "",
       token: "",
+      copied: false,
 
       showEditor: false,
       editingNode: null,
@@ -334,6 +371,35 @@ export default {
       };
       addWithLevel(this.rootNodes, 0);
       return result;
+    },
+    selectedParentId: {
+      get() {
+        return this.parentForNewNode;
+      },
+      set(val) {
+        this.parentForNewNode = val;
+      },
+    },
+    availableParents() {
+      // When editing, exclude the current node and its descendants
+      if (this.editingNode) {
+        const descendants = new Set();
+        const addDescendants = (nodeId) => {
+          this.nodes
+            .filter((n) => n.parentId === nodeId)
+            .forEach((child) => {
+              descendants.add(child.id);
+              addDescendants(child.id);
+            });
+        };
+        descendants.add(this.editingNode.id);
+        addDescendants(this.editingNode.id);
+        return this.nodes.filter((n) => !descendants.has(n.id));
+      }
+      return this.nodes;
+    },
+    publicUrl() {
+      return `${window.location.origin}/org/${this.slug}`;
     },
   },
   watch: {
@@ -445,38 +511,61 @@ export default {
     formatTime(date) {
       return new Date(date).toLocaleTimeString();
     },
+    copyPublicUrl() {
+      navigator.clipboard.writeText(this.publicUrl);
+      this.copied = true;
+      setTimeout(() => (this.copied = false), 2000);
+    },
     expandAll() {
       /* Placeholder */
     },
     addRootNode() {
+      console.log("addRootNode called");
       this.editingNode = null;
       this.parentForNewNode = null;
       this.resetForm();
       this.showEditor = true;
+      console.log("showEditor is now:", this.showEditor);
     },
     addChild(parentId) {
+      console.log("addChild called with parentId:", parentId);
       this.editingNode = null;
       this.parentForNewNode = parentId;
       this.resetForm();
       this.showEditor = true;
+      console.log("showEditor is now:", this.showEditor);
     },
     editNode(nodeId) {
+      console.log("editNode called with nodeId:", nodeId);
       const node = this.nodes.find((n) => n.id === nodeId);
       if (node) {
         this.editingNode = node;
+        this.parentForNewNode = node.parentId || null;
         this.nodeForm = { ...node };
         this.showEditor = true;
+        console.log("showEditor is now:", this.showEditor);
+      } else {
+        console.log("Node not found!");
       }
     },
-    deleteNode(nodeId) {
+    async deleteNode(nodeId) {
       if (!confirm("Delete this person and all subordinates?")) return;
-      const deleteRec = (id) => {
+
+      // Collect all IDs to delete (recursively)
+      const idsToDelete = new Set();
+      const collectIds = (id) => {
+        idsToDelete.add(id);
         this.nodes
           .filter((n) => n.parentId === id)
-          .forEach((c) => deleteRec(c.id));
-        this.nodes = this.nodes.filter((n) => n.id !== id);
+          .forEach((c) => collectIds(c.id));
       };
-      deleteRec(nodeId);
+      collectIds(nodeId);
+
+      // Filter out all nodes to delete
+      this.nodes = this.nodes.filter((n) => !idsToDelete.has(n.id));
+
+      // Auto-save to database
+      await this.saveChanges();
     },
     resetForm() {
       this.nodeForm = {
@@ -493,19 +582,41 @@ export default {
       this.editingNode = null;
       this.parentForNewNode = null;
     },
-    saveNode() {
+    async saveNode() {
       if (this.editingNode) {
+        // Update existing node
         const idx = this.nodes.findIndex((n) => n.id === this.editingNode.id);
-        if (idx !== -1)
-          this.nodes[idx] = { ...this.nodes[idx], ...this.nodeForm };
+        if (idx !== -1) {
+          const updatedNode = {
+            ...this.nodes[idx],
+            name: this.nodeForm.name,
+            position: this.nodeForm.position,
+            department: this.nodeForm.department,
+            email: this.nodeForm.email,
+            avatar: this.nodeForm.avatar,
+            color: this.nodeForm.color,
+            parentId: this.parentForNewNode,
+          };
+          // Use splice for Vue reactivity
+          this.nodes.splice(idx, 1, updatedNode);
+        }
       } else {
-        this.nodes.push({
+        // Add new node
+        const newNode = {
           id: Date.now().toString(),
-          ...this.nodeForm,
+          name: this.nodeForm.name,
+          position: this.nodeForm.position,
+          department: this.nodeForm.department,
+          email: this.nodeForm.email,
+          avatar: this.nodeForm.avatar,
+          color: this.nodeForm.color,
           parentId: this.parentForNewNode,
-        });
+        };
+        this.nodes.push(newNode);
       }
       this.closeEditor();
+      // Auto-save to database
+      await this.saveChanges();
     },
   },
 };
@@ -611,6 +722,66 @@ export default {
   padding: 1rem 1.5rem;
   background: rgba(0, 0, 0, 0.4);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Share Bar */
+.share-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(20, 184, 166, 0.1);
+  border-bottom: 1px solid rgba(20, 184, 166, 0.2);
+}
+
+.share-label {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.share-input {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  color: white;
+  font-size: 0.85rem;
+}
+
+.copy-btn {
+  padding: 0.5rem 1rem;
+  background: #14b8a6;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.copy-btn:hover {
+  background: #0d9488;
+}
+
+.view-btn {
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  color: white;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.view-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .header-left,
@@ -1050,6 +1221,68 @@ export default {
   .settings-panel,
   .preview-panel {
     display: none;
+  }
+}
+
+/* Parent Select Styles */
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.parent-select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  color: white;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.parent-select option {
+  background: #1a1a3e;
+  color: white;
+}
+
+.form-hint {
+  display: block;
+  margin-top: 0.4rem;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.75rem;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  .form-row {
+    flex-direction: column;
+  }
+
+  .node-row {
+    flex-wrap: wrap;
+  }
+
+  .node-actions {
+    width: 100%;
+    justify-content: flex-end;
+    margin-top: 0.5rem;
+  }
+
+  .edit-header {
+    flex-direction: column;
+    gap: 0.75rem;
+    text-align: center;
+  }
+
+  .header-left,
+  .header-right {
+    text-align: center;
+  }
+
+  .editor-modal {
+    max-width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
   }
 }
 </style>

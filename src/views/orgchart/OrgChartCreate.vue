@@ -1420,4 +1420,127 @@ export default {
 .fade-leave-to {
   opacity: 0;
 }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .form-container {
+    padding: 1rem;
+    min-height: auto;
+  }
+
+  .form-card {
+    padding: 1.25rem;
+    border-radius: 16px;
+  }
+
+  .form-title {
+    font-size: 1.25rem;
+  }
+
+  .form-subtitle {
+    font-size: 0.85rem;
+  }
+
+  .progress-bar {
+    gap: 0.5rem;
+  }
+
+  .progress-step {
+    width: 32px;
+    height: 32px;
+  }
+
+  .templates-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .template-preview {
+    height: 60px;
+  }
+
+  .template-icon {
+    font-size: 1.5rem;
+  }
+
+  .nav-buttons {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .nav-buttons button {
+    width: 100%;
+  }
+
+  .nodes-list {
+    max-height: 300px;
+  }
+
+  .node-item {
+    padding: 0.75rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .node-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .success-card {
+    padding: 1.5rem;
+  }
+
+  .success-title {
+    font-size: 1.25rem;
+  }
+
+  .link-row input {
+    font-size: 0.75rem;
+  }
+
+  .success-buttons {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .success-buttons button {
+    width: 100%;
+  }
+
+  /* Modal adjustments */
+  .editor-modal {
+    max-width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .avatar-options,
+  .color-options {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-icon {
+    font-size: 2rem;
+  }
+
+  .templates-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .slug-input-wrapper {
+    flex-direction: column;
+  }
+
+  .slug-prefix {
+    border-radius: 12px 12px 0 0;
+  }
+
+  .slug-input {
+    border-radius: 0 0 12px 12px;
+  }
+}
 </style>

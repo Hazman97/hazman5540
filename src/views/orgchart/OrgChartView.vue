@@ -107,31 +107,12 @@
 
 <script>
 import { supabase } from "@/supabase.js";
+import { h } from "vue";
 
-// Read-only Node Component
+// Read-only Node Component using render function (Vue 3 doesn't support runtime template compilation by default)
 const OrgNodeView = {
   name: "OrgNodeView",
   props: ["node", "allNodes"],
-  template: `
-    <div class="node-wrapper">
-      <div class="org-node" :class="'color-' + node.color">
-        <div class="node-avatar">{{ getAvatarIcon(node.avatar) }}</div>
-        <div class="node-info">
-          <h4 class="node-name">{{ node.name }}</h4>
-          <p class="node-position">{{ node.position }}</p>
-          <p v-if="node.department" class="node-department">{{ node.department }}</p>
-        </div>
-      </div>
-      <div v-if="children.length" class="node-children">
-        <org-node-view
-          v-for="child in children"
-          :key="child.id"
-          :node="child"
-          :all-nodes="allNodes"
-        />
-      </div>
-    </div>
-  `,
   computed: {
     children() {
       return this.allNodes.filter((n) => n.parentId === this.node.id);
@@ -149,6 +130,48 @@ const OrgNodeView = {
       };
       return icons[avatarId] || "👤";
     },
+  },
+  render() {
+    // Build children nodes recursively
+    const childNodes = this.children.length
+      ? h(
+          "div",
+          { class: "node-children" },
+          this.children.map((child) =>
+            h(OrgNodeView, {
+              key: child.id,
+              node: child,
+              allNodes: this.allNodes,
+            })
+          )
+        )
+      : null;
+
+    // Node info section
+    const nodeInfo = h("div", { class: "node-info" }, [
+      h("h4", { class: "node-name" }, this.node.name),
+      h("p", { class: "node-position" }, this.node.position),
+      this.node.department
+        ? h("p", { class: "node-department" }, this.node.department)
+        : null,
+    ]);
+
+    // Main org-node card
+    const orgNode = h(
+      "div",
+      { class: ["org-node", "color-" + this.node.color] },
+      [
+        h(
+          "div",
+          { class: "node-avatar" },
+          this.getAvatarIcon(this.node.avatar)
+        ),
+        nodeInfo,
+      ]
+    );
+
+    // Wrapper with org-node and children
+    return h("div", { class: "node-wrapper" }, [orgNode, childNodes]);
   },
 };
 
@@ -198,6 +221,7 @@ export default {
   methods: {
     async loadChart() {
       const slug = this.$route.params.slug;
+      console.log("Loading chart with slug:", slug);
 
       try {
         const { data, error } = await supabase
@@ -206,6 +230,8 @@ export default {
           .eq("slug", slug)
           .single();
 
+        console.log("Supabase response:", { data, error });
+
         if (error) throw error;
         if (!data) throw new Error("Chart not found");
 
@@ -213,6 +239,12 @@ export default {
         this.nodes = data.chart_data || [];
         this.theme = data.theme || "corporate";
         this.allowExport = data.custom_settings?.allowExport !== false;
+
+        console.log("Loaded nodes:", this.nodes);
+        console.log(
+          "Root nodes:",
+          this.nodes.filter((n) => !n.parentId)
+        );
       } catch (err) {
         console.error("Error loading chart:", err);
         this.error =
@@ -717,5 +749,102 @@ export default {
     rgba(19, 78, 94, 0.6),
     rgba(113, 178, 128, 0.3)
   );
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .view-header {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+    text-align: center;
+  }
+
+  .back-link {
+    align-self: flex-start;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .chart-title {
+    font-size: 1.25rem;
+  }
+
+  .chart-canvas-wrapper {
+    padding: 1rem;
+  }
+
+  .chart-canvas {
+    padding: 1rem;
+    min-height: 400px;
+  }
+
+  .org-node {
+    min-width: 140px;
+    padding: 1rem;
+  }
+
+  .node-avatar {
+    font-size: 1.5rem;
+  }
+
+  .node-name {
+    font-size: 0.9rem;
+  }
+
+  .node-children {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .node-children::before {
+    width: 2px;
+    height: calc(100% - 40px);
+    top: auto;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+  }
+
+  .zoom-controls {
+    bottom: 1rem;
+    right: 1rem;
+    padding: 0.25rem;
+  }
+
+  .zoom-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 1rem;
+  }
+
+  .share-modal {
+    padding: 1.5rem;
+    max-width: 95%;
+  }
+
+  .share-social {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .org-node {
+    min-width: 120px;
+    padding: 0.75rem;
+  }
+
+  .header-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .header-actions button {
+    width: 100%;
+  }
 }
 </style>
