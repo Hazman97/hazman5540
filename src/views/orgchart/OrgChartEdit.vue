@@ -241,6 +241,23 @@
             </div>
             <div class="form-row">
               <div class="form-group full-width">
+                <label>Photo URL (Optional)</label>
+                <input
+                  v-model="nodeForm.imageUrl"
+                  type="url"
+                  placeholder="https://i.imgur.com/example.jpg"
+                />
+                <small class="form-hint"
+                  >💡 Upload your photo to
+                  <a href="https://imgur.com/upload" target="_blank"
+                    >imgur.com</a
+                  >
+                  and paste the URL here</small
+                >
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group full-width">
                 <label>Reports To (Parent)</label>
                 <select v-model="selectedParentId" class="parent-select">
                   <option :value="null">-- No Manager (Root Level) --</option>
@@ -255,37 +272,6 @@
                 <small class="form-hint"
                   >Select who this person reports to in the hierarchy</small
                 >
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Avatar</label>
-                <div class="avatar-options">
-                  <button
-                    v-for="av in avatarStyles"
-                    :key="av.id"
-                    type="button"
-                    class="avatar-btn"
-                    :class="{ selected: nodeForm.avatar === av.id }"
-                    @click="nodeForm.avatar = av.id"
-                  >
-                    {{ av.icon }}
-                  </button>
-                </div>
-              </div>
-              <div class="form-group">
-                <label>Color</label>
-                <div class="color-options">
-                  <button
-                    v-for="color in cardColors"
-                    :key="color.id"
-                    type="button"
-                    class="color-btn"
-                    :class="{ selected: nodeForm.color === color.id }"
-                    :style="{ background: color.value }"
-                    @click="nodeForm.color = color.id"
-                  ></button>
-                </div>
               </div>
             </div>
             <div class="form-actions">
@@ -327,11 +313,13 @@ export default {
       showEditor: false,
       editingNode: null,
       parentForNewNode: null,
+      selectedParentId: null,
       nodeForm: {
         name: "",
         position: "",
         department: "",
         email: "",
+        imageUrl: "",
         avatar: "person",
         color: "blue",
       },

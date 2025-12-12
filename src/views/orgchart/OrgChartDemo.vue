@@ -156,29 +156,6 @@
         </div>
         <form @submit.prevent="saveNode" class="modal-body">
           <div class="field">
-            <label>Worker ID *</label>
-            <div class="id-input-row">
-              <input
-                v-model="nodeForm.workerId"
-                type="text"
-                placeholder="EMP001"
-                required
-                :readonly="isReplacing"
-              />
-              <button
-                type="button"
-                class="generate-id-btn"
-                @click="generateWorkerId"
-                v-if="!isReplacing"
-              >
-                🔄 Generate
-              </button>
-            </div>
-            <small v-if="workerIdError" class="error-text">{{
-              workerIdError
-            }}</small>
-          </div>
-          <div class="field">
             <label>Name *</label>
             <input
               v-model="nodeForm.name"
@@ -217,76 +194,33 @@
             />
           </div>
           <div class="field">
-            <label>Phone</label>
+            <label>Photo URL (Optional)</label>
             <input
-              v-model="nodeForm.phone"
-              type="text"
-              placeholder="+1 234 567 890"
+              v-model="nodeForm.imageUrl"
+              type="url"
+              placeholder="https://i.imgur.com/example.jpg"
             />
+            <small class="form-hint"
+              >💡 Upload your photo to
+              <a href="https://imgur.com/upload" target="_blank">imgur.com</a>
+              and paste the URL here</small
+            >
           </div>
           <div class="field">
-            <label>Photo</label>
-            <div class="photo-tabs">
-              <button
-                type="button"
-                :class="{ active: photoMode === 'upload' }"
-                @click="photoMode = 'upload'"
+            <label>Reports To (Parent)</label>
+            <select v-model="selectedParentId" class="parent-select">
+              <option :value="null">-- No Manager (Root Level) --</option>
+              <option
+                v-for="node in availableParents"
+                :key="node.id"
+                :value="node.id"
               >
-                📤 Upload
-              </button>
-              <button
-                type="button"
-                :class="{ active: photoMode === 'url' }"
-                @click="photoMode = 'url'"
-              >
-                🔗 URL
-              </button>
-            </div>
-            <div v-if="photoMode === 'upload'" class="photo-upload">
-              <input
-                type="file"
-                accept="image/*"
-                @change="handlePhotoUpload"
-                id="photo-upload"
-                hidden
-              />
-              <label for="photo-upload" class="upload-area">
-                <div v-if="nodeForm.imageUrl" class="preview-img">
-                  <img :src="nodeForm.imageUrl" alt="Preview" />
-                  <button
-                    type="button"
-                    class="remove-img"
-                    @click.prevent="nodeForm.imageUrl = ''"
-                  >
-                    ×
-                  </button>
-                </div>
-                <div v-else class="upload-placeholder">
-                  <span>📷</span><small>Click to upload</small>
-                </div>
-              </label>
-            </div>
-            <div v-else class="photo-url">
-              <input
-                v-model="nodeForm.imageUrl"
-                type="text"
-                placeholder="https://example.com/photo.jpg"
-              />
-            </div>
-          </div>
-          <div class="field">
-            <label>Card Color</label>
-            <div class="color-row">
-              <button
-                v-for="c in colors"
-                :key="c.id"
-                type="button"
-                class="color-swatch"
-                :class="{ active: nodeForm.color === c.id }"
-                :style="{ background: c.value }"
-                @click="nodeForm.color = c.id"
-              ></button>
-            </div>
+                {{ node.name }} ({{ node.position }})
+              </option>
+            </select>
+            <small class="form-hint"
+              >Select who this person reports to in the hierarchy</small
+            >
           </div>
           <div class="modal-footer">
             <button type="button" class="btn-secondary" @click="closeEditor">
@@ -439,6 +373,7 @@
 import { OrgChart } from "d3-org-chart";
 import * as d3 from "d3";
 import html2canvas from "html2canvas";
+import { supabase } from "@/supabase";
 
 export default {
   name: "OrgChartDemo",
@@ -456,118 +391,23 @@ export default {
       editingNode: null,
       selectedNode: null,
       parentForNewNode: null,
+      selectedParentId: null,
       isReplacing: false,
       workerIdError: "",
       nextIdNumber: 9,
       orphanFixes: {},
-      nodes: [
-        {
-          id: "1",
-          workerId: "EMP001",
-          name: "Sarah Johnson",
-          position: "CEO",
-          department: "Executive",
-          email: "sarah@company.com",
-          phone: "",
-          parentId: "",
-          color: "blue",
-          imageUrl: "",
-        },
-        {
-          id: "2",
-          workerId: "EMP002",
-          name: "Michael Chen",
-          position: "CTO",
-          department: "Technology",
-          email: "michael@company.com",
-          phone: "",
-          parentId: "1",
-          color: "cyan",
-          imageUrl: "",
-        },
-        {
-          id: "3",
-          workerId: "EMP003",
-          name: "Emily Davis",
-          position: "CFO",
-          department: "Finance",
-          email: "emily@company.com",
-          phone: "",
-          parentId: "1",
-          color: "green",
-          imageUrl: "",
-        },
-        {
-          id: "4",
-          workerId: "EMP004",
-          name: "James Wilson",
-          position: "COO",
-          department: "Operations",
-          email: "james@company.com",
-          phone: "",
-          parentId: "1",
-          color: "orange",
-          imageUrl: "",
-        },
-        {
-          id: "5",
-          workerId: "EMP005",
-          name: "Alex Kim",
-          position: "Lead Developer",
-          department: "Technology",
-          email: "alex@company.com",
-          phone: "",
-          parentId: "2",
-          color: "cyan",
-          imageUrl: "",
-        },
-        {
-          id: "6",
-          workerId: "EMP006",
-          name: "Lisa Wang",
-          position: "Designer",
-          department: "Design",
-          email: "lisa@company.com",
-          phone: "",
-          parentId: "2",
-          color: "pink",
-          imageUrl: "",
-        },
-        {
-          id: "7",
-          workerId: "EMP007",
-          name: "David Brown",
-          position: "Accountant",
-          department: "Finance",
-          email: "david@company.com",
-          phone: "",
-          parentId: "3",
-          color: "green",
-          imageUrl: "",
-        },
-        {
-          id: "8",
-          workerId: "EMP008",
-          name: "Rachel Green",
-          position: "HR Manager",
-          department: "HR",
-          email: "rachel@company.com",
-          phone: "",
-          parentId: "4",
-          color: "purple",
-          imageUrl: "",
-        },
-      ],
       nodeForm: {
-        workerId: "",
         name: "",
         position: "",
         department: "",
         email: "",
-        phone: "",
         imageUrl: "",
+        avatar: "person",
         color: "blue",
       },
+      loading: true,
+      demoSlug: "demo",
+      nodes: [],
       themes: [
         { id: "light", name: "Light", color: "#ffffff" },
         { id: "dark", name: "Dark", color: "#1e293b" },
@@ -650,16 +490,21 @@ export default {
       immediate: true,
       handler(newVal) {
         // Initialize orphan fixes with empty values
-        newVal.forEach((orphan) => {
-          if (!(orphan.id in this.orphanFixes)) {
-            this.orphanFixes[orphan.id] = "";
-          }
-        });
+        if (newVal && Array.isArray(newVal)) {
+          newVal.forEach((orphan) => {
+            if (!(orphan.id in this.orphanFixes)) {
+              this.orphanFixes[orphan.id] = "";
+            }
+          });
+        }
       },
     },
   },
-  mounted() {
-    this.renderChart();
+  async mounted() {
+    await this.loadChart();
+    this.$nextTick(() => {
+      this.renderChart();
+    });
     window.addEventListener("resize", this.handleResize);
     window.addEventListener("orgNodeClick", (e) =>
       this.openActionMenu(e.detail)
@@ -669,6 +514,33 @@ export default {
     window.removeEventListener("resize", this.handleResize);
   },
   methods: {
+    async loadChart() {
+      try {
+        this.loading = true;
+        const { data, error } = await supabase
+          .from("org_charts")
+          .select("*")
+          .eq("slug", this.demoSlug)
+          .single();
+
+        if (error) {
+          console.error("Error loading demo chart:", error);
+          this.nodes = [];
+          return;
+        }
+
+        if (data) {
+          this.nodes = data.chart_data || [];
+          this.selectedTheme = data.custom_settings?.theme || "dark";
+          this.selectedStyle = data.custom_settings?.style || "modern";
+        }
+      } catch (err) {
+        console.error("Failed to load demo chart:", err);
+        this.nodes = [];
+      } finally {
+        this.loading = false;
+      }
+    },
     getTheme() {
       const configs = {
         light: {
@@ -1241,6 +1113,50 @@ export default {
       } catch (err) {
         alert("Export failed");
       }
+    },
+  },
+  computed: {
+    availableParents() {
+      if (this.editingNode) {
+        // Exclude the node being edited and its descendants
+        const descendants = new Set();
+        const addDescendants = (nodeId) => {
+          this.nodes
+            .filter((n) => n.parentId === nodeId)
+            .forEach((child) => {
+              descendants.add(child.id);
+              addDescendants(child.id);
+            });
+        };
+        descendants.add(this.editingNode.id);
+        addDescendants(this.editingNode.id);
+        return this.nodes.filter((n) => !descendants.has(n.id));
+      }
+      return this.nodes;
+    },
+    orphanNodes() {
+      if (!this.nodes || this.nodes.length === 0) return [];
+      const validIds = new Set(this.nodes.map((n) => n.id));
+      return this.nodes.filter(
+        (n) => n.parentId && n.parentId !== "" && !validIds.has(n.parentId)
+      );
+    },
+    validNodes() {
+      if (!this.nodes || this.nodes.length === 0) return [];
+      const orphanIds = new Set(this.orphanNodes.map((n) => n.id));
+      return this.nodes.filter((n) => !orphanIds.has(n.id));
+    },
+    rootNodes() {
+      return this.validNodes.filter((n) => !n.parentId || n.parentId === "");
+    },
+    uniqueDepartments() {
+      if (!this.nodes || this.nodes.length === 0) return [];
+      return [...new Set(this.nodes.map((n) => n.department).filter(Boolean))];
+    },
+    modalTitle() {
+      if (this.isReplacing) return "Replace Person";
+      if (this.editingNode) return "Edit Person";
+      return "Add Person";
     },
   },
 };
