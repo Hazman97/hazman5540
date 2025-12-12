@@ -1028,12 +1028,12 @@ export default {
             <div style="background:${color}10;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:15px;clip-path:inherit;">
               <div style="position:absolute;top:0;left:15px;right:0;height:1px;background:${color};"></div>
               <div style="position:absolute;bottom:0;right:15px;left:0;height:1px;background:${color};"></div>
-              
+
               <div style="width:64px;height:64px;margin-bottom:12px;position:relative;">
                 <div style="position:absolute;inset:-4px;border-radius:50%;border:1px dashed ${color};animation:spin 10s linear infinite;"></div>
                 <div style="width:100%;height:100%;border-radius:50%;overflow:hidden;border:2px solid ${color};">${avatarContent}</div>
               </div>
-              
+
               <div style="font-size:1.2rem;font-weight:700;color:${text};text-transform:uppercase;">${data.name}</div>
               <div style="font-size:0.8rem;color:${color};font-weight:600;">${data.position}</div>
               <div style="margin-top:8px;font-size:0.65rem;background:${color};color:${bg};padding:2px 8px;border-radius:2px;">${data.department}</div>
@@ -1106,6 +1106,10 @@ export default {
     },
     collapseAll() {
       this.chart?.collapseAll();
+    },
+    openActionMenu(nodeId) {
+      // When a node is clicked, open the editor to edit it
+      this.editNode(nodeId);
     },
     addRootNode() {
       this.editingNode = null;

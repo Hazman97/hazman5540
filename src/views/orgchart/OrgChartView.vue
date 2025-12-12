@@ -1,5 +1,5 @@
 <template>
-  <div class="org-view-page" :class="'theme-' + theme">
+  <div class="org-view-page" :class="'theme-' + selectedTheme">
     <!-- Background -->
     <div class="bg-gradient" :style="{ background: themeGradient }"></div>
 
@@ -28,37 +28,61 @@
             {{ chart.description }}
           </p>
         </div>
-        <div class="header-actions">
-          <button v-if="allowExport" @click="exportChart" class="export-btn">
-            <span>📥</span> Export
-          </button>
-          <button class="share-btn" @click="shareChart">
-            <span>📤</span> Share
-          </button>
-        </div>
       </header>
 
-      <!-- Chart Canvas -->
-      <div class="chart-canvas-wrapper">
-        <div class="zoom-controls">
-          <button @click="zoomIn" class="zoom-btn">+</button>
-          <span class="zoom-level">{{ Math.round(zoom * 100) }}%</span>
-          <button @click="zoomOut" class="zoom-btn">-</button>
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <div class="toolbar-section">
+          <button class="tool-btn" @click="fitChart">⊡ Fit</button>
+          <button class="tool-btn" @click="expandAll">↓ Expand</button>
+          <button class="tool-btn" @click="collapseAll">→ Collapse</button>
         </div>
 
-        <div class="chart-canvas" :style="{ transform: `scale(${zoom})` }">
-          <div v-if="rootNodes.length" class="org-tree">
-            <org-node-view
-              v-for="node in rootNodes"
-              :key="node.id"
-              :node="node"
-              :all-nodes="nodes"
+        <div class="toolbar-section search-section">
+          <div class="search-box">
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="Search by name..."
+              @input="onSearch"
             />
+            <span class="search-icon">🔍</span>
           </div>
-          <div v-else class="empty-chart">
-            <p>This organization chart is empty.</p>
+          <div
+            v-if="searchResults.length && searchQuery"
+            class="search-results"
+          >
+            <div
+              v-for="r in searchResults"
+              :key="r.id"
+              class="search-item"
+              @click="focusNode(r.id)"
+            >
+              <span
+                class="result-avatar"
+                :style="{ background: getColorValue(r.color) }"
+              >
+                {{ getInitials(r.name) }}
+              </span>
+              <div class="result-info">
+                <strong>{{ r.name }}</strong>
+                <small>{{ r.position }}</small>
+              </div>
+            </div>
           </div>
         </div>
+
+        <div class="toolbar-section">
+          <button v-if="allowExport" @click="exportToPng" class="export-btn">
+            📥 Export PNG
+          </button>
+          <button class="share-btn" @click="shareChart">📤 Share</button>
+        </div>
+      </div>
+
+      <!-- D3 Chart Container -->
+      <div class="chart-canvas-wrapper">
+        <div ref="chartContainer" class="chart-container"></div>
       </div>
 
       <!-- Footer -->
@@ -107,116 +131,64 @@
 
 <script>
 import { supabase } from "@/supabase.js";
-import { h } from "vue";
-
-// Read-only Node Component using render function (Vue 3 doesn't support runtime template compilation by default)
-const OrgNodeView = {
-  name: "OrgNodeView",
-  props: ["node", "allNodes"],
-  computed: {
-    children() {
-      return this.allNodes.filter((n) => n.parentId === this.node.id);
-    },
-  },
-  methods: {
-    getAvatarIcon(avatarId) {
-      const icons = {
-        person: "🧑",
-        male: "👨",
-        female: "👩",
-        business: "👔",
-        developer: "👨‍💻",
-        manager: "👨‍💼",
-      };
-      return icons[avatarId] || "👤";
-    },
-  },
-  render() {
-    // Build children nodes recursively
-    const childNodes = this.children.length
-      ? h(
-          "div",
-          { class: "node-children" },
-          this.children.map((child) =>
-            h(OrgNodeView, {
-              key: child.id,
-              node: child,
-              allNodes: this.allNodes,
-            })
-          )
-        )
-      : null;
-
-    // Node info section
-    const nodeInfo = h("div", { class: "node-info" }, [
-      h("h4", { class: "node-name" }, this.node.name),
-      h("p", { class: "node-position" }, this.node.position),
-      this.node.department
-        ? h("p", { class: "node-department" }, this.node.department)
-        : null,
-    ]);
-
-    // Main org-node card
-    const orgNode = h(
-      "div",
-      { class: ["org-node", "color-" + this.node.color] },
-      [
-        h(
-          "div",
-          { class: "node-avatar" },
-          this.getAvatarIcon(this.node.avatar)
-        ),
-        nodeInfo,
-      ]
-    );
-
-    // Wrapper with org-node and children
-    return h("div", { class: "node-wrapper" }, [orgNode, childNodes]);
-  },
-};
+import { OrgChart } from "d3-org-chart";
+import * as d3 from "d3";
+import html2canvas from "html2canvas";
 
 export default {
   name: "OrgChartView",
-  components: { OrgNodeView },
   data() {
     return {
       loading: true,
       error: null,
       chart: null,
+      chartInstance: null,
       nodes: [],
-      theme: "corporate",
+      selectedTheme: "dark",
+      selectedStyle: "modern",
       allowExport: true,
-      zoom: 1,
       showShareModal: false,
       copied: false,
+      searchQuery: "",
+      searchResults: [],
+      colors: {
+        blue: "#3b82f6",
+        cyan: "#06b6d4",
+        green: "#10b981",
+        purple: "#8b5cf6",
+        pink: "#ec4899",
+        orange: "#f97316",
+        red: "#ef4444",
+        teal: "#14b8a6",
+      },
     };
   },
   computed: {
-    rootNodes() {
-      return this.nodes.filter((n) => !n.parentId);
-    },
     shareLink() {
       return window.location.href;
     },
     themeGradient() {
       const gradients = {
-        corporate:
-          "linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%)",
-        modern:
-          "linear-gradient(135deg, #1a1a3e 0%, #4c3a77 50%, #1a1a3e 100%)",
-        creative:
-          "linear-gradient(135deg, #2d1f3d 0%, #6b3a5b 50%, #2d1f3d 100%)",
-        minimal:
-          "linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%)",
-        dark: "linear-gradient(135deg, #0a0a14 0%, #1a1a2e 50%, #0a0a14 100%)",
-        nature:
-          "linear-gradient(135deg, #0d2818 0%, #1a4d34 50%, #0d2818 100%)",
+        // Matching Demo page themes
+        light: "linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%)",
+        "modern-white":
+          "linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #e2e8f0 100%)",
+        dark: "linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)",
+        blue: "linear-gradient(135deg, #0c1929 0%, #1e3a5f 50%, #0c1929 100%)",
+        purple:
+          "linear-gradient(135deg, #1e1033 0%, #4c1d95 50%, #1e1033 100%)",
+        green: "linear-gradient(135deg, #022c22 0%, #064e3b 50%, #022c22 100%)",
+        warm: "linear-gradient(135deg, #1c1210 0%, #7c2d12 50%, #1c1210 100%)",
       };
-      return gradients[this.theme] || gradients.corporate;
+      return gradients[this.selectedTheme] || gradients.dark;
     },
   },
   async mounted() {
     await this.loadChart();
+    window.addEventListener("resize", this.handleResize);
+  },
+  beforeUnmount() {
+    window.removeEventListener("resize", this.handleResize);
   },
   methods: {
     async loadChart() {
@@ -237,27 +209,417 @@ export default {
 
         this.chart = data;
         this.nodes = data.chart_data || [];
-        this.theme = data.theme || "corporate";
+        this.selectedTheme = data.theme || "dark";
+        this.selectedStyle = data.custom_settings?.style || "modern";
         this.allowExport = data.custom_settings?.allowExport !== false;
 
         console.log("Loaded nodes:", this.nodes);
-        console.log(
-          "Root nodes:",
-          this.nodes.filter((n) => !n.parentId)
-        );
+        console.log("Theme:", this.selectedTheme, "Style:", this.selectedStyle);
+
+        // Set loading to false first so the DOM renders
+        this.loading = false;
+
+        // Then render chart after DOM is ready
+        this.$nextTick(() => {
+          this.renderChart();
+        });
       } catch (err) {
         console.error("Error loading chart:", err);
         this.error =
           "This organization chart does not exist or has been removed.";
-      } finally {
         this.loading = false;
       }
     },
-    zoomIn() {
-      this.zoom = Math.min(this.zoom + 0.1, 1.5);
+    getTheme() {
+      const configs = {
+        // Themes matching Demo page
+        light: {
+          bg: "#f8fafc",
+          card: "#ffffff",
+          text: "#1e293b",
+          sub: "#64748b",
+          border: "#e2e8f0",
+          link: "#94a3b8",
+        },
+        "modern-white": {
+          bg: "#ffffff",
+          card: "#f8fafc",
+          text: "#0f172a",
+          sub: "#475569",
+          border: "#cbd5e1",
+          link: "#64748b",
+        },
+        dark: {
+          bg: "#0f172a",
+          card: "#1e293b",
+          text: "#f1f5f9",
+          sub: "#94a3b8",
+          border: "#334155",
+          link: "#475569",
+        },
+        blue: {
+          bg: "#0c1929",
+          card: "#1e3a5f",
+          text: "#e0f2fe",
+          sub: "#7dd3fc",
+          border: "#2563eb",
+          link: "#3b82f6",
+        },
+        purple: {
+          bg: "#1e1033",
+          card: "#2e1065",
+          text: "#f3e8ff",
+          sub: "#c4b5fd",
+          border: "#7c3aed",
+          link: "#8b5cf6",
+        },
+        green: {
+          bg: "#022c22",
+          card: "#064e3b",
+          text: "#d1fae5",
+          sub: "#6ee7b7",
+          border: "#059669",
+          link: "#10b981",
+        },
+        warm: {
+          bg: "#1c1210",
+          card: "#431407",
+          text: "#fef3c7",
+          sub: "#fcd34d",
+          border: "#ea580c",
+          link: "#f97316",
+        },
+      };
+      return configs[this.selectedTheme] || configs.dark;
     },
-    zoomOut() {
-      this.zoom = Math.max(this.zoom - 0.1, 0.5);
+    getColorValue(id) {
+      return this.colors[id] || "#3b82f6";
+    },
+    getInitials(name) {
+      if (!name) return "?";
+      return name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase();
+    },
+    getCardStyle(data, theme) {
+      const color = this.getColorValue(data.color);
+      const initials = this.getInitials(data.name);
+      const bg = theme.card;
+      const text = theme.text;
+      const sub = theme.sub;
+
+      const avatarContent = `<div style="width:100%;height:100%;background:${color};color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.2rem;border-radius:inherit;">${initials}</div>`;
+
+      const deptBadge = data.department
+        ? `<span style="padding:4px 10px;background:${color}15;color:${color};border-radius:20px;font-size:0.65rem;font-weight:600;text-transform:uppercase;border:1px solid ${color}30;">${data.department}</span>`
+        : "";
+
+      // Modern Clean (Horizontal)
+      if (this.selectedStyle === "modern") {
+        return `
+          <div style="width:100%;height:100%;background:${bg};border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,0.15);border:1px solid ${
+          theme.border
+        };display:flex;align-items:center;padding:16px;gap:16px;font-family:'Inter',sans-serif;position:relative;overflow:hidden;">
+            <div style="position:absolute;left:0;top:0;bottom:0;width:4px;background:${color};"></div>
+            <div style="width:56px;height:56px;border-radius:50%;flex-shrink:0;box-shadow:0 4px 10px rgba(0,0,0,0.1);">${avatarContent}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:0.95rem;font-weight:700;color:${text};margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${
+          data.name
+        }</div>
+              <div style="font-size:0.75rem;color:${color};font-weight:500;margin-bottom:6px;">${
+          data.position || ""
+        }</div>
+              <div style="display:flex;gap:6px;align-items:center;">${deptBadge}</div>
+            </div>
+          </div>`;
+      }
+
+      // Gradient Glow (Vertical Premium)
+      if (this.selectedStyle === "gradient") {
+        return `
+          <div style="width:100%;height:100%;background:linear-gradient(145deg, ${bg}, ${bg});border-radius:20px;box-shadow:0 10px 30px -10px ${color}60;border:1px solid ${color}40;display:flex;flex-direction:column;align-items:center;padding:24px 16px;font-family:'Inter',sans-serif;position:relative;overflow:hidden;">
+            <div style="position:absolute;top:0;left:0;right:0;height:6px;background:linear-gradient(90deg, ${color}, ${color}80);"></div>
+            <div style="width:80px;height:80px;border-radius:50%;margin-bottom:16px;padding:3px;background:linear-gradient(135deg, ${color}, ${color}80);box-shadow:0 8px 20px -5px ${color}50;">
+              <div style="width:100%;height:100%;border-radius:50%;border:3px solid ${bg};overflow:hidden;">${avatarContent}</div>
+            </div>
+            <div style="text-align:center;width:100%;">
+              <div style="font-size:1.1rem;font-weight:700;color:${text};margin-bottom:4px;">${
+          data.name
+        }</div>
+              <div style="font-size:0.8rem;color:${color};font-weight:600;margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px;">${
+          data.position || ""
+        }</div>
+              <div style="display:flex;justify-content:center;gap:6px;flex-wrap:wrap;">${deptBadge}</div>
+            </div>
+          </div>`;
+      }
+
+      // Minimal Line
+      if (this.selectedStyle === "minimal") {
+        return `
+          <div style="width:100%;height:100%;background:${bg};border-radius:8px;border:1px solid ${
+          theme.border
+        };display:flex;align-items:center;padding:12px;gap:12px;font-family:'Inter',sans-serif;box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+            <div style="width:42px;height:42px;border-radius:6px;overflow:hidden;">${avatarContent}</div>
+            <div>
+              <div style="font-size:0.9rem;font-weight:600;color:${text};">${
+          data.name
+        }</div>
+              <div style="font-size:0.75rem;color:${sub};">${
+          data.position || ""
+        }</div>
+            </div>
+            <div style="margin-left:auto;height:100%;width:3px;background:${color};border-radius:2px;"></div>
+          </div>`;
+      }
+
+      // Glassmorphism
+      if (this.selectedStyle === "glass") {
+        return `
+          <div style="width:100%;height:100%;background:rgba(255,255,255,0.1);backdrop-filter:blur(10px);border-radius:16px;border:1px solid rgba(255,255,255,0.2);display:flex;flex-direction:column;align-items:center;padding:20px;font-family:'Inter',sans-serif;">
+            <div style="width:70px;height:70px;border-radius:50%;margin-bottom:12px;box-shadow:0 8px 20px rgba(0,0,0,0.2);overflow:hidden;border:3px solid ${color};">${avatarContent}</div>
+            <div style="font-size:1rem;font-weight:700;color:white;margin-bottom:4px;">${
+              data.name
+            }</div>
+            <div style="font-size:0.8rem;color:${color};margin-bottom:8px;">${
+          data.position || ""
+        }</div>
+            ${deptBadge}
+          </div>`;
+      }
+
+      // Rounded Bubble
+      if (this.selectedStyle === "rounded") {
+        return `
+          <div style="width:100%;height:100%;background:${bg};border-radius:24px;border:2px solid ${
+          theme.bg === "#f8fafc" ? "#f1f5f9" : "#334155"
+        };display:flex;flex-direction:column;align-items:center;padding:20px;font-family:'dm sans',sans-serif;position:relative;">
+            <div style="width:70px;height:70px;border-radius:24px;margin-bottom:14px;overflow:hidden;box-shadow:0 8px 20px rgba(0,0,0,0.08);transform:rotate(-3deg);border:3px solid white;">${avatarContent}</div>
+            <div style="font-size:1rem;font-weight:700;color:${text};margin-bottom:2px;">${
+          data.name
+        }</div>
+            <div style="font-size:0.75rem;color:${sub};margin-bottom:12px;">${
+          data.position || ""
+        }</div>
+            ${deptBadge}
+            <div style="position:absolute;top:15px;right:15px;width:8px;height:8px;border-radius:50%;background:${color};"></div>
+          </div>`;
+      }
+
+      // Deep Shadow
+      if (this.selectedStyle === "shadow") {
+        return `
+          <div style="width:100%;height:100%;background:${bg};border-radius:16px;box-shadow:0 15px 35px -10px rgba(0,0,0,0.15), 0 5px 15px -5px rgba(0,0,0,0.05);display:flex;flex-direction:column;align-items:center;padding:0;overflow:hidden;font-family:'Inter',sans-serif;">
+            <div style="width:100%;height:80px;background:linear-gradient(135deg, ${color}, ${color});position:relative;">
+              <div style="position:absolute;bottom:-35px;left:50%;transform:translateX(-50%);width:70px;height:70px;border-radius:50%;border:4px solid ${bg};overflow:hidden;box-shadow:0 5px 15px rgba(0,0,0,0.2);">${avatarContent}</div>
+            </div>
+            <div style="padding:40px 20px 20px;text-align:center;width:100%;">
+              <div style="font-size:1rem;font-weight:700;color:${text};">${
+          data.name
+        }</div>
+              <div style="font-size:0.75rem;color:${color};font-weight:600;margin-bottom:8px;">${
+          data.position || ""
+        }</div>
+              ${deptBadge}
+            </div>
+          </div>`;
+      }
+
+      // Neon Border
+      if (this.selectedStyle === "neon") {
+        const neonColor = color;
+        return `
+          <div style="width:100%;height:100%;background:${bg};border-radius:4px;border:2px solid ${neonColor};box-shadow:0 0 15px ${neonColor}40, inset 0 0 10px ${neonColor}10;display:flex;flex-direction:column;padding:20px;position:relative;font-family:'Sora',sans-serif;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:15px;">
+              <div style="width:50px;height:50px;border-radius:4px;overflow:hidden;border:1px solid ${neonColor};">${avatarContent}</div>
+            </div>
+            <div style="margin-top:auto;">
+              <div style="font-size:1rem;font-weight:700;color:${text};letter-spacing:-0.5px;">${
+          data.name
+        }</div>
+              <div style="font-size:0.75rem;color:${neonColor};text-transform:uppercase;letter-spacing:1px;margin-top:4px;">${
+          data.position || ""
+        }</div>
+            </div>
+            <div style="position:absolute;bottom:0;right:0;width:0;height:0;border-style:solid;border-width:0 0 20px 20px;border-color:transparent transparent ${neonColor} transparent;"></div>
+          </div>`;
+      }
+
+      // Flat Material
+      if (this.selectedStyle === "flat") {
+        return `
+          <div style="width:100%;height:100%;background:${color};border-radius:16px;display:flex;flex-direction:column;align-items:center;padding:24px;color:white;font-family:'Inter',sans-serif;box-shadow:0 10px 25px -5px ${color}60;">
+            <div style="width:70px;height:70px;border-radius:50%;margin-bottom:16px;overflow:hidden;border:3px solid rgba(255,255,255,0.3);">${avatarContent}</div>
+            <div style="font-size:1.1rem;font-weight:700;margin-bottom:4px;">${
+              data.name
+            }</div>
+            <div style="font-size:0.8rem;opacity:0.9;font-weight:500;margin-bottom:12px;">${
+              data.position || ""
+            }</div>
+            <div style="background:rgba(255,255,255,0.2);padding:4px 12px;border-radius:20px;font-size:0.7rem;backdrop-filter:blur(4px);">${
+              data.department || "General"
+            }</div>
+          </div>`;
+      }
+
+      // Elegant Gold
+      if (this.selectedStyle === "elegant") {
+        return `
+          <div style="width:100%;height:100%;background:${bg};border-radius:2px;border:1px solid #d4af37;display:flex;flex-direction:column;align-items:center;padding:20px;font-family:'Playfair Display',serif;position:relative;box-shadow:inset 0 0 0 4px ${bg}, inset 0 0 0 5px #d4af37;">
+            <div style="width:60px;height:60px;border-radius:50%;margin-bottom:12px;overflow:hidden;border:1px solid #d4af37;padding:2px;">
+              <div style="width:100%;height:100%;border-radius:50%;overflow:hidden;">${avatarContent}</div>
+            </div>
+            <div style="font-size:1.1rem;font-weight:700;color:${text};font-style:italic;">${
+          data.name
+        }</div>
+            <div style="font-size:0.7rem;color:#d4af37;letter-spacing:1px;text-transform:uppercase;margin:4px 0 10px;">${
+              data.position || ""
+            }</div>
+            <div style="width:30px;height:1px;background:#d4af37;"></div>
+          </div>`;
+      }
+
+      // Tech Circuit
+      if (this.selectedStyle === "tech") {
+        return `
+          <div style="width:100%;height:100%;background:${bg};border-radius:12px;border:1px solid ${color}60;display:flex;flex-direction:column;padding:2px;position:relative;font-family:'Rajdhani',sans-serif;clip-path:polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);">
+            <div style="background:${color}10;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:15px;clip-path:inherit;">
+              <div style="position:absolute;top:0;left:15px;right:0;height:1px;background:${color};"></div>
+              <div style="position:absolute;bottom:0;right:15px;left:0;height:1px;background:${color};"></div>
+              
+              <div style="width:64px;height:64px;margin-bottom:12px;position:relative;">
+                <div style="width:100%;height:100%;border-radius:50%;overflow:hidden;border:2px solid ${color};">${avatarContent}</div>
+              </div>
+              
+              <div style="font-size:1.2rem;font-weight:700;color:${text};text-transform:uppercase;">${
+          data.name
+        }</div>
+              <div style="font-size:0.8rem;color:${color};font-weight:600;">${
+          data.position || ""
+        }</div>
+              <div style="margin-top:8px;font-size:0.65rem;background:${color};color:${bg};padding:2px 8px;border-radius:2px;">${
+          data.department || ""
+        }</div>
+            </div>
+          </div>`;
+      }
+
+      // Fallback
+      return `
+        <div style="width:100%;height:100%;background:${bg};border-radius:8px;border:1px solid ${theme.border};display:flex;justify-content:center;align-items:center;padding:10px;text-align:center;">
+          <div style="font-weight:600;color:${text}">${data.name}</div>
+        </div>`;
+    },
+    renderChart() {
+      const container = this.$refs.chartContainer;
+      if (!container) {
+        console.error("Chart container not found");
+        return;
+      }
+      if (!this.nodes.length) {
+        console.warn("No nodes to render");
+        return;
+      }
+
+      const theme = this.getTheme();
+
+      // D3 org chart needs empty string for root nodes, not null
+      const chartData = this.nodes.map((n) => ({
+        ...n,
+        parentId: n.parentId || "",
+      }));
+
+      console.log("Rendering chart with data:", chartData);
+      console.log("Theme:", theme);
+      console.log("Style:", this.selectedStyle);
+
+      try {
+        this.chartInstance = new OrgChart()
+          .container(container)
+          .data(chartData)
+          .nodeWidth((d) => 250)
+          .nodeHeight((d) =>
+            this.selectedStyle === "minimal" || this.selectedStyle === "modern"
+              ? 100
+              : 200
+          )
+          .childrenMargin((d) => 50)
+          .compactMarginBetween((d) => 35)
+          .siblingsMargin((d) => 35)
+          .neighbourMargin((d) => 50)
+          .buttonContent(
+            ({ node }) =>
+              `<div style="width:18px;height:18px;border-radius:50%;background:${
+                theme.link
+              };color:white;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;box-shadow:0 2px 4px rgba(0,0,0,0.2);">${
+                node.children ? "−" : "+"
+              }</div>`
+          )
+          .nodeContent((d) => this.getCardStyle(d.data, theme))
+          .linkUpdate(function (d) {
+            d3.select(this).attr("stroke", theme.link).attr("stroke-width", 2);
+          })
+          .render();
+
+        console.log("Chart rendered successfully");
+        setTimeout(() => this.chartInstance?.fit(), 100);
+      } catch (err) {
+        console.error("Error rendering chart:", err);
+      }
+    },
+    handleResize() {
+      this.chartInstance?.render();
+      setTimeout(() => this.chartInstance?.fit(), 100);
+    },
+    fitChart() {
+      this.chartInstance?.fit();
+    },
+    expandAll() {
+      this.chartInstance?.expandAll();
+    },
+    collapseAll() {
+      this.chartInstance?.collapseAll();
+    },
+    onSearch() {
+      const q = this.searchQuery.toLowerCase().trim();
+      if (!q) {
+        this.searchResults = [];
+        return;
+      }
+      this.searchResults = this.nodes
+        .filter(
+          (n) =>
+            n.name?.toLowerCase().includes(q) ||
+            n.position?.toLowerCase().includes(q) ||
+            n.department?.toLowerCase().includes(q)
+        )
+        .slice(0, 5);
+    },
+    focusNode(nodeId) {
+      this.chartInstance?.setCentered(nodeId)?.render();
+      this.searchQuery = "";
+      this.searchResults = [];
+    },
+    async exportToPng() {
+      const container = this.$refs.chartContainer;
+      if (!container) return;
+
+      try {
+        const canvas = await html2canvas(container, {
+          backgroundColor: null,
+          scale: 2,
+        });
+        const link = document.createElement("a");
+        link.download = `${this.chart.title || "org-chart"}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      } catch (err) {
+        console.error("Export failed:", err);
+        alert("Export failed. Please try again.");
+      }
     },
     shareChart() {
       this.showShareModal = true;
@@ -270,7 +632,7 @@ export default {
     shareTwitter() {
       const url = `https://twitter.com/intent/tweet?text=Check out ${
         this.chart.title
-      } organization chart&url=${encodeURIComponent(this.shareLink)}`;
+      }&url=${encodeURIComponent(this.shareLink)}`;
       window.open(url, "_blank");
     },
     shareLinkedIn() {
@@ -280,19 +642,19 @@ export default {
       window.open(url, "_blank");
     },
     shareWhatsApp() {
-      const url = `https://wa.me/?text=Check out ${this.chart.title} organization chart: ${this.shareLink}`;
+      const url = `https://wa.me/?text=Check out ${
+        this.chart.title
+      }: ${encodeURIComponent(this.shareLink)}`;
       window.open(url, "_blank");
     },
     exportChart() {
-      alert(
-        "Export feature - In a production version, this would generate a PNG/PDF of the chart."
-      );
+      alert("Export functionality coming soon!");
     },
   },
 };
 </script>
 
-<style scoped>
+<style>
 .org-view-page {
   min-height: 100vh;
   position: relative;
@@ -319,7 +681,7 @@ export default {
 .loader {
   width: 50px;
   height: 50px;
-  border: 4px solid rgba(255, 255, 255, 0.2);
+  border: 3px solid rgba(255, 255, 255, 0.2);
   border-top-color: #14b8a6;
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -332,7 +694,7 @@ export default {
 }
 
 .loading-screen p {
-  color: rgba(255, 255, 255, 0.7);
+  color: white;
   margin-top: 1rem;
 }
 
@@ -345,8 +707,6 @@ export default {
   align-items: center;
   justify-content: center;
   z-index: 100;
-  text-align: center;
-  padding: 2rem;
 }
 
 .error-icon {
@@ -366,10 +726,10 @@ export default {
 
 .go-demo-btn {
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #14b8a6, #06b6d4);
+  background: #14b8a6;
   color: white;
   text-decoration: none;
-  border-radius: 10px;
+  border-radius: 8px;
   font-weight: 600;
 }
 
@@ -387,8 +747,8 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.5rem 2rem;
-  background: rgba(0, 0, 0, 0.3);
+  padding: 1rem 1.5rem;
+  background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -397,16 +757,11 @@ export default {
   color: rgba(255, 255, 255, 0.6);
   text-decoration: none;
   font-size: 0.9rem;
-  transition: color 0.3s;
-}
-
-.back-link:hover {
-  color: #14b8a6;
 }
 
 .header-info {
-  flex: 1;
   text-align: center;
+  flex: 1;
 }
 
 .chart-title {
@@ -417,8 +772,8 @@ export default {
 
 .chart-description {
   color: rgba(255, 255, 255, 0.6);
-  font-size: 0.9rem;
-  margin-top: 0.25rem;
+  font-size: 0.85rem;
+  margin: 0.25rem 0 0;
 }
 
 .header-actions {
@@ -426,6 +781,7 @@ export default {
   gap: 0.5rem;
 }
 
+.tool-btn,
 .export-btn,
 .share-btn {
   padding: 0.5rem 1rem;
@@ -433,176 +789,168 @@ export default {
   border: 1px solid rgba(255, 255, 255, 0.2);
   background: rgba(255, 255, 255, 0.1);
   color: white;
+  font-size: 0.85rem;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.85rem;
-  transition: all 0.3s;
+  gap: 0.3rem;
 }
 
+.tool-btn:hover,
 .export-btn:hover,
 .share-btn:hover {
   background: rgba(255, 255, 255, 0.2);
 }
 
-/* Chart Canvas */
-.chart-canvas-wrapper {
-  flex: 1;
-  position: relative;
-  overflow: auto;
-  padding: 2rem;
-}
-
-.zoom-controls {
-  position: fixed;
-  bottom: 2rem;
-  right: 2rem;
+/* Toolbar */
+.toolbar {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(10px);
-  padding: 0.5rem;
-  border-radius: 10px;
-  z-index: 50;
+  gap: 2rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.zoom-btn {
+.toolbar-section {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.search-section {
+  flex: 1;
+  position: relative;
+  max-width: 300px;
+}
+
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 0.5rem 0.75rem 0.5rem 2rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: white;
+  font-size: 0.85rem;
+}
+
+.search-box input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.search-icon {
+  position: absolute;
+  left: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: rgba(30, 41, 59, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  margin-top: 0.25rem;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 100;
+}
+
+.search-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.search-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.result-avatar {
   width: 32px;
   height: 32px;
-  border-radius: 6px;
-  border: none;
-  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: white;
-  font-size: 1.25rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.result-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.result-info strong {
+  color: white;
+  font-size: 0.85rem;
+}
+
+.result-info small {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.75rem;
+}
+
+.label {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.85rem;
+}
+
+.picker {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.swatch {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: 2px solid transparent;
   cursor: pointer;
 }
 
-.zoom-level {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 0.85rem;
-  min-width: 50px;
-  text-align: center;
+.swatch.active {
+  border-color: #14b8a6;
+  box-shadow: 0 0 8px rgba(20, 184, 166, 0.5);
 }
 
-.chart-canvas {
-  min-height: 500px;
-  display: flex;
-  justify-content: center;
-  padding: 2rem;
-  transition: transform 0.3s;
-  transform-origin: center top;
-}
-
-/* Tree Styles */
-.org-tree {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.node-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-}
-
-.node-wrapper::before {
-  content: "";
-  position: absolute;
-  top: -20px;
-  width: 2px;
-  height: 20px;
-  background: rgba(255, 255, 255, 0.3);
-}
-
-.org-tree > .node-wrapper::before {
-  display: none;
-}
-
-.org-node {
+.style-select {
+  padding: 0.4rem 0.75rem;
+  border-radius: 6px;
   background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 16px;
-  padding: 1.25rem 1.5rem;
-  min-width: 180px;
-  text-align: center;
-}
-
-.org-node.color-blue {
-  border-left: 4px solid #3b82f6;
-}
-.org-node.color-teal {
-  border-left: 4px solid #14b8a6;
-}
-.org-node.color-purple {
-  border-left: 4px solid #8b5cf6;
-}
-.org-node.color-pink {
-  border-left: 4px solid #ec4899;
-}
-.org-node.color-orange {
-  border-left: 4px solid #f97316;
-}
-.org-node.color-green {
-  border-left: 4px solid #22c55e;
-}
-.org-node.color-red {
-  border-left: 4px solid #ef4444;
-}
-.org-node.color-slate {
-  border-left: 4px solid #64748b;
-}
-
-.node-avatar {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
-}
-
-.node-name {
   color: white;
-  font-size: 1rem;
-  margin: 0;
-}
-
-.node-position {
-  color: rgba(255, 255, 255, 0.7);
   font-size: 0.85rem;
-  margin: 0.25rem 0 0;
 }
 
-.node-department {
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 0.75rem;
-  margin: 0.25rem 0 0;
+.style-select option {
+  background: #1e293b;
+  color: white;
 }
 
-.node-children {
-  display: flex;
-  gap: 2rem;
-  margin-top: 2rem;
-  padding-top: 20px;
+/* Chart Container */
+.chart-canvas-wrapper {
+  flex: 1;
   position: relative;
+  overflow: hidden;
 }
 
-.node-children::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(100% - 180px);
-  height: 2px;
-  background: rgba(255, 255, 255, 0.3);
-}
-
-.empty-chart {
-  text-align: center;
-  padding: 4rem;
-  color: rgba(255, 255, 255, 0.5);
+.chart-container {
+  width: 100%;
+  height: calc(100vh - 180px);
 }
 
 /* Footer */
@@ -611,6 +959,7 @@ export default {
   text-align: center;
   color: rgba(255, 255, 255, 0.4);
   font-size: 0.85rem;
+  background: rgba(0, 0, 0, 0.3);
 }
 
 .view-footer a {
@@ -655,18 +1004,18 @@ export default {
 .share-link-box input {
   flex: 1;
   padding: 0.75rem;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
   color: white;
   font-size: 0.85rem;
 }
 
 .copy-btn {
-  padding: 0 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
   background: #14b8a6;
   border: none;
-  border-radius: 8px;
   color: white;
   cursor: pointer;
 }
@@ -674,18 +1023,17 @@ export default {
 .share-social {
   display: flex;
   gap: 0.5rem;
+  justify-content: center;
   margin-bottom: 1.5rem;
 }
 
 .social-btn {
-  flex: 1;
-  padding: 0.75rem;
-  border: none;
+  padding: 0.6rem 1rem;
   border-radius: 8px;
+  border: none;
   color: white;
   font-weight: 600;
   cursor: pointer;
-  font-size: 0.85rem;
 }
 
 .social-btn.twitter {
@@ -699,10 +1047,10 @@ export default {
 }
 
 .close-modal-btn {
-  padding: 0.75rem 2rem;
+  padding: 0.6rem 2rem;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
   color: white;
   cursor: pointer;
 }
@@ -712,139 +1060,26 @@ export default {
 .fade-leave-active {
   transition: opacity 0.3s;
 }
-
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
 }
 
-/* Theme Variations */
-.theme-corporate .org-node {
-  background: rgba(30, 58, 95, 0.8);
-}
-.theme-modern .org-node {
-  background: linear-gradient(
-    135deg,
-    rgba(102, 126, 234, 0.4),
-    rgba(118, 75, 162, 0.4)
-  );
-}
-.theme-creative .org-node {
-  background: linear-gradient(
-    135deg,
-    rgba(240, 147, 251, 0.3),
-    rgba(245, 87, 108, 0.3)
-  );
-}
-.theme-minimal .org-node {
-  background: rgba(67, 67, 67, 0.8);
-  border-radius: 8px;
-}
-.theme-dark .org-node {
-  background: rgba(15, 15, 35, 0.9);
-}
-.theme-nature .org-node {
-  background: linear-gradient(
-    135deg,
-    rgba(19, 78, 94, 0.6),
-    rgba(113, 178, 128, 0.3)
-  );
-}
-
-/* Responsive Design */
+/* Responsive */
 @media (max-width: 768px) {
   .view-header {
     flex-direction: column;
     gap: 1rem;
-    padding: 1rem;
     text-align: center;
   }
 
-  .back-link {
-    align-self: flex-start;
-  }
-
-  .header-actions {
-    width: 100%;
+  .toolbar {
+    flex-wrap: wrap;
     justify-content: center;
   }
 
-  .chart-title {
-    font-size: 1.25rem;
-  }
-
-  .chart-canvas-wrapper {
-    padding: 1rem;
-  }
-
-  .chart-canvas {
-    padding: 1rem;
-    min-height: 400px;
-  }
-
-  .org-node {
-    min-width: 140px;
-    padding: 1rem;
-  }
-
-  .node-avatar {
-    font-size: 1.5rem;
-  }
-
-  .node-name {
-    font-size: 0.9rem;
-  }
-
-  .node-children {
-    flex-direction: column;
-    gap: 1rem;
-    align-items: center;
-  }
-
-  .node-children::before {
-    width: 2px;
-    height: calc(100% - 40px);
-    top: auto;
-    left: 50%;
-    transform: translateX(-50%) translateY(-20px);
-  }
-
-  .zoom-controls {
-    bottom: 1rem;
-    right: 1rem;
-    padding: 0.25rem;
-  }
-
-  .zoom-btn {
-    width: 28px;
-    height: 28px;
-    font-size: 1rem;
-  }
-
-  .share-modal {
-    padding: 1.5rem;
-    max-width: 95%;
-  }
-
-  .share-social {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .org-node {
-    min-width: 120px;
-    padding: 0.75rem;
-  }
-
-  .header-actions {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .header-actions button {
-    width: 100%;
+  .chart-container {
+    height: calc(100vh - 250px);
   }
 }
 </style>

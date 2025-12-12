@@ -73,19 +73,26 @@
 
           <div class="setting-group">
             <label>Theme</label>
-            <div class="theme-grid">
+            <div class="theme-picker">
               <button
                 v-for="t in themes"
                 :key="t.id"
-                class="theme-option"
+                class="theme-swatch"
                 :class="{ active: theme === t.id }"
-                :style="{ background: t.preview }"
+                :style="{ background: t.color }"
                 @click="theme = t.id"
                 :title="t.name"
-              >
-                {{ t.icon }}
-              </button>
+              ></button>
             </div>
+          </div>
+
+          <div class="setting-group">
+            <label>Card Style</label>
+            <select v-model="cardStyle" class="style-select">
+              <option v-for="s in cardStyles" :key="s.id" :value="s.id">
+                {{ s.name }}
+              </option>
+            </select>
           </div>
 
           <div class="setting-group checkbox">
@@ -145,21 +152,49 @@
 
         <!-- Right - Preview -->
         <aside class="preview-panel">
-          <h3>👁️ Preview</h3>
+          <h3>👁️ Live Preview</h3>
           <div class="preview-container" :class="'theme-' + theme">
-            <div class="mini-tree" v-if="rootNodes.length">
+            <div class="preview-tree" v-if="rootNodes.length">
               <div
                 v-for="node in rootNodes"
                 :key="node.id"
-                class="mini-node"
-                :class="'color-' + node.color"
+                class="preview-node-wrapper"
               >
-                <span>{{ getAvatarIcon(node.avatar) }}</span>
-                <small>{{ node.name }}</small>
+                <div class="preview-card" :class="'color-' + node.color">
+                  <span class="preview-avatar">{{
+                    getAvatarIcon(node.avatar)
+                  }}</span>
+                  <div class="preview-info">
+                    <strong>{{ node.name }}</strong>
+                    <small>{{ node.position }}</small>
+                  </div>
+                </div>
+                <!-- Show children -->
+                <div
+                  v-if="getChildren(node.id).length"
+                  class="preview-children"
+                >
+                  <div
+                    v-for="child in getChildren(node.id)"
+                    :key="child.id"
+                    class="preview-child-card"
+                    :class="'color-' + child.color"
+                  >
+                    <span>{{ getAvatarIcon(child.avatar) }}</span>
+                    <small>{{ child.name }}</small>
+                  </div>
+                </div>
               </div>
             </div>
             <p v-else class="preview-empty">Add people to see preview</p>
           </div>
+          <router-link
+            :to="'/org/' + slug"
+            class="preview-view-btn"
+            target="_blank"
+          >
+            🔗 Open Full View
+          </router-link>
         </aside>
       </div>
 
@@ -279,7 +314,8 @@ export default {
       error: null,
       chart: { title: "", description: "" },
       nodes: [],
-      theme: "corporate",
+      theme: "dark",
+      cardStyle: "modern",
       allowExport: true,
       saving: false,
       hasChanges: false,
@@ -301,42 +337,25 @@ export default {
       },
 
       themes: [
-        {
-          id: "corporate",
-          name: "Corporate",
-          icon: "🏢",
-          preview: "linear-gradient(135deg, #1e3a5f, #2d5a87)",
-        },
-        {
-          id: "modern",
-          name: "Modern",
-          icon: "✨",
-          preview: "linear-gradient(135deg, #667eea, #764ba2)",
-        },
-        {
-          id: "creative",
-          name: "Creative",
-          icon: "🎨",
-          preview: "linear-gradient(135deg, #f093fb, #f5576c)",
-        },
-        {
-          id: "minimal",
-          name: "Minimal",
-          icon: "⚪",
-          preview: "linear-gradient(135deg, #434343, #000000)",
-        },
-        {
-          id: "dark",
-          name: "Dark",
-          icon: "🌙",
-          preview: "linear-gradient(135deg, #0f0f23, #1a1a2e)",
-        },
-        {
-          id: "nature",
-          name: "Nature",
-          icon: "🌿",
-          preview: "linear-gradient(135deg, #134e5e, #71b280)",
-        },
+        { id: "light", name: "Light", color: "#ffffff" },
+        { id: "modern-white", name: "Modern White", color: "#f8fafc" },
+        { id: "dark", name: "Dark", color: "#1e293b" },
+        { id: "blue", name: "Ocean", color: "#1e3a5f" },
+        { id: "purple", name: "Violet", color: "#4c1d95" },
+        { id: "green", name: "Forest", color: "#064e3b" },
+        { id: "warm", name: "Sunset", color: "#7c2d12" },
+      ],
+      cardStyles: [
+        { id: "modern", name: "1. Modern Clean" },
+        { id: "gradient", name: "2. Gradient Glow" },
+        { id: "minimal", name: "3. Minimal Line" },
+        { id: "rounded", name: "4. Rounded Bubble" },
+        { id: "shadow", name: "5. Deep Shadow" },
+        { id: "glass", name: "6. Glassmorphism" },
+        { id: "neon", name: "7. Neon Border" },
+        { id: "flat", name: "8. Flat Material" },
+        { id: "elegant", name: "9. Elegant Gold" },
+        { id: "tech", name: "10. Tech Circuit" },
       ],
       avatarStyles: [
         { id: "person", icon: "🧑" },
@@ -412,6 +431,9 @@ export default {
     theme() {
       this.hasChanges = true;
     },
+    cardStyle() {
+      this.hasChanges = true;
+    },
     allowExport() {
       this.hasChanges = true;
     },
@@ -444,6 +466,7 @@ export default {
         this.chart = data;
         this.nodes = data.chart_data || [];
         this.theme = data.theme || "corporate";
+        this.cardStyle = data.custom_settings?.style || "modern";
         this.allowExport = data.custom_settings?.allowExport !== false;
         this.lastSaved = new Date(data.updated_at);
         this.hasChanges = false;
@@ -463,7 +486,10 @@ export default {
             description: this.chart.description,
             theme: this.theme,
             chart_data: this.nodes,
-            custom_settings: { allowExport: this.allowExport },
+            custom_settings: {
+              allowExport: this.allowExport,
+              style: this.cardStyle,
+            },
             updated_at: new Date().toISOString(),
           })
           .eq("slug", this.slug)
@@ -510,6 +536,9 @@ export default {
     },
     formatTime(date) {
       return new Date(date).toLocaleTimeString();
+    },
+    getChildren(parentId) {
+      return this.nodes.filter((n) => n.parentId === parentId);
     },
     copyPublicUrl() {
       navigator.clipboard.writeText(this.publicUrl);
@@ -855,7 +884,8 @@ export default {
 }
 
 .setting-group input,
-.setting-group textarea {
+.setting-group textarea,
+.setting-group select {
   width: 100%;
   padding: 0.6rem;
   background: rgba(255, 255, 255, 0.1);
@@ -865,23 +895,32 @@ export default {
   font-size: 0.9rem;
 }
 
-.theme-grid {
+.setting-group select option {
+  background: #1a1a3e;
+  color: white;
+}
+
+.theme-picker {
   display: flex;
-  flex-wrap: wrap;
   gap: 0.4rem;
 }
 
-.theme-option {
-  width: 36px;
-  height: 36px;
-  border-radius: 6px;
+.theme-swatch {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
   border: 2px solid transparent;
   cursor: pointer;
-  font-size: 1rem;
+  transition: all 0.2s;
 }
 
-.theme-option.active {
+.theme-swatch:hover {
+  transform: scale(1.1);
+}
+
+.theme-swatch.active {
   border-color: #14b8a6;
+  box-shadow: 0 0 10px rgba(20, 184, 166, 0.5);
 }
 
 .setting-group.checkbox label {
@@ -1018,45 +1057,131 @@ export default {
   border-radius: 10px;
   padding: 1rem;
   min-height: 200px;
+  overflow-y: auto;
+  max-height: 400px;
 }
 
-.mini-tree {
+.preview-tree {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
 }
 
-.mini-node {
-  padding: 0.5rem;
+.preview-node-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.preview-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 6px;
-  text-align: center;
-  border-left: 3px solid #3b82f6;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  border-left: 4px solid #3b82f6;
 }
 
-.mini-node.color-teal {
+.preview-card.color-teal {
   border-left-color: #14b8a6;
 }
-.mini-node.color-purple {
+.preview-card.color-purple {
   border-left-color: #8b5cf6;
 }
-.mini-node.color-pink {
+.preview-card.color-pink {
   border-left-color: #ec4899;
 }
-.mini-node.color-orange {
+.preview-card.color-orange {
   border-left-color: #f97316;
 }
-.mini-node.color-green {
+.preview-card.color-green {
   border-left-color: #22c55e;
 }
 
-.mini-node span {
-  display: block;
-  font-size: 1.25rem;
+.preview-avatar {
+  font-size: 1.5rem;
 }
-.mini-node small {
+
+.preview-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.preview-info strong {
+  color: white;
+  font-size: 0.85rem;
+}
+
+.preview-info small {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.75rem;
+}
+
+.preview-children {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed rgba(255, 255, 255, 0.2);
+}
+
+.preview-child-card {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  border-left: 3px solid #3b82f6;
+}
+
+.preview-child-card.color-teal {
+  border-left-color: #14b8a6;
+}
+.preview-child-card.color-purple {
+  border-left-color: #8b5cf6;
+}
+.preview-child-card.color-pink {
+  border-left-color: #ec4899;
+}
+.preview-child-card.color-orange {
+  border-left-color: #f97316;
+}
+.preview-child-card.color-green {
+  border-left-color: #22c55e;
+}
+
+.preview-child-card span {
+  font-size: 1rem;
+}
+
+.preview-child-card small {
   color: rgba(255, 255, 255, 0.7);
   font-size: 0.7rem;
+}
+
+.preview-view-btn {
+  display: block;
+  margin-top: 1rem;
+  padding: 0.6rem;
+  background: rgba(20, 184, 166, 0.2);
+  border: 1px solid rgba(20, 184, 166, 0.4);
+  border-radius: 8px;
+  color: #14b8a6;
+  text-decoration: none;
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.preview-view-btn:hover {
+  background: rgba(20, 184, 166, 0.3);
 }
 
 .preview-empty {
