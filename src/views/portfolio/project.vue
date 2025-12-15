@@ -332,7 +332,7 @@ export default {
           title: "Tasmik System",
           description:
             "A comprehensive system for schools to manage student records, tasmik progress, attendance, and user roles.",
-          url: "https://tasmik-system.vercel.app/",
+          url: "http://[2001:f40:935:99c:6806:fc47:e2f3:97e7]:5175",
           tech: ["Vue.js", "Tailwind", "Supabase"],
         },
         {
