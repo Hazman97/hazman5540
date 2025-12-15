@@ -327,8 +327,7 @@ export default {
           tech: ["Vue.js", "Firebase", "Tailwind"],
         },
         {
-          image:
-            "https://lh3.googleusercontent.com/pw/AP1GczMNCIpsHKnLpnA9qz05eUZXfJMrNeuY4MeN-gDF7jAdiCZNsk_rGOsPjZ-U2B5fL3QlsOrystGYZ8abKnxJmFIs4Z3Qrk4nWnIYs6BKgmJvBTo8sqUY8Sh3XrJvlHfFgU_1rx456dhbnGdYcpOrsmSL=w1848-h786-s-no-gm?authuser=0",
+          image: "/img/tasmik_system.png",
           title: "Tasmik System",
           description:
             "A comprehensive system for schools to manage student records, tasmik progress, attendance, and user roles.",
