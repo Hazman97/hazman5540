@@ -86,14 +86,15 @@
       </div>
 
       <!-- Collapsible Department Legend -->
-      <div class="department-legend" :class="{ collapsed: legendCollapsed }">
-        <button
-          class="legend-toggle"
-          @click="legendCollapsed = !legendCollapsed"
-        >
-          {{ legendCollapsed ? "◀" : "▶" }} Departments
-        </button>
-        <div v-if="!legendCollapsed" class="legend-content">
+      <div class="department-legend" :class="{ minimized: isLegendMinimized }">
+        <div class="legend-header" @click="toggleLegend">
+          <span class="legend-label">Departments</span>
+          <button class="minimize-btn">
+            {{ isLegendMinimized ? "+" : "−" }}
+          </button>
+        </div>
+
+        <div v-show="!isLegendMinimized" class="legend-content-wrapper">
           <template v-if="departments && departments.length > 0">
             <div
               v-for="dept in departments"
@@ -109,11 +110,20 @@
               {{ dept.name }} ({{ dept.count }})
             </div>
           </template>
-          <div v-else class="no-depts">No departments</div>
+          <div v-else class="no-depts">No departments defined</div>
           <div class="legend-stats">
             <span class="stat">👥 {{ nodes.length }} employees</span>
           </div>
         </div>
+      </div>
+
+      <!-- Viral "Create Yours" Badge -->
+      <div class="viral-badge">
+        <span class="viral-icon">🚀</span>
+        <span class="viral-text">Inspired?</span>
+        <router-link to="/org-demo" class="viral-link"
+          >Create your own</router-link
+        >
       </div>
 
       <!-- Footer -->
@@ -182,7 +192,7 @@ export default {
       copied: false,
       searchQuery: "",
       searchResults: [],
-      legendCollapsed: false,
+      isLegendMinimized: false,
       colors: {
         blue: "#3b82f6",
         cyan: "#06b6d4",
@@ -262,6 +272,9 @@ export default {
     window.removeEventListener("resize", this.handleResize);
   },
   methods: {
+    toggleLegend() {
+      this.isLegendMinimized = !this.isLegendMinimized;
+    },
     async loadChart() {
       const slug = this.$route.params.slug;
       console.log("Loading chart with slug:", slug);
@@ -681,10 +694,25 @@ export default {
       const container = this.$refs.chartContainer;
       if (!container) return;
 
+      // 1. Force a re-render to ensure SVG dimension consistency
+      this.chartInstance.render();
+
+      // 2. Fit to screen to center the chart
+      // this.chartInstance.fit();
+
+      // 3. Wait for fit animation to complete
+      await new Promise((resolve) => setTimeout(resolve, 800));
+
+      const originalBackground = container.style.background;
+
+      // 4. Apply current theme background
+      container.style.background = this.themeGradient;
+
       try {
         const canvas = await html2canvas(container, {
           backgroundColor: null,
           scale: 2,
+          logging: false,
         });
         const link = document.createElement("a");
         link.download = `${this.chart.title || "org-chart"}.png`;
@@ -693,6 +721,8 @@ export default {
       } catch (err) {
         console.error("Export failed:", err);
         alert("Export failed. Please try again.");
+      } finally {
+        container.style.background = originalBackground;
       }
     },
     shareChart() {
@@ -1268,7 +1298,7 @@ export default {
   right: 2rem;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.5rem;
   padding: 1rem;
   background: rgba(30, 41, 59, 0.95);
   backdrop-filter: blur(20px);
@@ -1276,43 +1306,66 @@ export default {
   border-radius: 16px;
   box-shadow: 0 15px 50px -10px rgba(0, 0, 0, 0.4);
   z-index: 100;
-  min-width: 180px;
-  max-width: 260px;
-  transition: all 0.3s ease;
+  min-width: 200px;
+  max-width: 280px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.department-legend.collapsed {
+.department-legend.minimized {
   min-width: auto;
-  max-width: auto;
-  padding: 0.5rem;
+  width: auto;
+  padding: 0.75rem 1rem;
 }
 
-.legend-toggle {
+.legend-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 0.5rem;
-  background: transparent;
-  border: none;
-  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  margin-bottom: 2px;
+}
+
+.legend-label {
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.8);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+}
+
+.minimize-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.6);
   cursor: pointer;
-  padding: 0.25rem 0.5rem;
-  border-radius: 6px;
-  transition: all 0.2s ease;
+  padding: 0 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.legend-toggle:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #f1f5f9;
+.minimize-btn:hover {
+  color: white;
 }
 
-.legend-content {
+.legend-content-wrapper {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .dept-tag {
@@ -1366,12 +1419,15 @@ export default {
   box-shadow: 0 15px 50px -10px rgba(0, 0, 0, 0.15);
 }
 
-.theme-light .legend-toggle {
+.theme-light .legend-label {
   color: #64748b;
 }
 
-.theme-light .legend-toggle:hover {
-  background: rgba(0, 0, 0, 0.05);
+.theme-light .minimize-btn {
+  color: #94a3b8;
+}
+
+.theme-light .minimize-btn:hover {
   color: #0f172a;
 }
 
@@ -1384,23 +1440,131 @@ export default {
   color: #94a3b8;
 }
 
+/* ===== Viral Badge ===== */
+.viral-badge {
+  position: fixed;
+  bottom: 0.8rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 1rem;
+  background: rgba(15, 23, 42, 0.9);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50px;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.3);
+  z-index: 100;
+  transition: all 0.3s ease;
+}
+
+.viral-badge:hover {
+  transform: translateX(-50%) translateY(-2px);
+  background: rgba(15, 23, 42, 1);
+  box-shadow: 0 15px 40px -5px rgba(0, 0, 0, 0.4);
+}
+
+.viral-text {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.viral-link {
+  color: #38bdf8;
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.viral-link:hover {
+  text-decoration: underline;
+}
+
+.theme-light .viral-badge {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.15);
+}
+
+.theme-light .viral-text {
+  color: #64748b;
+}
+
+.theme-light .viral-link {
+  color: #0284c7;
+}
+
 /* ===== Responsive ===== */
 @media (max-width: 768px) {
   .view-header {
     flex-direction: column;
-    gap: 1rem;
+    align-items: stretch;
+    gap: 0.8rem;
     padding: 1rem;
   }
 
+  .back-link {
+    align-self: flex-start;
+  }
+
+  .header-info {
+    text-align: left;
+  }
+
   .toolbar {
-    flex-wrap: wrap;
-    justify-content: center;
     width: calc(100% - 2rem);
-    margin: 0.75rem 1rem;
+    margin: 0.5rem 1rem;
+    justify-content: flex-start;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+  }
+
+  .toolbar::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+  }
+
+  .toolbar-section {
+    flex-shrink: 0;
+  }
+
+  .search-box input {
+    width: 140px;
   }
 
   .chart-container {
-    height: calc(100vh - 280px);
+    height: calc(100vh - 250px);
+  }
+
+  .department-legend {
+    bottom: 0;
+    right: 0;
+    left: 0;
+    width: 100%;
+    max-width: none;
+    border-radius: 16px 16px 0 0;
+    border-bottom: none;
+  }
+
+  .department-legend.minimized {
+    width: auto;
+    left: auto;
+    right: 1rem;
+    bottom: 3.5rem; /* Make space for badge */
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 0.75rem 1rem;
+  }
+
+  .theme-light .department-legend.minimized {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .viral-badge {
+    bottom: 1rem;
   }
 }
 </style>

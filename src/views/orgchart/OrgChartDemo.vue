@@ -113,29 +113,37 @@
     </div>
 
     <!-- Department Legend -->
-    <div class="department-legend">
-      <span class="legend-label">Departments:</span>
-      <template v-if="departments && departments.length > 0">
-        <div
-          v-for="dept in departments"
-          :key="dept.name"
-          class="dept-tag"
-          :style="{
-            background: dept.color + '20',
-            borderColor: dept.color,
-            color: dept.color,
-          }"
-        >
-          <span class="dept-dot" :style="{ background: dept.color }"></span>
-          {{ dept.name }} ({{ dept.count }})
+    <div class="department-legend" :class="{ minimized: isLegendMinimized }">
+      <div class="legend-header" @click="toggleLegend">
+        <span class="legend-label">Departments</span>
+        <button class="minimize-btn">
+          {{ isLegendMinimized ? "+" : "−" }}
+        </button>
+      </div>
+
+      <div v-show="!isLegendMinimized" class="legend-content-wrapper">
+        <template v-if="departments && departments.length > 0">
+          <div
+            v-for="dept in departments"
+            :key="dept.name"
+            class="dept-tag"
+            :style="{
+              background: dept.color + '20',
+              borderColor: dept.color,
+              color: dept.color,
+            }"
+          >
+            <span class="dept-dot" :style="{ background: dept.color }"></span>
+            {{ dept.name }} ({{ dept.count }})
+          </div>
+        </template>
+        <div v-else class="no-depts">No departments defined</div>
+        <div class="legend-stats">
+          <span class="stat">👥 {{ nodes.length }} employees</span>
+          <span v-if="orphanNodes && orphanNodes.length" class="stat warning"
+            >⚠️ {{ orphanNodes.length }} orphan(s)</span
+          >
         </div>
-      </template>
-      <div v-else class="no-depts">No departments defined</div>
-      <div class="legend-stats">
-        <span class="stat">👥 {{ nodes.length }} employees</span>
-        <span v-if="orphanNodes && orphanNodes.length" class="stat warning"
-          >⚠️ {{ orphanNodes.length }} orphan(s)</span
-        >
       </div>
     </div>
 
@@ -470,6 +478,7 @@ export default {
       parentSearchQuery: "",
       showParentDropdown: false,
       isReplacing: false,
+      isLegendMinimized: false,
       workerIdError: "",
       nextIdNumber: 9,
       orphanFixes: {},
@@ -615,6 +624,9 @@ export default {
     window.removeEventListener("resize", this.handleResize);
   },
   methods: {
+    toggleLegend() {
+      this.isLegendMinimized = !this.isLegendMinimized;
+    },
     getDepartmentColor(deptName) {
       if (this.departmentColors[deptName])
         return this.departmentColors[deptName];
@@ -1231,14 +1243,30 @@ export default {
       this.renderChart();
     },
     async exportChart() {
+      const container = this.$refs.chartContainer;
+      if (!container) {
+        alert("No chart container found");
+        return;
+      }
+
+      // 1. Force re-render and fit
+      if (this.chart) {
+        this.chart.render();
+        this.chart.fit();
+      }
+
+      // 2. Wait for animation
+      await new Promise((resolve) => setTimeout(resolve, 800));
+
+      // 3. Apply background
+      const originalBackground = container.style.background;
+      const theme = this.getTheme();
+      // Apply theme background explicitly for the screenshot
+      container.style.background = theme.bg;
+
       try {
-        const chartArea = this.$refs.chartArea;
-        if (!chartArea) {
-          alert("No chart");
-          return;
-        }
-        const canvas = await html2canvas(chartArea, {
-          backgroundColor: this.getTheme().bg,
+        const canvas = await html2canvas(container, {
+          backgroundColor: null,
           scale: 2,
           useCORS: true,
           logging: false,
@@ -1248,7 +1276,11 @@ export default {
         link.href = canvas.toDataURL("image/png");
         link.click();
       } catch (err) {
+        console.error("Export failed:", err);
         alert("Export failed");
+      } finally {
+        // Restore background
+        container.style.background = originalBackground;
       }
     },
   },
@@ -1733,14 +1765,58 @@ export default {
   z-index: 100;
   min-width: 200px;
   max-width: 280px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
+.department-legend.minimized {
+  min-width: auto;
+  width: auto;
+  padding: 0.75rem 1rem;
+}
+.legend-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  margin-bottom: 2px;
+}
+.minimize-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  line-height: 1;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.minimize-btn:hover {
+  color: #1e293b;
+}
+.legend-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  animation: slideDown 0.3s ease;
+}
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .legend-label {
   font-size: 0.75rem;
   font-weight: 700;
   color: #64748b;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  margin-bottom: 4px;
 }
 .dept-tag {
   display: inline-flex;
@@ -1751,7 +1827,7 @@ export default {
   font-size: 0.75rem;
   font-weight: 600;
   background: white;
-  border: 1px solid transparent; /* Logic fix: allows inline borderColor to works */
+  border: 1px solid transparent;
   transition: 0.2s;
 }
 .dept-tag:hover {
@@ -2702,15 +2778,86 @@ export default {
 
 @media (max-width: 768px) {
   .demo-header {
-    flex-direction: column;
-    gap: 0.4rem;
+    padding: 0 1rem;
+    height: 56px;
+    flex-direction: row; /* Keep row for back link and title */
   }
+  .demo-title {
+    font-size: 0.95rem;
+  }
+  .back-link {
+    font-size: 0.75rem;
+    padding: 6px 12px;
+  }
+  .cta-btn {
+    display: none; /* Hide Create button on small mobile top bar to save space */
+  }
+
+  /* Full width scrollable toolbar */
   .toolbar {
-    justify-content: center;
+    top: 60px;
+    width: 95%;
+    overflow-x: auto;
+    justify-content: flex-start;
+    padding: 6px 4px;
+    border-radius: 12px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
   }
+  .toolbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .toolbar-section {
+    flex-shrink: 0;
+  }
+
+  .label {
+    display: none;
+  }
+
+  .tool-btn {
+    padding: 6px 10px;
+    font-size: 0.7rem;
+  }
+
   .search-box input {
-    width: 110px;
+    width: 120px;
   }
+  .search-box input:focus {
+    width: 180px;
+  }
+
+  /* Bottom sheet style legend */
+  .department-legend {
+    bottom: 0;
+    right: 0;
+    left: 0;
+    width: 100%;
+    max-width: none;
+    border-radius: 16px 16px 0 0;
+    border-bottom: none;
+  }
+  .department-legend.minimized {
+    width: auto;
+    left: auto;
+    right: 1rem;
+    bottom: 1rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    padding: 0.75rem 1rem;
+  }
+
+  .modal {
+    width: 95%;
+    max-height: 85vh;
+  }
+
+  .action-menu-modal {
+    width: 90%;
+    max-width: 320px;
+  }
+
   .orphan-alert-content {
     flex-direction: column;
     text-align: center;
