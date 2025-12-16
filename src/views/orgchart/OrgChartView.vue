@@ -576,11 +576,11 @@ export default {
             <div style="background:${color}10;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:15px;clip-path:inherit;">
               <div style="position:absolute;top:0;left:15px;right:0;height:1px;background:${color};"></div>
               <div style="position:absolute;bottom:0;right:15px;left:0;height:1px;background:${color};"></div>
-              
+
               <div style="width:64px;height:64px;margin-bottom:12px;position:relative;">
                 <div style="width:100%;height:100%;border-radius:50%;overflow:hidden;border:2px solid ${color};">${avatarContent}</div>
               </div>
-              
+
               <div style="font-size:1.2rem;font-weight:700;color:${text};text-transform:uppercase;">${
           data.name
         }</div>
@@ -628,10 +628,11 @@ export default {
           .container(container)
           .data(chartData)
           .nodeWidth((d) => 250)
+          .nodeWidth((d) => 250)
           .nodeHeight((d) =>
             this.selectedStyle === "minimal" || this.selectedStyle === "modern"
-              ? 100
-              : 200
+              ? 140
+              : 280
           )
           .childrenMargin((d) => 50)
           .compactMarginBetween((d) => 35)
@@ -694,26 +695,68 @@ export default {
       const container = this.$refs.chartContainer;
       if (!container) return;
 
-      // 1. Force a re-render to ensure SVG dimension consistency
+      // 1. Expand all nodes to show full chart
+      this.chartInstance.expandAll();
       this.chartInstance.render();
 
-      // 2. Fit to screen to center the chart
-      // this.chartInstance.fit();
+      // 2. Wait for expansion animation
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // 3. Wait for fit animation to complete
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      // 3. Get the SVG and its full bounding box
+      const svgElement = container.querySelector("svg");
+      if (!svgElement) {
+        alert("No chart to export");
+        return;
+      }
 
-      const originalBackground = container.style.background;
+      const theme = this.getTheme();
 
-      // 4. Apply current theme background
-      container.style.background = this.themeGradient;
+      // 4. Get the full content bounds from SVG
+      const gElement = svgElement.querySelector("g");
+      const bbox = gElement ? gElement.getBBox() : svgElement.getBBox();
+
+      // 5. Store original styles
+      const originalContainerStyle = container.style.cssText;
+      const originalSvgWidth = svgElement.getAttribute("width");
+      const originalSvgHeight = svgElement.getAttribute("height");
+
+      // 6. Temporarily resize container and SVG to fit full content
+      const padding = 100;
+      const fullWidth = Math.max(
+        bbox.width + padding * 2,
+        container.clientWidth
+      );
+      const fullHeight = Math.max(
+        bbox.height + padding * 2,
+        container.clientHeight
+      );
+
+      container.style.width = fullWidth + "px";
+      container.style.height = fullHeight + "px";
+      container.style.overflow = "visible";
+      container.style.background = theme.bg;
+
+      svgElement.setAttribute("width", fullWidth);
+      svgElement.setAttribute("height", fullHeight);
+
+      // 7. Center the content
+      this.chartInstance.fit();
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       try {
         const canvas = await html2canvas(container, {
-          backgroundColor: null,
+          backgroundColor: theme.bg,
           scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          foreignObjectRendering: true,
           logging: false,
+          width: fullWidth,
+          height: fullHeight,
+          windowWidth: fullWidth,
+          windowHeight: fullHeight,
         });
+
         const link = document.createElement("a");
         link.download = `${this.chart.title || "org-chart"}.png`;
         link.href = canvas.toDataURL("image/png");
@@ -722,7 +765,17 @@ export default {
         console.error("Export failed:", err);
         alert("Export failed. Please try again.");
       } finally {
-        container.style.background = originalBackground;
+        // 8. Restore original styles
+        container.style.cssText = originalContainerStyle;
+        if (originalSvgWidth)
+          svgElement.setAttribute("width", originalSvgWidth);
+        else svgElement.removeAttribute("width");
+        if (originalSvgHeight)
+          svgElement.setAttribute("height", originalSvgHeight);
+        else svgElement.removeAttribute("height");
+
+        // 9. Re-fit to viewport
+        this.chartInstance.fit();
       }
     },
     shareChart() {
