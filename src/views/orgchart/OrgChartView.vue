@@ -692,90 +692,30 @@ export default {
       this.searchResults = [];
     },
     async exportToPng() {
-      const container = this.$refs.chartContainer;
-      if (!container) return;
-
-      // 1. Expand all nodes to show full chart
-      this.chartInstance.expandAll();
-      this.chartInstance.render();
-
-      // 2. Wait for expansion animation
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // 3. Get the SVG and its full bounding box
-      const svgElement = container.querySelector("svg");
-      if (!svgElement) {
-        alert("No chart to export");
-        return;
-      }
+      if (!this.chartInstance) return;
 
       const theme = this.getTheme();
-
-      // 4. Get the full content bounds from SVG
-      const gElement = svgElement.querySelector("g");
-      const bbox = gElement ? gElement.getBBox() : svgElement.getBBox();
-
-      // 5. Store original styles
-      const originalContainerStyle = container.style.cssText;
-      const originalSvgWidth = svgElement.getAttribute("width");
-      const originalSvgHeight = svgElement.getAttribute("height");
-
-      // 6. Temporarily resize container and SVG to fit full content
-      const padding = 100;
-      const fullWidth = Math.max(
-        bbox.width + padding * 2,
-        container.clientWidth
-      );
-      const fullHeight = Math.max(
-        bbox.height + padding * 2,
-        container.clientHeight
-      );
-
-      container.style.width = fullWidth + "px";
-      container.style.height = fullHeight + "px";
-      container.style.overflow = "visible";
-      container.style.background = theme.bg;
-
-      svgElement.setAttribute("width", fullWidth);
-      svgElement.setAttribute("height", fullHeight);
-
-      // 7. Center the content
-      this.chartInstance.fit();
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      let downloaded = false; // Prevent multiple downloads
 
       try {
-        const canvas = await html2canvas(container, {
-          backgroundColor: theme.bg,
+        // Use d3-org-chart's built-in export method
+        this.chartInstance.exportImg({
+          full: true,
           scale: 2,
-          useCORS: true,
-          allowTaint: true,
-          foreignObjectRendering: true,
-          logging: false,
-          width: fullWidth,
-          height: fullHeight,
-          windowWidth: fullWidth,
-          windowHeight: fullHeight,
-        });
+          backgroundColor: theme.bg,
+          onLoad: (base64) => {
+            if (downloaded) return; // Only download once
+            downloaded = true;
 
-        const link = document.createElement("a");
-        link.download = `${this.chart.title || "org-chart"}.png`;
-        link.href = canvas.toDataURL("image/png");
-        link.click();
+            const link = document.createElement("a");
+            link.download = `${this.chart.title || "org-chart"}.png`;
+            link.href = base64;
+            link.click();
+          },
+        });
       } catch (err) {
         console.error("Export failed:", err);
         alert("Export failed. Please try again.");
-      } finally {
-        // 8. Restore original styles
-        container.style.cssText = originalContainerStyle;
-        if (originalSvgWidth)
-          svgElement.setAttribute("width", originalSvgWidth);
-        else svgElement.removeAttribute("width");
-        if (originalSvgHeight)
-          svgElement.setAttribute("height", originalSvgHeight);
-        else svgElement.removeAttribute("height");
-
-        // 9. Re-fit to viewport
-        this.chartInstance.fit();
       }
     },
     shareChart() {
