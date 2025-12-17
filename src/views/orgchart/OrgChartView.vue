@@ -193,6 +193,7 @@ export default {
       searchQuery: "",
       searchResults: [],
       isLegendMinimized: false,
+      isExporting: false,
       colors: {
         blue: "#3b82f6",
         cyan: "#06b6d4",
@@ -692,30 +693,35 @@ export default {
       this.searchResults = [];
     },
     async exportToPng() {
-      if (!this.chartInstance) return;
+      if (!this.chartInstance || this.isExporting) return;
 
+      this.isExporting = true; // Prevent double-click
       const theme = this.getTheme();
-      let downloaded = false; // Prevent multiple downloads
 
       try {
         // Use d3-org-chart's built-in export method
         this.chartInstance.exportImg({
           full: true,
           scale: 2,
+          save: false, // Don't auto-save, we handle download in onLoad
           backgroundColor: theme.bg,
+          expandBy: 40, // Add padding around the chart
           onLoad: (base64) => {
-            if (downloaded) return; // Only download once
-            downloaded = true;
-
             const link = document.createElement("a");
             link.download = `${this.chart.title || "org-chart"}.png`;
             link.href = base64;
             link.click();
+
+            // Reset after a short delay
+            setTimeout(() => {
+              this.isExporting = false;
+            }, 1000);
           },
         });
       } catch (err) {
         console.error("Export failed:", err);
         alert("Export failed. Please try again.");
+        this.isExporting = false;
       }
     },
     shareChart() {

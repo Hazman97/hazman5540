@@ -151,7 +151,7 @@
             <!-- Content -->
             <div class="p-6">
               <p
-                class="text-slate-500 dark:text-text text-sm leading-relaxed line-clamp-2 mb-4"
+                class="text-slate-500 dark:text-text text-sm leading-relaxed description-clamp mb-4"
               >
                 {{ project.description }}
               </p>
@@ -255,7 +255,7 @@
             <!-- Content -->
             <div class="p-5">
               <p
-                class="text-slate-500 dark:text-text text-sm leading-relaxed line-clamp-2 mb-4"
+                class="text-slate-500 dark:text-text text-sm leading-relaxed description-clamp mb-4"
               >
                 {{ project.description }}
               </p>
@@ -315,6 +315,24 @@ export default {
           url: "/birthday/create",
           tag: "Web App",
           tech: ["Vue.js", "Supabase", "Tailwind"],
+        },
+        {
+          image: "/img/canopynet_dashboard.png",
+          title: "CanopyNet Dashboard",
+          description:
+            "Real-time plantation management platform with live UGV tracking, tree coverage monitoring, and asset management. Built with Vue 3, Leaflet, and ROS integration.",
+          url: "https://canopynet.mindnrobotics.com/",
+          tag: "IoT Platform",
+          tech: ["Vue.js", "Leaflet", "ROS"],
+        },
+        {
+          image: "/img/medisaas_clinic.png",
+          title: "MediSaaS Clinic",
+          description:
+            "Comprehensive clinic management system with appointment scheduling, patient registry, doctor console, pharmacy integration, and real-time queue display.",
+          url: "https://demo-clinic-management-system.vercel.app/",
+          tag: "SaaS",
+          tech: ["Vue.js", "Tailwind", "Vercel"],
         },
       ],
       standardProjects: [
@@ -543,5 +561,19 @@ export default {
     opacity: 1;
     transform: scale(1.05);
   }
+}
+
+/* Description expand on hover */
+.description-clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.project-card:hover .description-clamp {
+  -webkit-line-clamp: unset;
+  overflow: visible;
 }
 </style>
