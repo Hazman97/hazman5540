@@ -26,6 +26,8 @@ import OrgChartDemo from "@/views/orgchart/OrgChartDemo.vue";
 import OrgChartCreate from "@/views/orgchart/OrgChartCreate.vue";
 import OrgChartView from "@/views/orgchart/OrgChartView.vue";
 import OrgChartEdit from "@/views/orgchart/OrgChartEdit.vue";
+// E-Claim System
+import EClaimView from "@/views/eclaim/EClaimView.vue";
 
 const routes = [
   { path: "/photocollection", name: "HomeCollection", component: Home },
@@ -103,6 +105,12 @@ const routes = [
     path: "/org/:slug/edit",
     name: "OrgChartEdit",
     component: OrgChartEdit,
+  },
+  // === E-Claim System Routes ===
+  {
+    path: "/eclaim",
+    name: "EClaim",
+    component: EClaimView,
   },
   {
     path: "/about",

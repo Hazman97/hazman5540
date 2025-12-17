@@ -371,13 +371,12 @@ export default {
           tech: ["Vue.js", "D3.js", "Tailwind"],
         },
         {
-          image:
-            "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&h=600&fit=crop",
+          image: "/img/eclaim_system.png",
           title: "E-Claim System",
           description:
-            "Streamlined expense claim management system allowing employees to submit and track claims efficiently.",
-          url: "#",
-          tech: ["Vue.js", "Node.js", "MySQL"],
+            "Expense claim management with role-based approval workflow. Staff → HOD → Finance/HR. Features dashboard, claim submission, and approval tracking.",
+          url: "/eclaim",
+          tech: ["Vue.js", "Tailwind", "Mock Data"],
         },
       ],
     };
