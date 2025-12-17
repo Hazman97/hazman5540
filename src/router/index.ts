@@ -60,6 +60,11 @@ const routes = [
     redirect: "/portfolio",
   },
   {
+    path: "/home",
+    name: "home-page",
+    component: HomeView,
+  },
+  {
     path: "/Nav",
     name: "Nav",
     component: Nav,
