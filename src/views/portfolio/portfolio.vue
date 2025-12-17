@@ -64,7 +64,7 @@
           </svg>
           <span class="text-xs font-mono text-slate-600 dark:text-slate-300">
             {{ visitorCount !== null ? visitorCount.toLocaleString() : "..." }}
-            pelawat
+            visitor
           </span>
         </div>
       </div>
