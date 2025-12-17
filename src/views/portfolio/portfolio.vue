@@ -152,28 +152,35 @@ export default {
     async trackVisitor() {
       try {
         // Get visitor IP using free API
+        console.log("🔍 Getting visitor IP...");
         const ipResponse = await fetch("https://api.ipify.org?format=json");
         const ipData = await ipResponse.json();
         const visitorIP = ipData.ip;
+        console.log("✅ Visitor IP:", visitorIP);
 
         // Hash the IP for privacy (simple hash)
         const hashedIP = await this.hashIP(visitorIP);
+        console.log("🔐 Hashed IP:", hashedIP);
 
         // Reference to visitors collection
         const visitorsRef = collection(db, "portfolio_visitors");
         const visitorDoc = doc(visitorsRef, hashedIP);
 
         // Check if this IP has visited before
+        console.log("📖 Checking Firestore...");
         const docSnap = await getDoc(visitorDoc);
 
         if (!docSnap.exists()) {
           // New visitor - add to Firestore
+          console.log("🆕 New visitor! Adding to Firestore...");
           await setDoc(visitorDoc, {
             firstVisit: new Date().toISOString(),
             lastVisit: new Date().toISOString(),
           });
+          console.log("✅ Added to Firestore!");
         } else {
           // Returning visitor - update last visit
+          console.log("👋 Returning visitor, updating...");
           await setDoc(visitorDoc, {
             ...docSnap.data(),
             lastVisit: new Date().toISOString(),
@@ -183,8 +190,9 @@ export default {
         // Get total unique visitor count
         const allVisitors = await getDocs(visitorsRef);
         this.visitorCount = allVisitors.size;
+        console.log("📊 Total unique visitors:", this.visitorCount);
       } catch (error) {
-        console.error("Error tracking visitor:", error);
+        console.error("❌ Error tracking visitor:", error);
         // Fallback to localStorage count if Firebase fails
         this.visitorCount = parseInt(
           localStorage.getItem("hazman5540_visitor_count") || "1",
