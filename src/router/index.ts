@@ -65,6 +65,11 @@ const routes = [
     component: HomeView,
   },
   {
+    path: "/converter",
+    name: "converter",
+    component: () => import("@/views/ConverterView.vue"),
+  },
+  {
     path: "/Nav",
     name: "Nav",
     component: Nav,
