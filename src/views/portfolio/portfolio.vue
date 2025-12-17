@@ -151,11 +151,9 @@ export default {
     },
     async trackVisitor() {
       try {
-        // Get visitor IP using free API
+        // Get visitor IP using multiple fallback APIs
         console.log("🔍 Getting visitor IP...");
-        const ipResponse = await fetch("https://api.ipify.org?format=json");
-        const ipData = await ipResponse.json();
-        const visitorIP = ipData.ip;
+        const visitorIP = await this.getVisitorIP();
         console.log("✅ Visitor IP:", visitorIP);
 
         // Hash the IP for privacy (simple hash)
@@ -176,6 +174,7 @@ export default {
           await setDoc(visitorDoc, {
             firstVisit: new Date().toISOString(),
             lastVisit: new Date().toISOString(),
+            ip: visitorIP.substring(0, 8) + "***", // Partial IP for debugging
           });
           console.log("✅ Added to Firestore!");
         } else {
@@ -199,6 +198,47 @@ export default {
           10
         );
       }
+    },
+    async getVisitorIP() {
+      // Try multiple IP APIs with fallback
+      const ipApis = [
+        { url: "https://api.ipify.org?format=json", extract: (d) => d.ip },
+        { url: "https://api.ip.sb/ip", extract: (d) => d.trim() },
+        { url: "https://ipinfo.io/json", extract: (d) => d.ip },
+      ];
+
+      for (const api of ipApis) {
+        try {
+          console.log("🌐 Trying:", api.url);
+          const response = await fetch(api.url, {
+            method: "GET",
+            headers: { Accept: "application/json, text/plain" },
+          });
+          if (response.ok) {
+            const text = await response.text();
+            try {
+              const data = JSON.parse(text);
+              const ip = api.extract(data);
+              if (ip) return ip;
+            } catch {
+              // Response might be plain text
+              const ip = text.trim();
+              if (ip && ip.match(/^\d+\.\d+\.\d+\.\d+$/)) return ip;
+            }
+          }
+        } catch (e) {
+          console.warn("⚠️ API failed:", api.url, e.message);
+        }
+      }
+
+      // Ultimate fallback: use random ID stored in localStorage
+      console.warn("⚠️ All IP APIs failed, using device fingerprint");
+      let deviceId = localStorage.getItem("hazman5540_device_id");
+      if (!deviceId) {
+        deviceId = "device_" + Math.random().toString(36).substring(2, 15);
+        localStorage.setItem("hazman5540_device_id", deviceId);
+      }
+      return deviceId;
     },
     async hashIP(ip) {
       // Simple hash function for IP privacy
