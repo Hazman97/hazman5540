@@ -308,6 +308,15 @@ export default {
           tech: ["Vue.js", "Tailwind", "Firebase"],
         },
         {
+          image: "/img/smashpoint_booking.png",
+          title: "SmashPoint - Badminton Booking",
+          description:
+            "A modern badminton court booking system with real-time availability, slot management, and user-friendly interface for seamless reservations.",
+          url: "https://smashpoint.vercel.app/",
+          tag: "AI Studio",
+          tech: ["React", "Tailwind", "Firebase"],
+        },
+        {
           image: "/img/birthday_wish.png",
           title: "Birthday Wish Creator",
           description:
