@@ -303,7 +303,7 @@ export default {
           title: "Restaurant POS System",
           description:
             "A modern Point of Sale system for restaurants, featuring order management, menu customization, and sales tracking.",
-          url: "https://ai.studio/apps/drive/1tJn3zeR29PWV4KiSQVXq0cQbwwsUUUKW",
+          url: "https://demo-restaurant-ordering-system.vercel.app/",
           tag: "AI Studio",
           tech: ["Vue.js", "Tailwind", "Firebase"],
         },
