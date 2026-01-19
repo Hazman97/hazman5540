@@ -294,7 +294,7 @@ export default {
           title: "Confession Bot",
           description:
             "An anonymous confession bot for Discord servers. Allows users to submit confessions anonymously to specified channels.",
-          url: "https://hazman97.github.io/confession_bot/",
+          url: "https://confess-bot.pages.dev/",
           tag: "Discord Bot",
           tech: ["Node.js", "Discord.js", "JavaScript"],
         },
@@ -315,6 +315,15 @@ export default {
           url: "https://smashpoint.vercel.app/",
           tag: "AI Studio",
           tech: ["React", "Tailwind", "Firebase"],
+        },
+        {
+          image: "/img/qr_memories.png",
+          title: "QR Memories",
+          description:
+            "A digital memory lane using QR codes to store and view photo collections. Share and scan to relive moments instantly.",
+          url: "https://qrmemories.pages.dev/login",
+          tag: "Web App",
+          tech: ["Vue.js", "Cloudflare Pages", "Tailwind"],
         },
         {
           image: "/img/birthday_wish.png",
@@ -422,7 +431,7 @@ export default {
             }
           });
         },
-        { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
+        { threshold: 0.1, rootMargin: "0px 0px -50px 0px" },
       );
 
       this.$el.querySelectorAll(".reveal").forEach((el) => {
@@ -490,7 +499,9 @@ export default {
 
 /* Project Card Effects */
 .project-card {
-  transition: transform 0.5s ease, box-shadow 0.5s ease;
+  transition:
+    transform 0.5s ease,
+    box-shadow 0.5s ease;
 }
 
 .project-card:hover {
