@@ -28,10 +28,16 @@ import OrgChartView from "@/views/orgchart/OrgChartView.vue";
 import OrgChartEdit from "@/views/orgchart/OrgChartEdit.vue";
 // E-Claim System
 import EClaimView from "@/views/eclaim/EClaimView.vue";
+// WiFi QR Generator
+import WifiQrGenerator from "@/views/wifi-qr/WifiQrGenerator.vue";
 
 const routes = [
   { path: "/photocollection", name: "HomeCollection", component: Home },
-  { path: "/country/:name", name: "CountryView",  components: { default: CountryView, nav: topbar } },
+  {
+    path: "/country/:name",
+    name: "CountryView",
+    components: { default: CountryView, nav: topbar },
+  },
   {
     path: "/country/:name/location/:location",
     name: "LocationView",
@@ -155,6 +161,12 @@ const routes = [
     path: "/birthday/admin",
     name: "BirthdayAdmin",
     component: BirthdayAdmin,
+  },
+  // === WiFi QR Generator ===
+  {
+    path: "/wifi-qr",
+    name: "WifiQrGenerator",
+    component: WifiQrGenerator,
   },
   {
     path: "/:pathMatch(.*)*", // Catch-all route
