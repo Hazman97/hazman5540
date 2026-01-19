@@ -152,34 +152,34 @@ export default {
     async trackVisitor() {
       try {
         // Get visitor IP using multiple fallback APIs
-        console.log("🔍 Getting visitor IP...");
+        // console.log("🔍 Getting visitor IP...");
         const visitorIP = await this.getVisitorIP();
-        console.log("✅ Visitor IP:", visitorIP);
+        // console.log("✅ Visitor IP:", visitorIP);
 
         // Hash the IP for privacy (simple hash)
         const hashedIP = await this.hashIP(visitorIP);
-        console.log("🔐 Hashed IP:", hashedIP);
+        // console.log("🔐 Hashed IP:", hashedIP);
 
         // Reference to visitors collection
         const visitorsRef = collection(db, "portfolio_visitors");
         const visitorDoc = doc(visitorsRef, hashedIP);
 
         // Check if this IP has visited before
-        console.log("📖 Checking Firestore...");
+        // console.log("📖 Checking Firestore...");
         const docSnap = await getDoc(visitorDoc);
 
         if (!docSnap.exists()) {
           // New visitor - add to Firestore
-          console.log("🆕 New visitor! Adding to Firestore...");
+          // console.log("🆕 New visitor! Adding to Firestore...");
           await setDoc(visitorDoc, {
             firstVisit: new Date().toISOString(),
             lastVisit: new Date().toISOString(),
             ip: visitorIP.substring(0, 8) + "***", // Partial IP for debugging
           });
-          console.log("✅ Added to Firestore!");
+          // console.log("✅ Added to Firestore!");
         } else {
           // Returning visitor - update last visit
-          console.log("👋 Returning visitor, updating...");
+          // console.log("👋 Returning visitor, updating...");
           await setDoc(visitorDoc, {
             ...docSnap.data(),
             lastVisit: new Date().toISOString(),
@@ -189,13 +189,13 @@ export default {
         // Get total unique visitor count
         const allVisitors = await getDocs(visitorsRef);
         this.visitorCount = allVisitors.size;
-        console.log("📊 Total unique visitors:", this.visitorCount);
+        // console.log("📊 Total unique visitors:", this.visitorCount);
       } catch (error) {
         console.error("❌ Error tracking visitor:", error);
         // Fallback to localStorage count if Firebase fails
         this.visitorCount = parseInt(
           localStorage.getItem("hazman5540_visitor_count") || "1",
-          10
+          10,
         );
       }
     },
@@ -209,7 +209,7 @@ export default {
 
       for (const api of ipApis) {
         try {
-          console.log("🌐 Trying:", api.url);
+          // console.log("🌐 Trying:", api.url);
           const response = await fetch(api.url, {
             method: "GET",
             headers: { Accept: "application/json, text/plain" },
@@ -227,12 +227,12 @@ export default {
             }
           }
         } catch (e) {
-          console.warn("⚠️ API failed:", api.url, e.message);
+          // console.warn("⚠️ API failed:", api.url, e.message);
         }
       }
 
       // Ultimate fallback: use random ID stored in localStorage
-      console.warn("⚠️ All IP APIs failed, using device fingerprint");
+      // console.warn("⚠️ All IP APIs failed, using device fingerprint");
       let deviceId = localStorage.getItem("hazman5540_device_id");
       if (!deviceId) {
         deviceId = "device_" + Math.random().toString(36).substring(2, 15);
@@ -263,7 +263,9 @@ export default {
 
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
 }
 
 .fade-enter-from,
