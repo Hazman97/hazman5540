@@ -998,13 +998,20 @@ async function confirmClock() {
   processing.value = true;
 
   try {
-    const photoResult = await uploadAttendancePhoto(
-      capturedBlob.value,
-      clockType.value === "in" ? "clockin" : "clockout",
-      student.value.id,
-    );
-
-    if (!photoResult.success) throw new Error("Upload failed");
+    let photoUrl = null;
+    try {
+      const photoResult = await uploadAttendancePhoto(
+        capturedBlob.value,
+        clockType.value === "in" ? "clockin" : "clockout",
+        student.value.id,
+      );
+      if (photoResult.success) {
+        photoUrl = photoResult.url;
+      }
+    } catch (uploadErr) {
+      console.warn("Photo upload failed (Network Error?):", uploadErr);
+      // Ensure we don't block the attendance record
+    }
 
     const now = Timestamp.now();
     const locLat = location.value?.lat || null;
@@ -1019,7 +1026,7 @@ async function confirmClock() {
         studentName: student.value.name,
         clockInTime: now,
         clockOutTime: null,
-        clockInPhoto: photoResult.url,
+        clockInPhoto: photoUrl,
         clockOutPhoto: null,
         clockInLat: locLat,
         clockInLng: locLng,
@@ -1040,7 +1047,9 @@ async function confirmClock() {
 
       // Manually update state so UI updates INSTANTLY
       todayLog.value = { id: docRef.id, ...newLogData };
-      successMessage.value = "You are successfully clocked in.";
+      successMessage.value = photoUrl
+        ? "You are successfully clocked in."
+        : "Clocked in (Photo upload failed).";
     } else {
       // Calculate hours
       const clockInTime = todayLog.value.clockInTime.toDate();
@@ -1049,7 +1058,7 @@ async function confirmClock() {
 
       const updateData = {
         clockOutTime: now,
-        clockOutPhoto: photoResult.url,
+        clockOutPhoto: photoUrl,
         clockOutLat: locLat,
         clockOutLng: locLng,
         clockOutReason: notes,
