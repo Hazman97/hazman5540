@@ -915,46 +915,71 @@ async function confirmClock() {
 
     if (!photoResult.success) throw new Error("Upload failed");
 
+    const now = Timestamp.now();
+    const locLat = location.value?.lat || null;
+    const locLng = location.value?.lng || null;
+    const isOutside = !isInsideOffice.value;
+    const notes = isInsideOffice.value ? "" : reason.value;
+
     if (clockType.value === "in") {
-      await addDoc(collection(db, "attendance_logs"), {
+      // Create new log object
+      const newLogData = {
         studentId: student.value.id,
         studentName: student.value.name,
-        clockInTime: Timestamp.now(),
+        clockInTime: now,
         clockOutTime: null,
         clockInPhoto: photoResult.url,
         clockOutPhoto: null,
-        clockInLat: location.value?.lat || null,
-        clockInLng: location.value?.lng || null,
+        clockInLat: locLat,
+        clockInLng: locLng,
         clockOutLat: null,
         clockOutLng: null,
-        clockInReason: isInsideOffice.value ? "" : reason.value,
+        clockInReason: notes,
         clockOutReason: "",
-        isClockInOutside: !isInsideOffice.value,
+        isClockInOutside: isOutside,
         isClockOutOutside: false,
         totalHours: null,
-        createdAt: Timestamp.now(),
-      });
+        createdAt: now,
+      };
+
+      const docRef = await addDoc(
+        collection(db, "attendance_logs"),
+        newLogData,
+      );
+
+      // Manually update state so UI updates INSTANTLY
+      todayLog.value = { id: docRef.id, ...newLogData };
       successMessage.value = "You are successfully clocked in.";
     } else {
+      // Calculate hours
       const clockInTime = todayLog.value.clockInTime.toDate();
       const clockOutTime = new Date();
       const totalHours = (clockOutTime - clockInTime) / (1000 * 60 * 60);
 
-      await updateDoc(doc(db, "attendance_logs", todayLog.value.id), {
-        clockOutTime: Timestamp.now(),
+      const updateData = {
+        clockOutTime: now,
         clockOutPhoto: photoResult.url,
-        clockOutLat: location.value?.lat || null,
-        clockOutLng: location.value?.lng || null,
-        clockOutReason: isInsideOffice.value ? "" : reason.value,
-        isClockOutOutside: !isInsideOffice.value,
+        clockOutLat: locLat,
+        clockOutLng: locLng,
+        clockOutReason: notes,
+        isClockOutOutside: isOutside,
         totalHours: totalHours,
-      });
+      };
+
+      await updateDoc(
+        doc(db, "attendance_logs", todayLog.value.id),
+        updateData,
+      );
+
+      // Manually update state
+      todayLog.value = { ...todayLog.value, ...updateData };
       successMessage.value = `You worked ${totalHours.toFixed(1)} hours today.`;
     }
 
     showPreview.value = false;
     showSuccess.value = true;
   } catch (err) {
+    console.error(err);
     alert("Error: " + err.message);
   } finally {
     processing.value = false;
@@ -963,6 +988,8 @@ async function confirmClock() {
 
 function closeSuccess() {
   showSuccess.value = false;
+  // We already updated state manually, but we can try to re-fetch to be safe
+  // without blocking the UI
   loadTodayLog();
 }
 
