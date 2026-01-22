@@ -507,10 +507,37 @@
 
       <div class="flex-1 overflow-y-auto p-6">
         <div
-          class="relative aspect-[3/4] w-full max-w-sm mx-auto rounded-2xl overflow-hidden shadow-2xl mb-6"
+          class="relative aspect-[3/4] w-full max-w-sm mx-auto rounded-2xl overflow-hidden shadow-2xl mb-6 bg-slate-800 flex items-center justify-center"
         >
-          <img :src="capturedPhoto" class="w-full h-full object-cover" />
+          <img
+            v-if="capturedPhoto"
+            :src="capturedPhoto"
+            class="w-full h-full object-cover"
+          />
+          <div v-else class="text-white/30 flex flex-col items-center">
+            <svg
+              class="w-16 h-16 mb-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+              />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+            </svg>
+            <p>No Photo Required</p>
+          </div>
           <div
+            v-if="capturedPhoto"
             class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent"
           >
             <div class="flex items-center gap-2 text-white">
@@ -688,18 +715,21 @@ import {
   addDoc,
   updateDoc,
   doc,
+  getDoc,
   Timestamp,
 } from "firebase/firestore";
 import { uploadAttendancePhoto } from "@/services/attendanceStorageService";
 
 const router = useRouter();
 
-// Config
-const OFFICE = {
-  lat: 2.9200662208003716,
-  lng: 101.63648374057146,
-  radius: 300,
-};
+// Config State
+const config = ref({
+  requirePhoto: true,
+  requireLocation: true,
+  officeLat: 2.9200662208003716,
+  officeLng: 101.63648374057146,
+  officeRadius: 300,
+});
 
 // State
 const student = ref(null);
@@ -741,15 +771,18 @@ let timerInterval = null;
 let successTimer = null;
 
 // Computed
+// Computed
 const isInsideOffice = computed(() => {
+  if (!config.value.requireLocation) return true; // Bypass if disabled
   if (!location.value) return false;
+
   const distance = haversineDistance(
     location.value.lat,
     location.value.lng,
-    OFFICE.lat,
-    OFFICE.lng,
+    config.value.officeLat,
+    config.value.officeLng,
   );
-  return distance <= OFFICE.radius;
+  return distance <= config.value.officeRadius;
 });
 
 const currentDate = computed(() => {
@@ -775,6 +808,17 @@ onMounted(async () => {
 
   // Auto get location on load (better UX)
   getLocation();
+
+  // Fetch Config
+  try {
+    const docRef = doc(db, "attendance_config", "global");
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      config.value = { ...config.value, ...docSnap.data() };
+    }
+  } catch (e) {
+    console.error("Config load error", e);
+  }
 });
 
 onUnmounted(() => {
@@ -888,12 +932,24 @@ function formatTime(timestamp) {
 // Camera
 async function startClockIn() {
   clockType.value = "in";
-  await startCamera();
+  if (config.value.requirePhoto) {
+    await startCamera();
+  } else {
+    capturedPhoto.value = null;
+    capturedBlob.value = null;
+    showPreview.value = true;
+  }
 }
 
 async function startClockOut() {
   clockType.value = "out";
-  await startCamera();
+  if (config.value.requirePhoto) {
+    await startCamera();
+  } else {
+    capturedPhoto.value = null;
+    capturedBlob.value = null;
+    showPreview.value = true;
+  }
 }
 
 async function startCamera() {

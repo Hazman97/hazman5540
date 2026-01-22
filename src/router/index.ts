@@ -35,9 +35,11 @@ import AttendanceAdminLogin from "@/views/attendance/AdminLogin.vue";
 import AttendanceAdminDashboard from "@/views/attendance/AdminDashboard.vue";
 import AttendanceStudentManagement from "@/views/attendance/StudentManagement.vue";
 import AttendanceRecords from "@/views/attendance/AttendanceRecords.vue";
+import AdminSettings from "@/views/attendance/AdminSettings.vue";
 import AttendanceStudentLogin from "@/views/attendance/StudentLogin.vue";
 import AttendanceStudentDashboard from "@/views/attendance/StudentDashboard.vue";
 import AttendanceStudentLogs from "@/views/attendance/StudentLogs.vue";
+import AdminLayout from "@/views/attendance/AdminLayout.vue";
 
 const routes = [
   { path: "/photocollection", name: "HomeCollection", component: Home },
@@ -178,26 +180,6 @@ const routes = [
   },
   // === Intern Attendance System ===
   {
-    path: "/attendance/admin",
-    name: "AttendanceAdminLogin",
-    component: AttendanceAdminLogin,
-  },
-  {
-    path: "/attendance/admin/dashboard",
-    name: "AttendanceAdminDashboard",
-    component: AttendanceAdminDashboard,
-  },
-  {
-    path: "/attendance/admin/students",
-    name: "AttendanceStudentManagement",
-    component: AttendanceStudentManagement,
-  },
-  {
-    path: "/attendance/admin/records",
-    name: "AttendanceRecords",
-    component: AttendanceRecords,
-  },
-  {
     path: "/attendance",
     name: "AttendanceStudentLogin",
     component: AttendanceStudentLogin,
@@ -206,11 +188,50 @@ const routes = [
     path: "/attendance/dashboard",
     name: "AttendanceStudentDashboard",
     component: AttendanceStudentDashboard,
+    meta: { requiresAuth: true },
   },
   {
     path: "/attendance/logs",
     name: "AttendanceStudentLogs",
     component: AttendanceStudentLogs,
+    meta: { requiresAuth: true },
+  },
+  // Admin Routes
+  {
+    path: "/attendance/admin/login",
+    name: "AttendanceAdminLogin",
+    component: AttendanceAdminLogin,
+  },
+  {
+    path: "/attendance/admin",
+    component: AdminLayout,
+    meta: { requiresAdmin: true },
+    children: [
+      {
+        path: "",
+        redirect: "/attendance/admin/dashboard",
+      },
+      {
+        path: "dashboard",
+        name: "AdminDashboard",
+        component: AttendanceAdminDashboard,
+      },
+      {
+        path: "students",
+        name: "AttendanceStudentManagement",
+        component: AttendanceStudentManagement,
+      },
+      {
+        path: "settings",
+        name: "AdminSettings",
+        component: AdminSettings,
+      },
+      {
+        path: "records",
+        name: "AttendanceRecords",
+        component: AttendanceRecords,
+      },
+    ],
   },
   {
     path: "/:pathMatch(.*)*", // Catch-all route
@@ -237,3 +258,16 @@ const router = createRouter({
 });
 
 export default router;
+
+router.beforeEach((to, from, next) => {
+  const adminAuthenticated = localStorage.getItem("attendance_admin");
+  const studentAuthenticated = localStorage.getItem("attendance_student");
+
+  if (to.meta.requiresAdmin && !adminAuthenticated) {
+    next("/attendance/admin/login");
+  } else if (to.meta.requiresAuth && !studentAuthenticated) {
+    next("/attendance");
+  } else {
+    next();
+  }
+});

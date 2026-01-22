@@ -389,20 +389,23 @@ async function loadLogs() {
 
     const logsRef = collection(db, "attendance_logs");
 
-    // Note: Needs composite index.
-    const q = query(
-      logsRef,
-      where("studentId", "==", student.value.id),
-      where("clockInTime", ">=", Timestamp.fromDate(startDate)),
-      where("clockInTime", "<=", Timestamp.fromDate(endDate)),
-      orderBy("clockInTime", "desc"),
-    );
+    // Fetch all logs for this student (avoid complex index requirement)
+    const q = query(logsRef, where("studentId", "==", student.value.id));
 
     const snapshot = await getDocs(q);
-    logs.value = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+    // Client-side Filter & Sort
+    logs.value = snapshot.docs
+      .map((doc) => ({ id: doc.id, ...doc.data() }))
+      .filter((log) => {
+        if (!log.clockInTime) return false;
+        const date = log.clockInTime.toDate();
+        return date >= startDate && date <= endDate;
+      })
+      .sort((a, b) => b.clockInTime.toMillis() - a.clockInTime.toMillis());
   } catch (err) {
-    console.error("Error loading logs (Index missing?):", err);
-    // Silent fail or minimal UI feedback for now as this is likely index issue
+    console.error("Error loading logs:", err);
+    alert("Failed to load logs. Please try again.");
   } finally {
     loading.value = false;
   }
