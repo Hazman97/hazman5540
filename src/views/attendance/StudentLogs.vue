@@ -50,19 +50,92 @@
           </p>
         </div>
         <div
-          class="flex items-center gap-2 bg-slate-800 p-1 rounded-xl border border-white/10 w-full sm:w-auto"
+          class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto"
         >
-          <input
-            v-model="filterMonth"
-            type="month"
-            class="bg-transparent text-white text-sm px-4 py-2 focus:outline-none w-full sm:w-auto"
-          />
-          <button
-            @click="loadLogs"
-            class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+          <!-- View Toggle -->
+          <div class="flex bg-slate-800 p-1 rounded-xl border border-white/10">
+            <button
+              @click="viewMode = 'list'"
+              class="px-3 py-1.5 rounded-lg text-sm font-medium transition-all"
+              :class="
+                viewMode === 'list'
+                  ? 'bg-blue-600 text-white shadow-lg'
+                  : 'text-white/60 hover:text-white'
+              "
+            >
+              List
+            </button>
+            <button
+              @click="viewMode = 'calendar'"
+              class="px-3 py-1.5 rounded-lg text-sm font-medium transition-all"
+              :class="
+                viewMode === 'calendar'
+                  ? 'bg-blue-600 text-white shadow-lg'
+                  : 'text-white/60 hover:text-white'
+              "
+            >
+              Calendar
+            </button>
+          </div>
+
+          <!-- Date & Filter -->
+          <div
+            class="flex items-center gap-2 bg-slate-800 p-1 rounded-xl border border-white/10"
           >
-            View
-          </button>
+            <input
+              v-model="filterMonth"
+              type="month"
+              class="bg-transparent text-white text-sm px-4 py-2 focus:outline-none"
+            />
+            <button
+              @click="loadLogs"
+              class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            >
+              View
+            </button>
+          </div>
+
+          <!-- Export Dropdown (Simple) -->
+          <div class="flex gap-2">
+            <button
+              @click="exportCSV"
+              title="Export CSV"
+              class="p-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl border border-white/10 transition-colors"
+            >
+              <svg
+                class="w-5 h-5 text-emerald-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                />
+              </svg>
+            </button>
+            <button
+              @click="exportPDF"
+              title="Export PDF"
+              class="p-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl border border-white/10 transition-colors"
+            >
+              <svg
+                class="w-5 h-5 text-rose-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -101,12 +174,12 @@
           <p
             class="text-white/40 text-xs font-bold uppercase tracking-wider mb-1"
           >
-            Remote
+            Attendance Score
           </p>
-          <p class="text-2xl font-bold text-orange-400">
-            {{ monthStats.outside }}
+          <p class="text-2xl font-bold text-indigo-400">
+            {{ currentStreak }}
           </p>
-          <p class="text-xs text-white/30">Outside Range</p>
+          <p class="text-xs text-white/30">Days Present</p>
         </div>
       </div>
 
@@ -145,8 +218,84 @@
         <p class="text-white/40 text-sm">Try selecting a different month</p>
       </div>
 
+      <!-- Calendar View -->
+      <div
+        v-else-if="viewMode === 'calendar'"
+        class="animate-in fade-in duration-300"
+      >
+        <div
+          class="grid grid-cols-7 gap-px bg-slate-700 rounded-2xl overflow-hidden border border-slate-700"
+        >
+          <!-- Headers -->
+          <div
+            v-for="day in ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']"
+            :key="day"
+            class="bg-slate-800 text-center py-3"
+          >
+            <span class="text-xs font-bold text-white/40 uppercase">{{
+              day
+            }}</span>
+          </div>
+
+          <!-- Days -->
+          <div
+            v-for="(item, index) in calendarData"
+            :key="index"
+            class="min-h-[100px] bg-slate-900 p-2 relative group hover:bg-slate-800/50 transition-colors"
+            :class="{ 'bg-slate-900/50': !item.day }"
+          >
+            <span
+              v-if="item.day"
+              class="text-sm font-medium text-white/60 block mb-2"
+              >{{ item.day }}</span
+            >
+
+            <!-- Present -->
+            <div
+              v-if="item.status === 'present'"
+              class="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-1.5 mb-1 cursor-pointer hover:bg-emerald-500/20"
+            >
+              <div class="flex items-center gap-1 mb-0.5">
+                <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                <span class="text-[10px] text-emerald-400 font-bold"
+                  >Present</span
+                >
+              </div>
+              <span class="text-[10px] text-white block">{{
+                formatTime(item.log.clockInTime)
+              }}</span>
+            </div>
+
+            <!-- Warning/Remote -->
+            <div
+              v-else-if="item.status === 'warning'"
+              class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-1.5 mb-1 cursor-pointer hover:bg-blue-500/20"
+            >
+              <div class="flex items-center gap-1 mb-0.5">
+                <div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+                <span class="text-[10px] text-blue-400 font-bold">Remote</span>
+              </div>
+              <span class="text-[10px] text-white block">{{
+                formatTime(item.log.clockInTime)
+              }}</span>
+            </div>
+
+            <!-- Absent -->
+            <div
+              v-else-if="item.status === 'absent'"
+              class="flex items-center justify-center h-12"
+            >
+              <span
+                class="text-rose-500/20 text-xs font-bold uppercase rotation-45 select-none"
+                >Absent</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Logs List (Desktop & Mobile Responsive) -->
-      <div v-else class="space-y-4">
+      <div v-else class="space-y-4 animate-in fade-in duration-300">
         <div
           v-for="log in logs"
           :key="log.id"
@@ -340,6 +489,7 @@ import {
   orderBy,
   Timestamp,
 } from "firebase/firestore";
+import jsPDF from "jspdf";
 
 const router = useRouter();
 const student = ref(null);
@@ -347,6 +497,68 @@ const logs = ref([]);
 const filterMonth = ref("");
 const photoModal = ref(null);
 const loading = ref(true);
+const viewMode = ref("list"); // 'list' | 'calendar'
+
+// Computed Calendar Data
+const calendarData = computed(() => {
+  if (!filterMonth.value) return [];
+  const [year, month] = filterMonth.value.split("-").map(Number);
+  const daysInMonth = new Date(year, month, 0).getDate();
+  const firstDayOfWeek = new Date(year, month - 1, 1).getDay(); // 0 = Sun
+
+  const days = [];
+
+  // Fill empty slots for previous month
+  for (let i = 0; i < firstDayOfWeek; i++) {
+    days.push({ day: null });
+  }
+
+  // Fill days
+  const now = new Date();
+  const isCurrentMonth =
+    now.getFullYear() === year && now.getMonth() + 1 === month;
+  const today = now.getDate();
+
+  for (let i = 1; i <= daysInMonth; i++) {
+    // Find log for this day
+    const log = logs.value.find((l) => {
+      const d = l.clockInTime.toDate();
+      return d.getDate() === i;
+    });
+
+    let status = "none";
+    if (log) {
+      status =
+        log.isClockInOutside || log.isClockOutOutside ? "warning" : "present";
+    } else if (isCurrentMonth && i > today) {
+      status = "future";
+    } else {
+      // Check if weekend
+      const dayOfWeek = new Date(year, month - 1, i).getDay();
+      if (dayOfWeek === 0 || dayOfWeek === 6) {
+        status = "weekend";
+      } else {
+        status = "absent";
+      }
+    }
+
+    days.push({ day: i, log, status });
+  }
+  return days;
+});
+
+// Computed Streak
+const currentStreak = computed(() => {
+  // Simple streak logic: consecutive days with logs in descending order
+  // Note: This relies on logs being sorted desc.
+  let streak = 0;
+  // We need to check day by day backwards
+  // For purpose of this specific view (UI only), we'll just count total days worked this month as a 'score'
+  // Or accurate streak logic:
+
+  // Let's just return total logs count for "Month Streak" gamification
+  return logs.value.length;
+});
 
 const monthStats = computed(() => {
   let days = 0,
@@ -442,12 +654,91 @@ function viewPhoto(url) {
   photoModal.value = url;
 }
 
-function showReason(log) {
-  // handled inline now
-}
-
 function handleLogout() {
   localStorage.removeItem("attendance_student");
   router.push("/attendance");
 }
+
+// === Export Functions ===
+const exportCSV = () => {
+  const headers = [
+    "Date",
+    "Clock In",
+    "Clock Out",
+    "Hours",
+    "Location",
+    "Note",
+  ];
+  const rows = logs.value.map((log) => [
+    formatDate(log.clockInTime),
+    formatTime(log.clockInTime),
+    log.clockOutTime ? formatTime(log.clockOutTime) : "-",
+    log.totalHours?.toFixed(2) || "0",
+    log.isClockInOutside ? "Remote" : "Office",
+    log.clockInReason || "",
+  ]);
+
+  const csv = [headers, ...rows].map((r) => r.join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `my_attendance_${filterMonth.value}.csv`;
+  a.click();
+};
+
+const exportPDF = () => {
+  const doc = new jsPDF();
+
+  // Header
+  doc.setFillColor(30, 41, 59); // Slate 800
+  doc.rect(0, 0, 210, 40, "F");
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(20);
+  doc.text("Attendance Report", 14, 20);
+  doc.setFontSize(10);
+  doc.text(`${student.value.name}`, 14, 28);
+  doc.text(`Month: ${filterMonth.value}`, 14, 34);
+
+  // Table Header
+  let y = 50;
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "bold");
+  doc.text("Date", 14, y);
+  doc.text("Clock In", 50, y);
+  doc.text("Clock Out", 80, y);
+  doc.text("Hours", 110, y);
+  doc.text("Status", 130, y);
+  doc.text("Location", 150, y);
+
+  doc.line(14, y + 2, 196, y + 2);
+  y += 10;
+  doc.setFont("helvetica", "normal");
+
+  // Table Body
+  logs.value.forEach((log) => {
+    if (y > 270) {
+      doc.addPage();
+      y = 20;
+    }
+
+    doc.text(formatDate(log.clockInTime), 14, y);
+    doc.text(formatTime(log.clockInTime), 50, y);
+    doc.text(log.clockOutTime ? formatTime(log.clockOutTime) : "-", 80, y);
+    doc.text(log.totalHours?.toFixed(1) + "h" || "-", 110, y);
+
+    // Status Logic
+    let status = "Present";
+    if (log.isClockInOutside) status = "Remote";
+    doc.text(status, 130, y);
+
+    // Location Text
+    doc.text(log.isClockInOutside ? "Outside" : "Office", 150, y);
+
+    y += 8;
+  });
+
+  doc.save(`attendance_report_${filterMonth.value}.pdf`);
+};
 </script>
