@@ -169,6 +169,39 @@
         </button>
       </div>
 
+      <!-- Stale Session Warning -->
+      <div
+        v-if="staleLog"
+        class="mb-6 bg-rose-500/10 border border-rose-500/20 p-4 rounded-xl flex items-start gap-3 animate-in fade-in slide-in-from-top-4 duration-500"
+      >
+        <div class="p-2 bg-rose-500/20 rounded-lg text-rose-400 mt-0.5">
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-white font-bold text-sm">Missed Clock Out</h3>
+          <p class="text-rose-200/60 text-xs mt-1">
+            You didn't clock out on
+            <span class="text-rose-200">{{
+              staleLog.clockInTime.toDate().toLocaleDateString()
+            }}</span
+            >. That session has been effectively closed. Please clock in for
+            your new session today.
+          </p>
+        </div>
+      </div>
+
       <!-- Main Status Card -->
       <div
         v-if="loading"
@@ -665,6 +698,7 @@ const OFFICE = {
 const student = ref(null);
 const studentName = ref("");
 const todayLog = ref(null);
+const staleLog = ref(null);
 const loading = ref(true);
 
 const isClockedIn = computed(
@@ -745,7 +779,7 @@ async function loadTodayLog() {
 
     const logsRef = collection(db, "attendance_logs");
 
-    // Note: This query requires an index. If failed, we catch it.
+    // 1. Check for TODAY's log
     const q = query(
       logsRef,
       where("studentId", "==", student.value.id),
@@ -755,19 +789,35 @@ async function loadTodayLog() {
     const snapshot = await getDocs(q);
 
     if (!snapshot.empty) {
-      // Get the latest one if multiple (shouldn't be, but safe)
       const sorted = snapshot.docs.sort(
         (a, b) => b.data().clockInTime - a.data().clockInTime,
       );
       todayLog.value = { id: sorted[0].id, ...sorted[0].data() };
     } else {
       todayLog.value = null;
+
+      // 2. If no log today, check for STALE log (forgot to clock out)
+      // This requires the Index (studentId ASC, clockInTime DESC) which user should have created
+      const staleQuery = query(
+        logsRef,
+        where("studentId", "==", student.value.id),
+        orderBy("clockInTime", "desc"),
+        limit(1),
+      );
+
+      const staleSnap = await getDocs(staleQuery);
+      if (!staleSnap.empty) {
+        const latest = staleSnap.docs[0].data();
+        // If latest has NO clockOutTime AND is older than today
+        if (!latest.clockOutTime && latest.clockInTime.toDate() < today) {
+          staleLog.value = {
+            clockInTime: latest.clockInTime,
+          };
+        }
+      }
     }
   } catch (err) {
     console.error("Error loading today log (Index missing?):", err);
-    // Graceful fallback or alert?
-    // For now we assume user will fix index.
-    // Ideally we show a UI warning if in dev mode
   }
 }
 
