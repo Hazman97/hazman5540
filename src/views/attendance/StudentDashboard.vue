@@ -261,12 +261,16 @@
             {{ isClockedIn ? "You are Clocked In" : "Not Clocked In" }}
           </h2>
 
-          <p
-            v-if="isClockedIn && todayLog"
-            class="text-lg text-emerald-200/70 font-medium mb-8"
-          >
-            Started at {{ formatTime(todayLog.clockInTime) }}
-          </p>
+          <div v-if="isClockedIn && todayLog" class="mb-8">
+            <div
+              class="text-4xl sm:text-5xl font-mono font-bold text-white mb-2 tracking-widest drop-shadow-lg"
+            >
+              {{ workDuration }}
+            </div>
+            <p class="text-emerald-200/60 text-sm font-medium">
+              Started at {{ formatTime(todayLog.clockInTime) }}
+            </p>
+          </div>
           <p v-else class="text-lg text-blue-200/70 font-medium mb-8">
             Ready to start your day?
           </p>
@@ -626,13 +630,15 @@
     <!-- Congratulations Overlay -->
     <div
       v-if="showSuccess"
-      class="fixed inset-0 bg-black/80 backdrop-blur-md z-[60] flex items-center justify-center p-6 animate-in fade-in duration-300"
+      @click.self="closeSuccess"
+      class="fixed inset-0 bg-black/80 backdrop-blur-md z-[60] flex items-center justify-center p-6 animate-in fade-in duration-300 cursor-pointer"
     >
       <div
-        class="bg-slate-800 rounded-3xl p-8 max-w-sm w-full text-center border border-white/10 shadow-2xl relative overflow-hidden"
+        class="bg-slate-800 rounded-3xl p-8 max-w-sm w-full text-center border border-white/10 shadow-2xl relative overflow-hidden cursor-default"
+        @click.stop
       >
         <div
-          class="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-blue-500/10 mix-blend-overlay"
+          class="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-blue-500/10 mix-blend-overlay pointer-events-none"
         ></div>
 
         <div
@@ -662,6 +668,7 @@
         >
           Awesome
         </button>
+        <p class="text-white/20 text-xs mt-4">Closing automatically...</p>
       </div>
 
       <!-- Confetti effect could go here -->
@@ -670,7 +677,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import { db } from "@/firebase";
 import {
@@ -729,6 +736,9 @@ const facingMode = ref("user");
 const location = ref(null);
 const gettingLocation = ref(false);
 const reason = ref("");
+const workDuration = ref("00:00:00");
+let timerInterval = null;
+let successTimer = null;
 
 // Computed
 const isInsideOffice = computed(() => {
@@ -769,55 +779,86 @@ onMounted(async () => {
 
 onUnmounted(() => {
   stopCamera();
+  if (timerInterval) clearInterval(timerInterval);
 });
+
+watch(
+  todayLog,
+  (val) => {
+    if (val && !val.clockOutTime) {
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        if (!todayLog.value?.clockInTime) return;
+        const start = todayLog.value.clockInTime.toDate
+          ? todayLog.value.clockInTime.toDate()
+          : new Date(todayLog.value.clockInTime); // Handle both Timestamp and Date/Object
+        // Check if start is valid
+        if (isNaN(start.getTime())) return;
+
+        const diff = new Date() - start;
+        const hours = Math.floor(diff / 3600000);
+        const minutes = Math.floor((diff % 3600000) / 60000);
+        const seconds = Math.floor((diff % 60000) / 1000);
+        workDuration.value = `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+      }, 1000);
+    } else {
+      if (timerInterval) clearInterval(timerInterval);
+      workDuration.value = "00:00:00";
+    }
+  },
+  { immediate: true, deep: true },
+);
 
 async function loadTodayLog() {
   try {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const todayTimestamp = Timestamp.fromDate(today);
+    // const todayTimestamp = Timestamp.fromDate(today);
 
     const logsRef = collection(db, "attendance_logs");
 
-    // 1. Check for TODAY's log
-    const q = query(
-      logsRef,
-      where("studentId", "==", student.value.id),
-      where("clockInTime", ">=", todayTimestamp),
-    );
+    // "Safe Query": Single field equality requires NO index.
+    // robust against missing combined indexes.
+    const q = query(logsRef, where("studentId", "==", student.value.id));
 
     const snapshot = await getDocs(q);
+    const allLogs = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
 
-    if (!snapshot.empty) {
-      const sorted = snapshot.docs.sort(
-        (a, b) => b.data().clockInTime - a.data().clockInTime,
-      );
-      todayLog.value = { id: sorted[0].id, ...sorted[0].data() };
+    // Sort in memory (descending)
+    allLogs.sort((a, b) => {
+      const tA = a.clockInTime?.seconds || 0;
+      const tB = b.clockInTime?.seconds || 0;
+      return tB - tA;
+    });
+
+    // 1. Check for TODAY's log
+    const todayEntry = allLogs.find(
+      (log) => log.clockInTime && log.clockInTime.toDate() >= today,
+    );
+
+    if (todayEntry) {
+      todayLog.value = todayEntry;
     } else {
       todayLog.value = null;
 
-      // 2. If no log today, check for STALE log (forgot to clock out)
-      // This requires the Index (studentId ASC, clockInTime DESC) which user should have created
-      const staleQuery = query(
-        logsRef,
-        where("studentId", "==", student.value.id),
-        orderBy("clockInTime", "desc"),
-        limit(1),
+      // 2. Check for STALE log (latest one that is open and old)
+      // Since we sorted desc, the first open one that is old is the candidate
+      const staleEntry = allLogs.find(
+        (log) =>
+          !log.clockOutTime &&
+          log.clockInTime &&
+          log.clockInTime.toDate() < today,
       );
 
-      const staleSnap = await getDocs(staleQuery);
-      if (!staleSnap.empty) {
-        const latest = staleSnap.docs[0].data();
-        // If latest has NO clockOutTime AND is older than today
-        if (!latest.clockOutTime && latest.clockInTime.toDate() < today) {
-          staleLog.value = {
-            clockInTime: latest.clockInTime,
-          };
-        }
+      if (staleEntry) {
+        staleLog.value = { clockInTime: staleEntry.clockInTime };
       }
     }
   } catch (err) {
-    console.error("Error loading today log (Index missing?):", err);
+    console.error("Error loading logs:", err);
   }
 }
 
@@ -1028,6 +1069,12 @@ async function confirmClock() {
 
     showPreview.value = false;
     showSuccess.value = true;
+
+    // Auto-close after 3 seconds
+    if (successTimer) clearTimeout(successTimer);
+    successTimer = setTimeout(() => {
+      closeSuccess();
+    }, 3000);
   } catch (err) {
     console.error(err);
     alert("Error: " + err.message);
@@ -1037,6 +1084,7 @@ async function confirmClock() {
 }
 
 function closeSuccess() {
+  if (successTimer) clearTimeout(successTimer);
   showSuccess.value = false;
   // We already updated state manually, but we can try to re-fetch to be safe
   // without blocking the UI
