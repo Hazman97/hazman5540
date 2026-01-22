@@ -30,6 +30,14 @@ import OrgChartEdit from "@/views/orgchart/OrgChartEdit.vue";
 import EClaimView from "@/views/eclaim/EClaimView.vue";
 // WiFi QR Generator
 import WifiQrGenerator from "@/views/wifi-qr/WifiQrGenerator.vue";
+// Intern Attendance System
+import AttendanceAdminLogin from "@/views/attendance/AdminLogin.vue";
+import AttendanceAdminDashboard from "@/views/attendance/AdminDashboard.vue";
+import AttendanceStudentManagement from "@/views/attendance/StudentManagement.vue";
+import AttendanceRecords from "@/views/attendance/AttendanceRecords.vue";
+import AttendanceStudentLogin from "@/views/attendance/StudentLogin.vue";
+import AttendanceStudentDashboard from "@/views/attendance/StudentDashboard.vue";
+import AttendanceStudentLogs from "@/views/attendance/StudentLogs.vue";
 
 const routes = [
   { path: "/photocollection", name: "HomeCollection", component: Home },
@@ -167,6 +175,42 @@ const routes = [
     path: "/wifi-qr",
     name: "WifiQrGenerator",
     component: WifiQrGenerator,
+  },
+  // === Intern Attendance System ===
+  {
+    path: "/attendance/admin",
+    name: "AttendanceAdminLogin",
+    component: AttendanceAdminLogin,
+  },
+  {
+    path: "/attendance/admin/dashboard",
+    name: "AttendanceAdminDashboard",
+    component: AttendanceAdminDashboard,
+  },
+  {
+    path: "/attendance/admin/students",
+    name: "AttendanceStudentManagement",
+    component: AttendanceStudentManagement,
+  },
+  {
+    path: "/attendance/admin/records",
+    name: "AttendanceRecords",
+    component: AttendanceRecords,
+  },
+  {
+    path: "/attendance",
+    name: "AttendanceStudentLogin",
+    component: AttendanceStudentLogin,
+  },
+  {
+    path: "/attendance/dashboard",
+    name: "AttendanceStudentDashboard",
+    component: AttendanceStudentDashboard,
+  },
+  {
+    path: "/attendance/logs",
+    name: "AttendanceStudentLogs",
+    component: AttendanceStudentLogs,
   },
   {
     path: "/:pathMatch(.*)*", // Catch-all route
