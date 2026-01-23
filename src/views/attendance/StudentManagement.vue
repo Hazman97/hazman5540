@@ -302,6 +302,31 @@
             />
           </div>
 
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-white/60 mb-1.5"
+                >AL Quota</label
+              >
+              <input
+                v-model.number="form.alQuota"
+                type="number"
+                class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 transition-colors"
+                placeholder="e.g. 14"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-white/60 mb-1.5"
+                >MC Quota</label
+              >
+              <input
+                v-model.number="form.mcQuota"
+                type="number"
+                class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 transition-colors"
+                placeholder="e.g. 14"
+              />
+            </div>
+          </div>
+
           <div>
             <label class="block text-sm font-medium text-white/60 mb-1.5"
               >Department</label
@@ -395,6 +420,8 @@ const form = ref({
   password: "",
   department: "",
   isActive: true,
+  alQuota: 14,
+  mcQuota: 14,
 });
 
 const filteredStudents = computed(() => {
@@ -438,6 +465,8 @@ const openModal = (student = null) => {
       password: "",
       department: "",
       isActive: true,
+      alQuota: 14,
+      mcQuota: 14,
     };
   }
   showModal.value = true;
@@ -451,6 +480,8 @@ const saveStudent = async () => {
       username: form.value.username,
       department: form.value.department,
       isActive: form.value.isActive,
+      alQuota: form.value.alQuota || 14,
+      mcQuota: form.value.mcQuota || 14,
     };
 
     if (editingStudent.value) {

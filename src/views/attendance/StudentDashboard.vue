@@ -1,8 +1,10 @@
 <template>
-  <div class="min-h-screen bg-slate-900 pb-20 sm:pb-0">
+  <div
+    class="min-h-screen bg-slate-50 dark:bg-slate-900 pb-20 sm:pb-0 transition-colors duration-300"
+  >
     <!-- Header -->
     <header
-      class="bg-slate-900/50 backdrop-blur-xl border-b border-white/5 sticky top-0 z-40"
+      class="bg-white/80 dark:bg-slate-900/50 backdrop-blur-xl border-b border-slate-200 dark:border-white/5 sticky top-0 z-40 transition-colors duration-300"
     >
       <div
         class="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between"
@@ -25,13 +27,50 @@
               />
             </svg>
           </div>
-          <span class="text-white font-bold tracking-tight">Intern Portal</span>
+          <span class="text-slate-900 dark:text-white font-bold tracking-tight"
+            >Intern Portal</span
+          >
         </div>
 
         <div class="flex items-center gap-4">
+          <!-- Theme Toggle -->
+          <button
+            @click="toggleTheme"
+            class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-slate-500 dark:text-white/60 transition-colors"
+          >
+            <svg
+              v-if="isDark"
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+              />
+            </svg>
+            <svg
+              v-else
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+              />
+            </svg>
+          </button>
+
           <router-link
             to="/attendance/logs"
-            class="text-white/60 hover:text-white transition-colors text-sm font-medium hidden sm:flex items-center gap-2"
+            class="text-slate-600 dark:text-white/60 hover:text-slate-900 dark:hover:text-white transition-colors text-sm font-medium hidden sm:flex items-center gap-2"
           >
             <svg
               class="w-4 h-4"
@@ -50,7 +89,7 @@
           </router-link>
           <button
             @click="handleLogout"
-            class="flex items-center gap-2 text-rose-400 hover:text-rose-300 transition-colors text-sm font-medium bg-rose-500/10 px-3 py-1.5 rounded-lg border border-rose-500/20"
+            class="flex items-center gap-2 text-rose-500 dark:text-rose-400 hover:text-rose-600 dark:hover:text-rose-300 transition-colors text-sm font-medium bg-rose-50 dark:bg-rose-500/10 px-3 py-1.5 rounded-lg border border-rose-200 dark:border-rose-500/20"
           >
             <svg
               class="w-4 h-4"
@@ -73,19 +112,27 @@
 
     <main class="max-w-xl mx-auto px-4 py-8">
       <!-- Welcome Section -->
-      <div class="mb-8 text-center sm:text-left">
-        <h1 class="text-3xl font-bold text-white mb-2 tracking-tight">
+      <div
+        class="mb-8 text-center sm:text-left animate-in fade-in slide-in-from-bottom-2 duration-500"
+      >
+        <h1
+          class="text-3xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight"
+        >
           Good {{ timeOfDay }}, {{ studentName?.split(" ")[0] }}!
         </h1>
-        <p class="text-indigo-200/60 font-medium">{{ currentDate }}</p>
+        <p class="text-slate-500 dark:text-indigo-200/60 font-medium">
+          {{ currentDate }}
+        </p>
       </div>
 
       <!-- Location Status Bar -->
       <div
-        class="mb-6 bg-slate-800/50 rounded-2xl p-4 border border-white/5 flex items-center justify-between"
+        class="mb-6 bg-white dark:bg-slate-800/50 rounded-2xl p-4 border border-slate-200 dark:border-white/5 flex items-center justify-between shadow-sm dark:shadow-none"
       >
         <div class="flex items-center gap-3">
-          <div class="p-2 rounded-lg bg-indigo-500/10 text-indigo-400">
+          <div
+            class="p-2 rounded-lg bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400"
+          >
             <svg
               class="w-5 h-5"
               fill="none"
@@ -108,13 +155,13 @@
           </div>
           <div>
             <p
-              class="text-xs text-white/40 font-medium uppercase tracking-wider"
+              class="text-xs text-slate-500 dark:text-white/40 font-medium uppercase tracking-wider"
             >
               Current Location
             </p>
             <div
               v-if="gettingLocation"
-              class="flex items-center gap-2 text-sm text-white/60"
+              class="flex items-center gap-2 text-sm text-slate-600 dark:text-white/60"
             >
               <svg class="animate-spin w-3 h-3" fill="none" viewBox="0 0 24 24">
                 <circle
@@ -137,7 +184,9 @@
               v-else-if="location"
               :class="[
                 'text-sm font-semibold',
-                isInsideOffice ? 'text-emerald-400' : 'text-orange-400',
+                isInsideOffice
+                  ? 'text-emerald-600 dark:text-emerald-400'
+                  : 'text-orange-600 dark:text-orange-400',
               ]"
             >
               {{
@@ -146,12 +195,14 @@
                   : "Outside Office Range"
               }}
             </p>
-            <p v-else class="text-sm text-rose-400">Location unavailable</p>
+            <p v-else class="text-sm text-rose-500 dark:text-rose-400">
+              Location unavailable
+            </p>
           </div>
         </div>
         <button
           @click="getLocation"
-          class="text-white/30 hover:text-white hover:bg-white/10 p-2 rounded-lg transition-all"
+          class="text-slate-400 hover:text-slate-600 dark:text-white/30 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 p-2 rounded-lg transition-all"
         >
           <svg
             class="w-5 h-5"
@@ -205,7 +256,7 @@
       <!-- Main Status Card -->
       <div
         v-if="loading"
-        class="animate-pulse bg-slate-800 rounded-3xl h-64 mb-6"
+        class="animate-pulse bg-white dark:bg-slate-800 rounded-3xl h-64 mb-6"
       ></div>
 
       <div
@@ -213,23 +264,27 @@
         :class="[
           'relative overflow-hidden rounded-3xl p-8 mb-8 transition-all duration-500 border',
           isClockedIn
-            ? 'bg-gradient-to-br from-emerald-900/40 to-slate-900 border-emerald-500/20 shadow-2xl shadow-emerald-900/20'
-            : 'bg-gradient-to-br from-blue-900/40 to-slate-900 border-blue-500/20 shadow-2xl shadow-blue-900/20',
+            ? 'bg-gradient-to-br from-emerald-50 to-white dark:from-emerald-900/40 dark:to-slate-900 border-emerald-200 dark:border-emerald-500/20 shadow-2xl shadow-emerald-500/10 dark:shadow-emerald-900/20'
+            : 'bg-gradient-to-br from-blue-50 to-white dark:from-blue-900/40 dark:to-slate-900 border-blue-200 dark:border-blue-500/20 shadow-2xl shadow-blue-500/10 dark:shadow-blue-900/20',
         ]"
       >
         <!-- Background Decor -->
         <div
           class="absolute -top-24 -right-24 w-64 h-64 rounded-full blur-3xl opacity-20"
-          :class="isClockedIn ? 'bg-emerald-500' : 'bg-blue-500'"
+          :class="
+            isClockedIn
+              ? 'bg-emerald-400 dark:bg-emerald-500'
+              : 'bg-blue-400 dark:bg-blue-500'
+          "
         ></div>
 
         <div class="relative z-10 flex flex-col items-center text-center">
           <div
-            class="mb-4 p-4 rounded-full bg-white/5 backdrop-blur-md border border-white/10 shadow-inner"
+            class="mb-4 p-4 rounded-full bg-white/50 dark:bg-white/5 backdrop-blur-md border border-white/20 dark:border-white/10 shadow-inner"
           >
             <svg
               v-if="isClockedIn"
-              class="w-12 h-12 text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.5)]"
+              class="w-12 h-12 text-emerald-500 dark:text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.5)]"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -243,7 +298,7 @@
             </svg>
             <svg
               v-else
-              class="w-12 h-12 text-blue-400 drop-shadow-[0_0_10px_rgba(96,165,250,0.5)]"
+              class="w-12 h-12 text-blue-500 dark:text-blue-400 drop-shadow-[0_0_10px_rgba(96,165,250,0.5)]"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -257,21 +312,26 @@
             </svg>
           </div>
 
-          <h2 class="text-3xl font-bold text-white mb-2">
+          <h2 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">
             {{ isClockedIn ? "You are Clocked In" : "Not Clocked In" }}
           </h2>
 
           <div v-if="isClockedIn && todayLog" class="mb-8">
             <div
-              class="text-4xl sm:text-5xl font-mono font-bold text-white mb-2 tracking-widest drop-shadow-lg"
+              class="text-4xl sm:text-5xl font-mono font-bold text-slate-900 dark:text-white mb-2 tracking-widest drop-shadow-sm"
             >
               {{ workDuration }}
             </div>
-            <p class="text-emerald-200/60 text-sm font-medium">
+            <p
+              class="text-emerald-600 dark:text-emerald-200/60 text-sm font-medium"
+            >
               Started at {{ formatTime(todayLog.clockInTime) }}
             </p>
           </div>
-          <p v-else class="text-lg text-blue-200/70 font-medium mb-8">
+          <p
+            v-else
+            class="text-lg text-blue-600/70 dark:text-blue-200/70 font-medium mb-8"
+          >
             Ready to start your day?
           </p>
 
@@ -282,8 +342,8 @@
             :class="[
               'w-full sm:w-auto px-12 py-4 rounded-2xl font-bold text-lg shadow-lg hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center gap-3',
               isClockedIn
-                ? 'bg-gradient-to-r from-rose-600 to-orange-600 hover:from-rose-500 hover:to-orange-500 text-white shadow-rose-900/20'
-                : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-blue-900/20',
+                ? 'bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-400 hover:to-orange-400 text-white shadow-rose-500/30'
+                : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-blue-500/30',
             ]"
           >
             <span
@@ -297,47 +357,146 @@
 
           <p
             v-if="!location"
-            class="mt-4 text-xs text-white/30 bg-slate-900/50 px-3 py-1 rounded-full"
+            class="mt-4 text-xs text-slate-500 dark:text-white/30 bg-slate-100 dark:bg-slate-900/50 px-3 py-1 rounded-full"
           >
             ⚠️ Waiting for location...
           </p>
         </div>
       </div>
 
+      <!-- Quick Actions -->
+      <div class="grid grid-cols-2 gap-4 mb-6">
+        <router-link
+          to="/attendance/apply-leave"
+          class="bg-white dark:bg-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-white/5 p-4 rounded-2xl flex flex-col items-center justify-center text-center transition-all group shadow-sm dark:shadow-none"
+        >
+          <div
+            class="w-10 h-10 bg-purple-100 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-xl flex items-center justify-center mb-2 group-hover:scale-110 transition-transform"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+          </div>
+          <span class="text-slate-900 dark:text-white font-bold text-sm"
+            >Apply Leave</span
+          >
+          <span class="text-slate-500 dark:text-white/40 text-xs"
+            >MC / Annual</span
+          >
+        </router-link>
+
+        <router-link
+          to="/attendance/logs"
+          class="bg-white dark:bg-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-white/5 p-4 rounded-2xl flex flex-col items-center justify-center text-center transition-all group shadow-sm dark:shadow-none"
+        >
+          <div
+            class="w-10 h-10 bg-blue-100 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-xl flex items-center justify-center mb-2 group-hover:scale-110 transition-transform"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </div>
+          <span class="text-slate-900 dark:text-white font-bold text-sm"
+            >History</span
+          >
+          <span class="text-slate-500 dark:text-white/40 text-xs"
+            >View Logs</span
+          >
+        </router-link>
+
+        <router-link
+          to="/attendance/leaves"
+          class="col-span-2 bg-white dark:bg-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-white/5 p-4 rounded-2xl flex flex-col items-center justify-center text-center transition-all group shadow-sm dark:shadow-none"
+        >
+          <div
+            class="w-10 h-10 bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-xl flex items-center justify-center mb-2 group-hover:scale-110 transition-transform"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+              />
+            </svg>
+          </div>
+          <span class="text-slate-900 dark:text-white font-bold text-sm"
+            >My Leave Status</span
+          >
+          <span class="text-slate-500 dark:text-white/40 text-xs"
+            >Check Approvals</span
+          >
+        </router-link>
+      </div>
+
       <!-- Today's Stats -->
       <div v-if="todayLog" class="grid grid-cols-2 gap-4">
-        <div class="bg-slate-800/50 p-5 rounded-2xl border border-white/5">
+        <div
+          class="bg-white dark:bg-slate-800/50 p-5 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm dark:shadow-none"
+        >
           <p
-            class="text-white/40 text-xs font-bold uppercase tracking-wider mb-1"
+            class="text-slate-500 dark:text-white/40 text-xs font-bold uppercase tracking-wider mb-1"
           >
             Time In
           </p>
-          <p class="text-xl font-bold text-white">
+          <p class="text-xl font-bold text-slate-900 dark:text-white">
             {{ formatTime(todayLog.clockInTime) }}
           </p>
           <p
             class="text-xs mt-1"
             :class="
-              todayLog.isClockInOutside ? 'text-orange-400' : 'text-emerald-400'
+              todayLog.isClockInOutside
+                ? 'text-orange-600 dark:text-orange-400'
+                : 'text-emerald-600 dark:text-emerald-400'
             "
           >
             {{ todayLog.isClockInOutside ? "• Outside" : "• Office" }}
           </p>
         </div>
-        <div class="bg-slate-800/50 p-5 rounded-2xl border border-white/5">
+        <div
+          class="bg-white dark:bg-slate-800/50 p-5 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm dark:shadow-none"
+        >
           <p
-            class="text-white/40 text-xs font-bold uppercase tracking-wider mb-1"
+            class="text-slate-500 dark:text-white/40 text-xs font-bold uppercase tracking-wider mb-1"
           >
             Time Out
           </p>
-          <p class="text-xl font-bold text-white">
+          <p class="text-xl font-bold text-slate-900 dark:text-white">
             {{
               todayLog.clockOutTime
                 ? formatTime(todayLog.clockOutTime)
                 : "--:--"
             }}
           </p>
-          <p v-if="todayLog.totalHours" class="text-xs text-white/50 mt-1">
+          <p
+            v-if="todayLog.totalHours"
+            class="text-xs text-slate-500 dark:text-white/50 mt-1"
+          >
             {{ todayLog.totalHours.toFixed(1) }} hrs worked
           </p>
         </div>
@@ -706,7 +865,10 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useRouter } from "vue-router";
+import { useTheme } from "@/composables/useTheme";
 import { db } from "@/firebase";
+
+const { isDark, toggleTheme } = useTheme();
 import {
   collection,
   query,

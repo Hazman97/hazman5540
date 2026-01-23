@@ -196,6 +196,18 @@ const routes = [
     component: AttendanceStudentLogs,
     meta: { requiresAuth: true },
   },
+  {
+    path: "/attendance/apply-leave",
+    name: "ApplyLeave",
+    component: () => import("@/views/attendance/ApplyLeave.vue"),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/attendance/leaves",
+    name: "LeaveHistory",
+    component: () => import("@/views/attendance/LeaveHistory.vue"),
+    meta: { requiresAuth: true },
+  },
   // Admin Routes
   {
     path: "/attendance/admin/login",
@@ -230,6 +242,11 @@ const routes = [
         path: "records",
         name: "AttendanceRecords",
         component: AttendanceRecords,
+      },
+      {
+        path: "leaves",
+        name: "LeaveRequests",
+        component: () => import("@/views/attendance/LeaveRequests.vue"),
       },
     ],
   },
