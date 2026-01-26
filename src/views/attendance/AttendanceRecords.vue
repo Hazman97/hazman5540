@@ -4,18 +4,20 @@
       class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6"
     >
       <div>
-        <h1 class="text-3xl font-bold text-white mb-2">Attendance Records</h1>
-        <p class="text-slate-400">
+        <h1 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+          Attendance Records
+        </h1>
+        <p class="text-slate-500 dark:text-slate-400">
           View and manage all student clock-ins/outs.
         </p>
       </div>
       <div class="flex gap-2">
         <button
           @click="exportCSV"
-          class="inline-flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg border border-white/10 text-sm font-medium transition-colors"
+          class="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-white rounded-lg border border-slate-200 dark:border-white/10 text-sm font-medium transition-colors shadow-sm dark:shadow-none"
         >
           <svg
-            class="w-4 h-4 text-emerald-400"
+            class="w-4 h-4 text-emerald-500 dark:text-emerald-400"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -31,7 +33,7 @@
         </button>
         <button
           @click="exportPDF"
-          class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg shadow-lg shadow-indigo-900/20 text-sm font-medium transition-colors"
+          class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg shadow-lg shadow-indigo-500/20 text-sm font-medium transition-colors"
         >
           <svg
             class="w-4 h-4"
@@ -53,39 +55,39 @@
 
     <!-- Filters -->
     <div
-      class="bg-slate-800 rounded-2xl p-4 border border-white/5 mb-6 shadow-xl shadow-black/20"
+      class="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-white/5 mb-6 shadow-sm dark:shadow-xl dark:shadow-black/20"
     >
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div>
           <label
-            class="block text-xs font-medium text-white/40 mb-1.5 uppercase tracking-wider"
+            class="block text-xs font-medium text-slate-500 dark:text-white/40 mb-1.5 uppercase tracking-wider"
             >From Date</label
           >
           <input
             v-model="filters.fromDate"
             type="date"
-            class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 transition-colors"
+            class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors"
           />
         </div>
         <div>
           <label
-            class="block text-xs font-medium text-white/40 mb-1.5 uppercase tracking-wider"
+            class="block text-xs font-medium text-slate-500 dark:text-white/40 mb-1.5 uppercase tracking-wider"
             >To Date</label
           >
           <input
             v-model="filters.toDate"
             type="date"
-            class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 transition-colors"
+            class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors"
           />
         </div>
         <div>
           <label
-            class="block text-xs font-medium text-white/40 mb-1.5 uppercase tracking-wider"
+            class="block text-xs font-medium text-slate-500 dark:text-white/40 mb-1.5 uppercase tracking-wider"
             >Student</label
           >
           <select
             v-model="filters.studentId"
-            class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 transition-colors"
+            class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors"
           >
             <option value="">All Students</option>
             <option v-for="s in students" :key="s.id" :value="s.id">
@@ -102,7 +104,7 @@
           </button>
           <button
             @click="resetFilters"
-            class="px-4 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-medium transition-colors"
+            class="px-4 py-2.5 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-white rounded-xl font-medium transition-colors"
           >
             Reset
           </button>
@@ -112,30 +114,46 @@
 
     <!-- Table -->
     <div
-      class="bg-slate-800 rounded-2xl border border-white/5 overflow-hidden shadow-xl flex-1 flex flex-col min-h-0"
+      class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-white/5 overflow-hidden shadow-sm dark:shadow-xl flex-1 flex flex-col min-h-0"
     >
       <div class="overflow-auto flex-1">
         <table class="w-full text-left border-collapse">
           <thead
-            class="bg-slate-900/50 text-slate-400 text-xs font-bold uppercase sticky top-0 backdrop-blur-md z-10"
+            class="bg-slate-50/90 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase sticky top-0 backdrop-blur-md z-10"
           >
             <tr>
-              <th class="p-4 border-b border-white/5">Student</th>
-              <th class="p-4 border-b border-white/5">Date</th>
-              <th class="p-4 border-b border-white/5 hidden md:table-cell">
+              <th class="p-4 border-b border-slate-200 dark:border-white/5">
+                Student
+              </th>
+              <th class="p-4 border-b border-slate-200 dark:border-white/5">
+                Date
+              </th>
+              <th
+                class="p-4 border-b border-slate-200 dark:border-white/5 hidden md:table-cell"
+              >
                 Check In
               </th>
-              <th class="p-4 border-b border-white/5 hidden md:table-cell">
+              <th
+                class="p-4 border-b border-slate-200 dark:border-white/5 hidden md:table-cell"
+              >
                 Check Out
               </th>
-              <th class="p-4 border-b border-white/5 hidden lg:table-cell">
+              <th
+                class="p-4 border-b border-slate-200 dark:border-white/5 hidden lg:table-cell"
+              >
                 Total
               </th>
-              <th class="p-4 border-b border-white/5">Location</th>
-              <th class="p-4 border-b border-white/5 text-right">Actions</th>
+              <th class="p-4 border-b border-slate-200 dark:border-white/5">
+                Location
+              </th>
+              <th
+                class="p-4 border-b border-slate-200 dark:border-white/5 text-right"
+              >
+                Actions
+              </th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-white/5 text-sm">
+          <tbody class="divide-y divide-slate-100 dark:divide-white/5 text-sm">
             <tr v-if="loading">
               <td
                 colspan="7"
@@ -152,32 +170,32 @@
             <tr
               v-for="log in filteredRecords"
               :key="log.id"
-              class="hover:bg-white/5 transition-colors group"
+              class="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors group"
             >
               <td class="p-4">
                 <div class="flex items-center gap-3">
                   <div
-                    class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-slate-300 font-bold text-xs uppercase border border-white/5"
+                    class="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-300 font-bold text-xs uppercase border border-slate-300 dark:border-white/5"
                   >
                     {{ log.studentName ? log.studentName.charAt(0) : "?" }}
                   </div>
-                  <span class="font-bold text-white">{{
+                  <span class="font-bold text-slate-900 dark:text-white">{{
                     log.studentName
                   }}</span>
                 </div>
               </td>
-              <td class="p-4 text-slate-300">
+              <td class="p-4 text-slate-600 dark:text-slate-300">
                 {{ formatDate(log.clockInTime) }}
               </td>
               <td class="p-4 hidden md:table-cell">
                 <div class="flex items-center gap-2">
-                  <span class="text-white font-mono">{{
+                  <span class="text-slate-900 dark:text-white font-mono">{{
                     formatTime(log.clockInTime)
                   }}</span>
                   <button
                     v-if="log.clockInPhoto"
                     @click="viewPhoto(log.clockInPhoto)"
-                    class="text-blue-400 hover:text-blue-300 opacity-60 hover:opacity-100 transition-opacity"
+                    class="text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 opacity-60 hover:opacity-100 transition-opacity"
                     title="View Photo"
                   >
                     <svg
@@ -204,13 +222,13 @@
               </td>
               <td class="p-4 hidden md:table-cell">
                 <div v-if="log.clockOutTime" class="flex items-center gap-2">
-                  <span class="text-white font-mono">{{
+                  <span class="text-slate-900 dark:text-white font-mono">{{
                     formatTime(log.clockOutTime)
                   }}</span>
                   <button
                     v-if="log.clockOutPhoto"
                     @click="viewPhoto(log.clockOutPhoto)"
-                    class="text-blue-400 hover:text-blue-300 opacity-60 hover:opacity-100 transition-opacity"
+                    class="text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 opacity-60 hover:opacity-100 transition-opacity"
                     title="View Photo"
                   >
                     <svg
@@ -230,34 +248,40 @@
                 </div>
                 <span
                   v-else
-                  class="text-emerald-400 text-xs font-bold uppercase bg-emerald-400/10 px-2 py-1 rounded border border-emerald-500/20"
+                  class="text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase bg-emerald-100 dark:bg-emerald-400/10 px-2 py-1 rounded border border-emerald-200 dark:border-emerald-500/20"
                   >Active</span
                 >
               </td>
-              <td class="p-4 font-mono text-slate-300 hidden lg:table-cell">
+              <td
+                class="p-4 font-mono text-slate-600 dark:text-slate-300 hidden lg:table-cell"
+              >
                 {{ log.totalHours ? log.totalHours.toFixed(2) + "h" : "-" }}
               </td>
               <td class="p-4">
                 <span
                   v-if="log.isClockInOutside || log.isClockOutOutside"
                   @click="viewReason(log)"
-                  class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-orange-500/10 text-orange-400 border border-orange-500/20 cursor-pointer hover:bg-orange-500/20 transition-colors"
+                  class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-600 dark:bg-orange-500/10 dark:text-orange-400 border border-orange-200 dark:border-orange-500/20 cursor-pointer hover:bg-orange-200 dark:hover:bg-orange-500/20 transition-colors"
                 >
-                  <span class="w-1.5 h-1.5 rounded-full bg-orange-400"></span>
+                  <span
+                    class="w-1.5 h-1.5 rounded-full bg-orange-500 dark:bg-orange-400"
+                  ></span>
                   Remote
                 </span>
                 <span
                   v-else
-                  class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                  class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20"
                 >
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                  <span
+                    class="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400"
+                  ></span>
                   Office
                 </span>
               </td>
               <td class="p-4 text-right">
                 <button
                   @click="deleteRecord(log.id)"
-                  class="text-slate-500 hover:text-rose-400 transition-colors p-2 hover:bg-rose-500/10 rounded-lg"
+                  class="text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 transition-colors p-2 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg"
                   title="Delete Log"
                 >
                   <svg
@@ -322,14 +346,16 @@
       @click="reasonModal = null"
     >
       <div
-        class="bg-slate-800 rounded-2xl w-full max-w-md p-6 border border-white/10 shadow-2xl relative animate-in zoom-in-95 duration-200"
+        class="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md p-6 border border-slate-200 dark:border-white/10 shadow-2xl relative animate-in zoom-in-95 duration-200"
         @click.stop
       >
         <div class="flex items-center justify-between mb-6">
-          <h3 class="text-lg font-bold text-white">Remote Work Details</h3>
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+            Remote Work Details
+          </h3>
           <button
             @click="reasonModal = null"
-            class="text-white/40 hover:text-white"
+            class="text-slate-400 hover:text-slate-600 dark:text-white/40 dark:hover:text-white"
           >
             <svg
               class="w-5 h-5"
@@ -349,25 +375,29 @@
         <div class="space-y-4">
           <div
             v-if="reasonModal.clockInReason"
-            class="bg-white/5 p-4 rounded-xl border border-white/5"
+            class="bg-slate-50 dark:bg-white/5 p-4 rounded-xl border border-slate-200 dark:border-white/5"
           >
             <p
-              class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2"
+              class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider mb-2"
             >
               Clock In Reason
             </p>
-            <p class="text-white text-sm">{{ reasonModal.clockInReason }}</p>
+            <p class="text-slate-700 dark:text-white text-sm">
+              {{ reasonModal.clockInReason }}
+            </p>
           </div>
           <div
             v-if="reasonModal.clockOutReason"
-            class="bg-white/5 p-4 rounded-xl border border-white/5"
+            class="bg-slate-50 dark:bg-white/5 p-4 rounded-xl border border-slate-200 dark:border-white/5"
           >
             <p
-              class="text-xs font-bold text-blue-400 uppercase tracking-wider mb-2"
+              class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-2"
             >
               Clock Out Reason
             </p>
-            <p class="text-white text-sm">{{ reasonModal.clockOutReason }}</p>
+            <p class="text-slate-700 dark:text-white text-sm">
+              {{ reasonModal.clockOutReason }}
+            </p>
           </div>
         </div>
         <button

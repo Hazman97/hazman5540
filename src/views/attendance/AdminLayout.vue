@@ -1,6 +1,6 @@
 <template>
   <div
-    class="min-h-screen bg-slate-900 flex text-white font-sans overflow-hidden"
+    class="min-h-screen bg-slate-50 dark:bg-slate-900 flex text-slate-900 dark:text-white font-sans overflow-hidden transition-colors duration-300"
   >
     <!-- Mobile Sidebar Backdrop -->
     <div
@@ -12,14 +12,16 @@
     <!-- Sidebar -->
     <aside
       :class="[
-        'fixed inset-y-0 left-0 z-50 bg-slate-800 border-r border-white/5 transition-transform duration-300 flex flex-col w-64',
+        'fixed inset-y-0 left-0 z-50 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-white/5 transition-transform duration-300 flex flex-col w-64',
         sidebarOpen
           ? 'translate-x-0'
           : '-translate-x-full lg:translate-x-0 lg:static',
       ]"
     >
       <!-- Brand -->
-      <div class="h-20 flex items-center gap-3 px-6 border-b border-white/5">
+      <div
+        class="h-20 flex items-center gap-3 px-6 border-b border-slate-200 dark:border-white/5"
+      >
         <div
           class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20"
         >
@@ -37,7 +39,10 @@
             />
           </svg>
         </div>
-        <span class="font-bold text-lg tracking-tight">Admin System</span>
+        <span
+          class="font-bold text-lg tracking-tight text-slate-900 dark:text-white"
+          >Admin System</span
+        >
       </div>
 
       <!-- Navigation -->
@@ -48,7 +53,7 @@
           active-class="bg-blue-600 shadow-lg shadow-blue-900/20 text-white"
           :class="
             !$route.path.includes('dashboard')
-              ? 'text-slate-400 hover:text-white hover:bg-white/5'
+              ? 'text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/5'
               : ''
           "
           @click="sidebarOpen = false"
@@ -75,7 +80,7 @@
           active-class="bg-blue-600 shadow-lg shadow-blue-900/20 text-white"
           :class="
             !$route.path.includes('students')
-              ? 'text-slate-400 hover:text-white hover:bg-white/5'
+              ? 'text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/5'
               : ''
           "
           @click="sidebarOpen = false"
@@ -102,7 +107,7 @@
           active-class="bg-blue-600 shadow-lg shadow-blue-900/20 text-white"
           :class="
             !$route.path.includes('records')
-              ? 'text-slate-400 hover:text-white hover:bg-white/5'
+              ? 'text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/5'
               : ''
           "
           @click="sidebarOpen = false"
@@ -129,7 +134,7 @@
           active-class="bg-blue-600 shadow-lg shadow-blue-900/20 text-white"
           :class="
             !$route.path.includes('leaves')
-              ? 'text-slate-400 hover:text-white hover:bg-white/5'
+              ? 'text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/5'
               : ''
           "
           @click="sidebarOpen = false"
@@ -156,7 +161,7 @@
           active-class="bg-blue-600 shadow-lg shadow-blue-900/20 text-white"
           :class="
             !$route.path.includes('settings')
-              ? 'text-slate-400 hover:text-white hover:bg-white/5'
+              ? 'text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/5'
               : ''
           "
           @click="sidebarOpen = false"
@@ -185,10 +190,45 @@
       </nav>
 
       <!-- Logout -->
-      <div class="mt-auto p-4 border-t border-white/5">
+      <div class="mt-auto p-4 border-t border-slate-200 dark:border-white/5">
+        <button
+          @click="toggleTheme"
+          class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-white/60 dark:hover:text-white dark:hover:bg-white/5 rounded-xl transition-all w-full group mb-2"
+        >
+          <svg
+            v-if="isDark"
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+            />
+          </svg>
+          <svg
+            v-else
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+            />
+          </svg>
+          {{ isDark ? "Light Mode" : "Dark Mode" }}
+        </button>
+
         <button
           @click="handleLogout"
-          class="flex items-center gap-3 px-4 py-3 text-rose-400 hover:text-white hover:bg-rose-500/10 rounded-xl transition-all w-full group"
+          class="flex items-center gap-3 px-4 py-3 text-rose-500 dark:text-rose-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:text-white dark:hover:bg-rose-500/10 rounded-xl transition-all w-full group"
         >
           <svg
             class="w-5 h-5 group-hover:-translate-x-1 transition-transform"
@@ -212,9 +252,12 @@
     <div class="flex-1 flex flex-col min-w-0">
       <!-- Top Bar (Mobile Only) -->
       <header
-        class="lg:hidden h-16 bg-slate-800 border-b border-white/5 flex items-center px-4 justify-between"
+        class="lg:hidden h-16 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-white/5 flex items-center px-4 justify-between"
       >
-        <button @click="sidebarOpen = true" class="text-white p-2">
+        <button
+          @click="sidebarOpen = true"
+          class="text-slate-900 dark:text-white p-2"
+        >
           <svg
             class="w-6 h-6"
             fill="none"
@@ -229,8 +272,13 @@
             />
           </svg>
         </button>
-        <span class="font-bold text-white">Admin System</span>
-        <button @click="handleLogout" class="text-rose-400 p-2">
+        <span class="font-bold text-slate-900 dark:text-white"
+          >Admin System</span
+        >
+        <button
+          @click="handleLogout"
+          class="text-rose-500 dark:text-rose-400 p-2"
+        >
           <svg
             class="w-6 h-6"
             fill="none"
@@ -249,7 +297,7 @@
 
       <!-- Page Content -->
       <main
-        class="flex-1 overflow-y-auto p-4 md:p-8 bg-slate-900 scrollbar-thin scrollbar-track-slate-800 scrollbar-thumb-slate-700"
+        class="flex-1 overflow-y-auto p-4 md:p-8 bg-slate-50 dark:bg-slate-900 scrollbar-thin scrollbar-track-slate-200 dark:scrollbar-track-slate-800 scrollbar-thumb-slate-400 dark:scrollbar-thumb-slate-700"
       >
         <router-view></router-view>
       </main>
@@ -260,7 +308,9 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import { useTheme } from "@/composables/useTheme";
 
+const { isDark, toggleTheme } = useTheme();
 const router = useRouter();
 const sidebarOpen = ref(false);
 

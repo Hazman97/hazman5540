@@ -2,22 +2,28 @@
   <div class="h-full flex flex-col">
     <div class="max-w-4xl mx-auto w-full">
       <header class="mb-8">
-        <h1 class="text-3xl font-bold text-white mb-2">System Settings</h1>
-        <p class="text-slate-400">
+        <h1 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+          System Settings
+        </h1>
+        <p class="text-slate-500 dark:text-slate-400">
           Configure global rules for student attendance.
         </p>
       </header>
 
       <div v-if="loading" class="animate-pulse space-y-4">
-        <div class="h-64 bg-slate-800 rounded-2xl"></div>
+        <div class="h-64 bg-white dark:bg-slate-800 rounded-2xl"></div>
       </div>
 
       <form v-else @submit.prevent="saveSettings" class="space-y-6">
         <!-- Rules Card -->
-        <div class="bg-slate-800 rounded-2xl p-6 border border-white/5">
-          <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+        <div
+          class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-white/5 shadow-sm dark:shadow-none"
+        >
+          <h2
+            class="text-xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2"
+          >
             <svg
-              class="w-5 h-5 text-blue-400"
+              class="w-5 h-5 text-blue-600 dark:text-blue-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -36,18 +42,22 @@
             <!-- Toggle: Require Photo -->
             <div class="flex items-center justify-between">
               <div>
-                <label class="text-white font-medium block"
+                <label class="text-slate-900 dark:text-white font-medium block"
                   >Require Photo Evidence</label
                 >
-                <p class="text-slate-400 text-sm">
+                <p class="text-slate-500 dark:text-slate-400 text-sm">
                   Students must take a selfie to clock in/out.
                 </p>
               </div>
               <button
                 type="button"
                 @click="config.requirePhoto = !config.requirePhoto"
-                :class="config.requirePhoto ? 'bg-blue-600' : 'bg-slate-700'"
-                class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900"
+                :class="
+                  config.requirePhoto
+                    ? 'bg-blue-600'
+                    : 'bg-slate-200 dark:bg-slate-700'
+                "
+                class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-900"
               >
                 <span
                   :class="
@@ -60,13 +70,13 @@
 
             <!-- Toggle: Require Location -->
             <div
-              class="flex items-center justify-between pt-6 border-t border-white/5"
+              class="flex items-center justify-between pt-6 border-t border-slate-100 dark:border-white/5"
             >
               <div>
-                <label class="text-white font-medium block"
+                <label class="text-slate-900 dark:text-white font-medium block"
                   >Require Location Check</label
                 >
-                <p class="text-slate-400 text-sm">
+                <p class="text-slate-500 dark:text-slate-400 text-sm">
                   Restrict clock-in to office radius.
                 </p>
               </div>
@@ -74,9 +84,11 @@
                 type="button"
                 @click="config.requireLocation = !config.requireLocation"
                 :class="
-                  config.requireLocation ? 'bg-emerald-600' : 'bg-slate-700'
+                  config.requireLocation
+                    ? 'bg-emerald-600'
+                    : 'bg-slate-200 dark:bg-slate-700'
                 "
-                class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-slate-900"
+                class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-900"
               >
                 <span
                   :class="
@@ -91,14 +103,16 @@
 
         <!-- Location Settings -->
         <div
-          class="bg-slate-800 rounded-2xl p-6 border border-white/5 opacity-100 transition-opacity"
+          class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-white/5 opacity-100 transition-opacity shadow-sm dark:shadow-none"
           :class="{
             'opacity-50 pointer-events-none': !config.requireLocation,
           }"
         >
-          <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+          <h2
+            class="text-xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2"
+          >
             <svg
-              class="w-5 h-5 text-emerald-400"
+              class="w-5 h-5 text-emerald-600 dark:text-emerald-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -122,44 +136,44 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label
-                class="block text-slate-400 text-sm font-bold mb-2 uppercase"
+                class="block text-slate-500 dark:text-slate-400 text-sm font-bold mb-2 uppercase"
                 >Latitude</label
               >
               <input
                 v-model.number="config.officeLat"
                 type="number"
                 step="any"
-                class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors"
+                class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 transition-colors"
               />
             </div>
             <div>
               <label
-                class="block text-slate-400 text-sm font-bold mb-2 uppercase"
+                class="block text-slate-500 dark:text-slate-400 text-sm font-bold mb-2 uppercase"
                 >Longitude</label
               >
               <input
                 v-model.number="config.officeLng"
                 type="number"
                 step="any"
-                class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors"
+                class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 transition-colors"
               />
             </div>
             <div>
               <label
-                class="block text-slate-400 text-sm font-bold mb-2 uppercase"
+                class="block text-slate-500 dark:text-slate-400 text-sm font-bold mb-2 uppercase"
                 >Radius (Meters)</label
               >
               <input
                 v-model.number="config.officeRadius"
                 type="number"
-                class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors"
+                class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 transition-colors"
               />
             </div>
             <div class="flex items-end">
               <button
                 type="button"
                 @click="setCurrentLocation"
-                class="w-full py-3 bg-slate-700 hover:bg-slate-600 text-white font-medium rounded-xl transition-colors flex items-center justify-center gap-2"
+                class="w-full py-3 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-white font-medium rounded-xl transition-colors flex items-center justify-center gap-2"
               >
                 <svg
                   class="w-5 h-5"
@@ -185,7 +199,7 @@
           <button
             :disabled="saving"
             type="submit"
-            class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-blue-900/20 transition-all flex items-center gap-2"
+            class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-blue-500/20 dark:shadow-blue-900/20 transition-all flex items-center gap-2"
           >
             <span
               v-if="saving"

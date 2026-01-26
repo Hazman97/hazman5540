@@ -3,14 +3,16 @@
     <!-- Topbar -->
     <header class="flex items-center justify-between mb-8">
       <div class="flex items-center gap-4">
-        <h2 class="text-3xl font-bold text-white tracking-tight">
+        <h2
+          class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight"
+        >
           Student Management
         </h2>
       </div>
 
       <button
         @click="openModal()"
-        class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-medium shadow-lg shadow-indigo-900/20 hover:shadow-indigo-900/40 transition-all flex items-center gap-2"
+        class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-medium shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 transition-all flex items-center gap-2"
       >
         <svg
           class="w-5 h-5"
@@ -35,7 +37,7 @@
       <div class="mb-6 max-w-md">
         <div class="relative group">
           <svg
-            class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-indigo-400 transition-colors"
+            class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -51,49 +53,49 @@
             v-model="search"
             type="text"
             placeholder="Search by name, username or department..."
-            class="w-full bg-slate-800 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white placeholder-white/30 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
+            class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl py-3 pl-10 pr-4 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-white/30 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-sm dark:shadow-none"
           />
         </div>
       </div>
 
       <!-- Table -->
       <div
-        class="bg-slate-800 rounded-2xl border border-white/5 overflow-hidden shadow-xl shadow-black/20 flex-1 flex flex-col"
+        class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-white/5 overflow-hidden shadow-sm dark:shadow-xl dark:shadow-black/20 flex-1 flex flex-col"
       >
         <div class="overflow-auto flex-1">
           <table class="w-full text-left border-collapse">
             <thead class="sticky top-0 z-10">
               <tr
-                class="border-b border-white/5 bg-slate-900/90 backdrop-blur-md"
+                class="border-b border-slate-200 dark:border-white/5 bg-slate-50/90 dark:bg-slate-900/90 backdrop-blur-md"
               >
                 <th
-                  class="p-4 text-xs font-bold text-white/40 uppercase tracking-wider"
+                  class="p-4 text-xs font-bold text-slate-500 dark:text-white/40 uppercase tracking-wider"
                 >
                   Student
                 </th>
                 <th
-                  class="p-4 text-xs font-bold text-white/40 uppercase tracking-wider hidden sm:table-cell"
+                  class="p-4 text-xs font-bold text-slate-500 dark:text-white/40 uppercase tracking-wider hidden sm:table-cell"
                 >
                   Username
                 </th>
                 <th
-                  class="p-4 text-xs font-bold text-white/40 uppercase tracking-wider hidden md:table-cell"
+                  class="p-4 text-xs font-bold text-slate-500 dark:text-white/40 uppercase tracking-wider hidden md:table-cell"
                 >
                   Dept
                 </th>
                 <th
-                  class="p-4 text-xs font-bold text-white/40 uppercase tracking-wider"
+                  class="p-4 text-xs font-bold text-slate-500 dark:text-white/40 uppercase tracking-wider"
                 >
                   Status
                 </th>
                 <th
-                  class="p-4 text-xs font-bold text-white/40 uppercase tracking-wider text-right"
+                  class="p-4 text-xs font-bold text-slate-500 dark:text-white/40 uppercase tracking-wider text-right"
                 >
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-white/5">
+            <tbody class="divide-y divide-slate-100 dark:divide-white/5">
               <tr v-if="loading">
                 <td
                   colspan="5"
@@ -106,43 +108,51 @@
                 v-else
                 v-for="student in filteredStudents"
                 :key="student.id"
-                class="group hover:bg-white/5 transition-colors"
+                class="group hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
               >
                 <td class="p-4">
                   <div class="flex items-center gap-3">
                     <div
-                      class="w-10 h-10 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold border border-indigo-500/10"
+                      class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400 flex items-center justify-center font-bold border border-indigo-200 dark:border-indigo-500/10"
                     >
                       {{ student.name?.charAt(0)?.toUpperCase() }}
                     </div>
                     <div>
-                      <p class="font-medium text-white">{{ student.name }}</p>
-                      <p class="text-xs text-white/40 sm:hidden">
+                      <p class="font-medium text-slate-900 dark:text-white">
+                        {{ student.name }}
+                      </p>
+                      <p
+                        class="text-xs text-slate-500 dark:text-white/40 sm:hidden"
+                      >
                         {{ student.username }}
                       </p>
                     </div>
                   </div>
                 </td>
                 <td
-                  class="p-4 text-sm text-white/60 hidden sm:table-cell font-mono"
+                  class="p-4 text-sm text-slate-600 dark:text-white/60 hidden sm:table-cell font-mono"
                 >
                   {{ student.username }}
                 </td>
-                <td class="p-4 text-sm text-white/60 hidden md:table-cell">
+                <td
+                  class="p-4 text-sm text-slate-600 dark:text-white/60 hidden md:table-cell"
+                >
                   <span
                     v-if="student.department"
-                    class="px-2 py-1 rounded bg-white/5 text-xs border border-white/5"
+                    class="px-2 py-1 rounded bg-slate-100 dark:bg-white/5 text-xs border border-slate-200 dark:border-white/5"
                     >{{ student.department }}</span
                   >
-                  <span v-else class="text-white/20">-</span>
+                  <span v-else class="text-slate-400 dark:text-white/20"
+                    >-</span
+                  >
                 </td>
                 <td class="p-4">
                   <span
                     :class="[
                       'px-2.5 py-1 rounded-full text-xs font-medium border',
                       student.isActive
-                        ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                        : 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+                        ? 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20'
+                        : 'bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20',
                     ]"
                   >
                     {{ student.isActive ? "Active" : "Inactive" }}
@@ -154,7 +164,7 @@
                   >
                     <button
                       @click="openModal(student)"
-                      class="p-2 text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors"
+                      class="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-colors"
                       title="Edit"
                     >
                       <svg
@@ -173,7 +183,7 @@
                     </button>
                     <button
                       @click="deleteStudent(student)"
-                      class="p-2 text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors"
+                      class="p-2 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition-colors"
                       title="Delete"
                     >
                       <svg
@@ -194,9 +204,12 @@
                 </td>
               </tr>
               <tr v-if="filteredStudents.length === 0">
-                <td colspan="5" class="p-12 text-center text-white/30">
+                <td
+                  colspan="5"
+                  class="p-12 text-center text-slate-400 dark:text-white/30"
+                >
                   <div
-                    class="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-3"
+                    class="w-16 h-16 bg-slate-100 dark:bg-white/5 rounded-full flex items-center justify-center mx-auto mb-3"
                   >
                     <svg
                       class="w-8 h-8 opacity-50"
@@ -231,15 +244,15 @@
         @click="showModal = false"
       ></div>
       <div
-        class="bg-slate-800 rounded-2xl w-full max-w-md p-6 border border-white/10 shadow-2xl relative z-10 animate-in zoom-in-95 duration-200"
+        class="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md p-6 border border-slate-200 dark:border-white/10 shadow-2xl relative z-10 animate-in zoom-in-95 duration-200"
       >
         <div class="flex items-center justify-between mb-6">
-          <h2 class="text-xl font-bold text-white">
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white">
             {{ editingStudent ? "Edit Student" : "New Student" }}
           </h2>
           <button
             @click="showModal = false"
-            class="text-white/40 hover:text-white"
+            class="text-slate-400 hover:text-slate-600 dark:text-white/40 dark:hover:text-white"
           >
             <svg
               class="w-6 h-6"
@@ -259,44 +272,48 @@
 
         <form @submit.prevent="saveStudent" class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-white/60 mb-1.5"
+            <label
+              class="block text-sm font-medium text-slate-700 dark:text-white/60 mb-1.5"
               >Full Name</label
             >
             <input
               v-model="form.name"
               type="text"
-              class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 transition-colors"
+              class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors"
               required
               placeholder="e.g. Ali Baba"
             />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-white/60 mb-1.5"
+            <label
+              class="block text-sm font-medium text-slate-700 dark:text-white/60 mb-1.5"
               >Username</label
             >
             <input
               v-model="form.username"
               type="text"
-              class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 transition-colors"
+              class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors"
               required
               placeholder="e.g. ali123"
             />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-white/60 mb-1.5">
+            <label
+              class="block text-sm font-medium text-slate-700 dark:text-white/60 mb-1.5"
+            >
               Password
               <span
                 v-if="editingStudent"
-                class="text-xs font-normal text-white/30 ml-1"
+                class="text-xs font-normal text-slate-500 dark:text-white/30 ml-1"
                 >(Leave blank to keep current)</span
               >
             </label>
             <input
               v-model="form.password"
               type="text"
-              class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 transition-colors"
+              class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors"
               :required="!editingStudent"
               placeholder="••••••••"
             />
@@ -304,37 +321,40 @@
 
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-white/60 mb-1.5"
+              <label
+                class="block text-sm font-medium text-slate-700 dark:text-white/60 mb-1.5"
                 >AL Quota</label
               >
               <input
                 v-model.number="form.alQuota"
                 type="number"
-                class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 transition-colors"
+                class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors"
                 placeholder="e.g. 14"
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-white/60 mb-1.5"
+              <label
+                class="block text-sm font-medium text-slate-700 dark:text-white/60 mb-1.5"
                 >MC Quota</label
               >
               <input
                 v-model.number="form.mcQuota"
                 type="number"
-                class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 transition-colors"
+                class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors"
                 placeholder="e.g. 14"
               />
             </div>
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-white/60 mb-1.5"
+            <label
+              class="block text-sm font-medium text-slate-700 dark:text-white/60 mb-1.5"
               >Department</label
             >
             <input
               v-model="form.department"
               type="text"
-              class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 transition-colors"
+              class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors"
               placeholder="e.g. IT, HR"
             />
           </div>
@@ -345,7 +365,7 @@
                 v-model="form.isActive"
                 type="checkbox"
                 id="status"
-                class="peer h-5 w-5 cursor-pointer appearance-none rounded-md border border-white/20 bg-slate-900 checked:bg-indigo-500 checked:border-indigo-500 transition-all"
+                class="peer h-5 w-5 cursor-pointer appearance-none rounded-md border border-slate-300 dark:border-white/20 bg-slate-50 dark:bg-slate-900 checked:bg-indigo-500 checked:border-indigo-500 transition-all"
               />
               <svg
                 class="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100"
@@ -363,7 +383,7 @@
             </div>
             <label
               for="status"
-              class="text-sm text-white/80 cursor-pointer select-none"
+              class="text-sm text-slate-700 dark:text-white/80 cursor-pointer select-none"
               >Account is Active</label
             >
           </div>
@@ -372,7 +392,7 @@
             <button
               type="button"
               @click="showModal = false"
-              class="flex-1 py-3 rounded-xl border border-white/10 hover:bg-white/5 text-white transition-colors font-medium"
+              class="flex-1 py-3 rounded-xl border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/5 text-slate-700 dark:text-white transition-colors font-medium"
             >
               Cancel
             </button>

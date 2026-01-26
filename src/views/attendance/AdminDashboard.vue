@@ -5,18 +5,20 @@
       class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8"
     >
       <div>
-        <h1 class="text-3xl font-bold text-white mb-2">Dashboard Overview</h1>
-        <p class="text-slate-400">
+        <h1 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+          Dashboard Overview
+        </h1>
+        <p class="text-slate-500 dark:text-slate-400">
           Welcome back, Administrator. Here's what's happening today.
         </p>
       </div>
       <div class="flex items-center gap-3">
-        <span class="text-slate-400 text-sm font-medium">{{
+        <span class="text-slate-500 dark:text-slate-400 text-sm font-medium">{{
           currentDate
         }}</span>
         <button
           @click="loadStats"
-          class="p-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-colors border border-white/5"
+          class="p-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-white rounded-lg transition-colors border border-slate-200 dark:border-white/5"
           title="Refresh Data"
         >
           <svg
@@ -43,10 +45,10 @@
       <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Total Students Card -->
         <div
-          class="bg-slate-800 rounded-2xl p-6 border border-white/5 flex items-start gap-4 hover:border-white/10 transition-colors"
+          class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-white/5 flex items-start gap-4 hover:border-blue-500/30 dark:hover:border-white/10 transition-colors shadow-sm dark:shadow-none"
         >
           <div
-            class="w-12 h-12 rounded-full bg-blue-500/10 text-blue-400 flex items-center justify-center p-2.5"
+            class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400 flex items-center justify-center p-2.5"
           >
             <svg
               class="w-full h-full"
@@ -64,11 +66,11 @@
           </div>
           <div>
             <p
-              class="text-white/40 text-sm font-medium uppercase tracking-wide"
+              class="text-slate-500 dark:text-white/40 text-sm font-medium uppercase tracking-wide"
             >
               Total Students
             </p>
-            <p class="text-white text-3xl font-bold mt-1">
+            <p class="text-slate-900 dark:text-white text-3xl font-bold mt-1">
               {{ stats.totalStudents }}
             </p>
           </div>
@@ -76,10 +78,10 @@
 
         <!-- Today Present Card -->
         <div
-          class="bg-slate-800 rounded-2xl p-6 border border-white/5 flex items-start gap-4 hover:border-white/10 transition-colors"
+          class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-white/5 flex items-start gap-4 hover:border-emerald-500/30 dark:hover:border-white/10 transition-colors shadow-sm dark:shadow-none"
         >
           <div
-            class="w-12 h-12 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center p-2.5"
+            class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 flex items-center justify-center p-2.5"
           >
             <svg
               class="w-full h-full"
@@ -97,11 +99,11 @@
           </div>
           <div>
             <p
-              class="text-white/40 text-sm font-medium uppercase tracking-wide"
+              class="text-slate-500 dark:text-white/40 text-sm font-medium uppercase tracking-wide"
             >
               Today Present
             </p>
-            <p class="text-white text-3xl font-bold mt-1">
+            <p class="text-slate-900 dark:text-white text-3xl font-bold mt-1">
               {{ stats.todayPresent }}
             </p>
           </div>
@@ -109,10 +111,10 @@
 
         <!-- Today Clocked Out Card -->
         <div
-          class="bg-slate-800 rounded-2xl p-6 border border-white/5 flex items-start gap-4 hover:border-white/10 transition-colors"
+          class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-white/5 flex items-start gap-4 hover:border-rose-500/30 dark:hover:border-white/10 transition-colors shadow-sm dark:shadow-none"
         >
           <div
-            class="w-12 h-12 rounded-full bg-red-500/10 text-red-400 flex items-center justify-center p-2.5"
+            class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 dark:bg-red-500/10 dark:text-red-400 flex items-center justify-center p-2.5"
           >
             <svg
               class="w-full h-full"
@@ -130,11 +132,11 @@
           </div>
           <div>
             <p
-              class="text-white/40 text-sm font-medium uppercase tracking-wide"
+              class="text-slate-500 dark:text-white/40 text-sm font-medium uppercase tracking-wide"
             >
               Clocked Out
             </p>
-            <p class="text-white text-3xl font-bold mt-1">
+            <p class="text-slate-900 dark:text-white text-3xl font-bold mt-1">
               {{ stats.todayClockedOut }}
             </p>
           </div>
@@ -142,10 +144,10 @@
 
         <!-- Today Outside Card -->
         <div
-          class="bg-slate-800 rounded-2xl p-6 border border-white/5 flex items-start gap-4 hover:border-white/10 transition-colors"
+          class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-white/5 flex items-start gap-4 hover:border-orange-500/30 dark:hover:border-white/10 transition-colors shadow-sm dark:shadow-none"
         >
           <div
-            class="w-12 h-12 rounded-full bg-orange-500/10 text-orange-400 flex items-center justify-center p-2.5"
+            class="w-12 h-12 rounded-full bg-orange-100 text-orange-600 dark:bg-orange-500/10 dark:text-orange-400 flex items-center justify-center p-2.5"
           >
             <svg
               class="w-full h-full"
@@ -169,11 +171,11 @@
           </div>
           <div>
             <p
-              class="text-white/40 text-sm font-medium uppercase tracking-wide"
+              class="text-slate-500 dark:text-white/40 text-sm font-medium uppercase tracking-wide"
             >
               Remote/Outside
             </p>
-            <p class="text-white text-3xl font-bold mt-1">
+            <p class="text-slate-900 dark:text-white text-3xl font-bold mt-1">
               {{ stats.todayOutside }}
             </p>
           </div>
@@ -183,21 +185,25 @@
       <!-- Live Feed -->
       <div class="lg:col-span-1 flex flex-col gap-6">
         <div
-          class="bg-slate-800 rounded-2xl border border-white/5 overflow-hidden flex-1"
+          class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-white/5 overflow-hidden flex-1 shadow-sm dark:shadow-none"
         >
           <div
-            class="p-6 border-b border-white/5 flex items-center justify-between"
+            class="p-6 border-b border-slate-200 dark:border-white/5 flex items-center justify-between"
           >
-            <h3 class="font-bold text-white text-lg">Live Activity</h3>
+            <h3 class="font-bold text-slate-900 dark:text-white text-lg">
+              Live Activity
+            </h3>
             <span
-              class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded tracking-wide border border-emerald-500/20 animate-pulse"
+              class="text-[10px] font-bold text-emerald-600 bg-emerald-100 dark:text-emerald-400 dark:bg-emerald-500/10 px-2 py-0.5 rounded tracking-wide border border-emerald-200 dark:border-emerald-500/20 animate-pulse"
               >LIVE</span
             >
           </div>
-          <div class="divide-y divide-white/5 max-h-[500px] overflow-y-auto">
+          <div
+            class="divide-y divide-slate-100 dark:divide-white/5 max-h-[500px] overflow-y-auto"
+          >
             <div
               v-if="recentLogs.length === 0"
-              class="p-8 text-center text-white/30 text-sm"
+              class="p-8 text-center text-slate-500 dark:text-white/30 text-sm"
             >
               No activity recorded today
             </div>
@@ -205,44 +211,52 @@
               v-else
               v-for="log in recentLogs"
               :key="log.id"
-              class="p-4 flex items-center justify-between hover:bg-white/5 transition-colors"
+              class="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
             >
               <div class="flex items-center gap-3">
                 <div
                   :class="[
                     'w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs',
                     log.clockOutTime
-                      ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
-                      : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
+                      ? 'bg-blue-100 text-blue-600 border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20'
+                      : 'bg-emerald-100 text-emerald-600 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20',
                   ]"
                 >
                   {{ log.studentName?.charAt(0)?.toUpperCase() }}
                 </div>
                 <div>
-                  <p class="text-white font-medium text-sm leading-tight">
+                  <p
+                    class="text-slate-900 dark:text-white font-medium text-sm leading-tight"
+                  >
                     {{ log.studentName }}
                   </p>
                   <p
-                    class="text-[11px] text-white/40 flex items-center gap-2 mt-0.5"
+                    class="text-[11px] text-slate-500 dark:text-white/40 flex items-center gap-2 mt-0.5"
                   >
                     {{ log.clockOutTime ? "Clocked Out" : "Clocked In" }}
-                    <span v-if="log.isClockInOutside" class="text-orange-400"
+                    <span
+                      v-if="log.isClockInOutside"
+                      class="text-orange-500 dark:text-orange-400"
                       >• Remote</span
                     >
                   </p>
                 </div>
               </div>
               <div class="text-right">
-                <p class="text-white font-mono text-xs font-medium">
+                <p
+                  class="text-slate-600 dark:text-white font-mono text-xs font-medium"
+                >
                   {{ formatTime(log.clockOutTime || log.clockInTime) }}
                 </p>
               </div>
             </div>
           </div>
-          <div class="p-3 border-t border-white/5 bg-white/[0.02]">
+          <div
+            class="p-3 border-t border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/[0.02]"
+          >
             <router-link
               to="/attendance/admin/records"
-              class="text-center block text-xs font-medium text-blue-400 hover:text-blue-300 transition-colors"
+              class="text-center block text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 transition-colors"
               >View All History &rarr;</router-link
             >
           </div>

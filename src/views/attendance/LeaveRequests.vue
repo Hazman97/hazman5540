@@ -3,16 +3,20 @@
     <!-- Header -->
     <header class="flex items-center justify-between mb-8">
       <div>
-        <h2 class="text-3xl font-bold text-white tracking-tight">
+        <h2
+          class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight"
+        >
           Leave Requests
         </h2>
-        <p class="text-slate-400">Manage student leave applications</p>
+        <p class="text-slate-500 dark:text-slate-400">
+          Manage student leave applications
+        </p>
       </div>
     </header>
 
     <!-- Content -->
     <div
-      class="flex-1 overflow-y-auto bg-slate-800 rounded-2xl border border-white/5 shadow-xl"
+      class="flex-1 overflow-y-auto bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-white/5 shadow-xl"
     >
       <div v-if="loading" class="p-8 text-center text-slate-500 animate-pulse">
         Loading requests...
@@ -20,10 +24,10 @@
 
       <div
         v-else-if="requests.length === 0"
-        class="p-12 text-center text-white/30"
+        class="p-12 text-center text-slate-400 dark:text-white/30"
       >
         <div
-          class="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-3"
+          class="w-16 h-16 bg-slate-100 dark:bg-white/5 rounded-full flex items-center justify-center mx-auto mb-3"
         >
           <svg
             class="w-8 h-8 opacity-50"
@@ -42,11 +46,11 @@
         <p>No pending requests</p>
       </div>
 
-      <div v-else class="divide-y divide-white/5">
+      <div v-else class="divide-y divide-slate-200 dark:divide-white/5">
         <div
           v-for="req in requests"
           :key="req.id"
-          class="p-6 hover:bg-white/5 transition-colors"
+          class="p-6 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
         >
           <div
             class="flex flex-col md:flex-row md:items-start justify-between gap-4"
@@ -54,30 +58,35 @@
             <!-- Info -->
             <div class="flex items-start gap-4">
               <div
-                class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border border-white/5 font-bold"
+                class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border border-slate-100 dark:border-white/5 font-bold"
                 :class="{
-                  'bg-blue-500/10 text-blue-400': req.type === 'MC',
-                  'bg-emerald-500/10 text-emerald-400': req.type === 'AL',
-                  'bg-orange-500/10 text-orange-400': req.type === 'EL',
+                  'bg-blue-100 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400':
+                    req.type === 'MC',
+                  'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400':
+                    req.type === 'AL',
+                  'bg-orange-100 text-orange-600 dark:bg-orange-500/10 dark:text-orange-400':
+                    req.type === 'EL',
                 }"
               >
                 {{ req.type }}
               </div>
               <div>
-                <h3 class="text-white font-bold text-lg">
+                <h3 class="text-slate-900 dark:text-white font-bold text-lg">
                   {{ req.studentName }}
                 </h3>
-                <p class="text-indigo-300 font-medium">
+                <p class="text-indigo-600 dark:text-indigo-300 font-medium">
                   {{ formatDate(req.startDate) }} -
                   {{ formatDate(req.endDate) }}
                 </p>
-                <p class="text-white/60 mt-1 max-w-xl">{{ req.reason }}</p>
+                <p class="text-slate-600 dark:text-white/60 mt-1 max-w-xl">
+                  {{ req.reason }}
+                </p>
 
                 <div v-if="req.attachmentUrl" class="mt-3">
                   <a
                     :href="req.attachmentUrl"
                     target="_blank"
-                    class="text-xs flex items-center gap-1 text-blue-400 hover:text-blue-300"
+                    class="text-xs flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline"
                   >
                     <svg
                       class="w-4 h-4"
@@ -123,7 +132,7 @@
               <button
                 @click="updateStatus(req, 'rejected')"
                 :disabled="processing === req.id"
-                class="px-4 py-2 bg-slate-700 hover:bg-rose-600/80 text-white rounded-lg font-medium transition-all border border-white/10 disabled:opacity-50"
+                class="px-4 py-2 bg-slate-200 hover:bg-rose-100 text-slate-700 hover:text-rose-600 dark:bg-slate-700 dark:hover:bg-rose-600/80 dark:text-white rounded-lg font-medium transition-all border border-transparent dark:border-white/10 disabled:opacity-50"
               >
                 Reject
               </button>

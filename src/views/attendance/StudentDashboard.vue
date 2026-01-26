@@ -89,7 +89,7 @@
           </router-link>
           <button
             @click="handleLogout"
-            class="flex items-center gap-2 text-rose-500 dark:text-rose-400 hover:text-rose-600 dark:hover:text-rose-300 transition-colors text-sm font-medium bg-rose-50 dark:bg-rose-500/10 px-3 py-1.5 rounded-lg border border-rose-200 dark:border-rose-500/20"
+            class="flex items-center gap-2 text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 transition-colors text-sm font-medium bg-rose-50 dark:bg-rose-500/10 px-3 py-1.5 rounded-lg border border-rose-200 dark:border-rose-500/20"
           >
             <svg
               class="w-4 h-4"
@@ -223,9 +223,11 @@
       <!-- Stale Session Warning -->
       <div
         v-if="staleLog"
-        class="mb-6 bg-rose-500/10 border border-rose-500/20 p-4 rounded-xl flex items-start gap-3 animate-in fade-in slide-in-from-top-4 duration-500"
+        class="mb-6 bg-rose-50 border border-rose-200 dark:bg-rose-500/10 dark:border-rose-500/20 p-4 rounded-xl flex items-start gap-3 animate-in fade-in slide-in-from-top-4 duration-500"
       >
-        <div class="p-2 bg-rose-500/20 rounded-lg text-rose-400 mt-0.5">
+        <div
+          class="p-2 bg-rose-100 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400 rounded-lg mt-0.5"
+        >
           <svg
             class="w-5 h-5"
             fill="none"
@@ -241,10 +243,12 @@
           </svg>
         </div>
         <div>
-          <h3 class="text-white font-bold text-sm">Missed Clock Out</h3>
-          <p class="text-rose-200/60 text-xs mt-1">
+          <h3 class="text-slate-900 dark:text-white font-bold text-sm">
+            Missed Clock Out
+          </h3>
+          <p class="text-slate-600 dark:text-rose-200/60 text-xs mt-1">
             You didn't clock out on
-            <span class="text-rose-200">{{
+            <span class="text-rose-600 dark:text-rose-200">{{
               staleLog.clockInTime.toDate().toLocaleDateString()
             }}</span
             >. That session has been effectively closed. Please clock in for
@@ -264,8 +268,8 @@
         :class="[
           'relative overflow-hidden rounded-3xl p-8 mb-8 transition-all duration-500 border',
           isClockedIn
-            ? 'bg-gradient-to-br from-emerald-50 to-white dark:from-emerald-900/40 dark:to-slate-900 border-emerald-200 dark:border-emerald-500/20 shadow-2xl shadow-emerald-500/10 dark:shadow-emerald-900/20'
-            : 'bg-gradient-to-br from-blue-50 to-white dark:from-blue-900/40 dark:to-slate-900 border-blue-200 dark:border-blue-500/20 shadow-2xl shadow-blue-500/10 dark:shadow-blue-900/20',
+            ? 'bg-gradient-to-br from-emerald-50 to-white dark:from-emerald-900/40 dark:to-slate-900 border-emerald-200 dark:border-emerald-500/20 shadow-xl shadow-emerald-500/10 dark:shadow-emerald-900/20'
+            : 'bg-gradient-to-br from-blue-50 to-white dark:from-blue-900/40 dark:to-slate-900 border-blue-200 dark:border-blue-500/20 shadow-xl shadow-blue-500/10 dark:shadow-blue-900/20',
         ]"
       >
         <!-- Background Decor -->
@@ -330,7 +334,7 @@
           </div>
           <p
             v-else
-            class="text-lg text-blue-600/70 dark:text-blue-200/70 font-medium mb-8"
+            class="text-lg text-slate-600 dark:text-blue-200/70 font-medium mb-8"
           >
             Ready to start your day?
           </p>
@@ -505,11 +509,11 @@
 
     <!-- Navigation Bar (Mobile) -->
     <nav
-      class="fixed bottom-0 w-full bg-slate-900/90 backdrop-blur-xl border-t border-white/10 pb-safe sm:hidden"
+      class="fixed bottom-0 w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-t border-slate-200 dark:border-white/10 pb-safe sm:hidden"
     >
       <div class="grid grid-cols-2 h-16">
         <button
-          class="flex flex-col items-center justify-center gap-1 text-blue-400"
+          class="flex flex-col items-center justify-center gap-1 text-blue-600 dark:text-blue-400"
         >
           <svg
             class="w-6 h-6"
@@ -528,7 +532,7 @@
         </button>
         <router-link
           to="/attendance/logs"
-          class="flex flex-col items-center justify-center gap-1 text-white/40 hover:text-white"
+          class="flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-slate-600 dark:text-white/40 dark:hover:text-white"
         >
           <svg
             class="w-6 h-6"

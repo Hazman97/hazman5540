@@ -1,8 +1,10 @@
 <template>
-  <div class="min-h-screen bg-slate-900 pb-20 sm:pb-0">
+  <div
+    class="min-h-screen bg-slate-50 dark:bg-slate-900 pb-20 sm:pb-0 transition-colors duration-300"
+  >
     <!-- Header -->
     <header
-      class="bg-slate-900/50 backdrop-blur-xl border-b border-white/5 sticky top-0 z-40"
+      class="bg-white/80 dark:bg-slate-900/50 backdrop-blur-xl border-b border-slate-200 dark:border-white/5 sticky top-0 z-40 transition-colors duration-300"
     >
       <div
         class="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between"
@@ -10,7 +12,7 @@
         <div class="flex items-center gap-3">
           <router-link
             to="/attendance/dashboard"
-            class="text-white/60 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium"
+            class="text-slate-600 dark:text-white/60 hover:text-slate-900 dark:hover:text-white transition-colors flex items-center gap-2 text-sm font-medium"
           >
             <svg
               class="w-5 h-5"
@@ -28,10 +30,12 @@
             Dashboard
           </router-link>
         </div>
-        <span class="text-white font-bold tracking-tight">My History</span>
+        <span class="text-slate-900 dark:text-white font-bold tracking-tight"
+          >My History</span
+        >
         <button
           @click="handleLogout"
-          class="text-rose-400 hover:text-rose-300 text-sm font-medium"
+          class="text-rose-500 hover:text-rose-600 dark:text-rose-400 dark:hover:text-rose-300 text-sm font-medium"
         >
           Logout
         </button>
@@ -44,8 +48,10 @@
         class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8"
       >
         <div>
-          <h1 class="text-2xl font-bold text-white mb-1">Attendance Log</h1>
-          <p class="text-white/40 text-sm">
+          <h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-1">
+            Attendance Log
+          </h1>
+          <p class="text-slate-500 dark:text-white/40 text-sm">
             Review your past attendance records
           </p>
         </div>
@@ -53,14 +59,16 @@
           class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto"
         >
           <!-- View Toggle -->
-          <div class="flex bg-slate-800 p-1 rounded-xl border border-white/10">
+          <div
+            class="flex bg-white dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-white/10 shadow-sm dark:shadow-none"
+          >
             <button
               @click="viewMode = 'list'"
               class="px-3 py-1.5 rounded-lg text-sm font-medium transition-all"
               :class="
                 viewMode === 'list'
                   ? 'bg-blue-600 text-white shadow-lg'
-                  : 'text-white/60 hover:text-white'
+                  : 'text-slate-600 dark:text-white/60 hover:bg-slate-100 dark:hover:text-white dark:hover:bg-white/5'
               "
             >
               List
@@ -71,7 +79,7 @@
               :class="
                 viewMode === 'calendar'
                   ? 'bg-blue-600 text-white shadow-lg'
-                  : 'text-white/60 hover:text-white'
+                  : 'text-slate-600 dark:text-white/60 hover:bg-slate-100 dark:hover:text-white dark:hover:bg-white/5'
               "
             >
               Calendar
@@ -80,12 +88,12 @@
 
           <!-- Date & Filter -->
           <div
-            class="flex items-center gap-2 bg-slate-800 p-1 rounded-xl border border-white/10"
+            class="flex items-center gap-2 bg-white dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-white/10 shadow-sm dark:shadow-none"
           >
             <input
               v-model="filterMonth"
               type="month"
-              class="bg-transparent text-white text-sm px-4 py-2 focus:outline-none"
+              class="bg-transparent text-slate-900 dark:text-white text-sm px-4 py-2 focus:outline-none"
             />
             <button
               @click="loadLogs"
@@ -100,10 +108,10 @@
             <button
               @click="exportCSV"
               title="Export CSV"
-              class="p-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl border border-white/10 transition-colors"
+              class="p-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-white rounded-xl border border-slate-200 dark:border-white/10 transition-colors shadow-sm dark:shadow-none"
             >
               <svg
-                class="w-5 h-5 text-emerald-400"
+                class="w-5 h-5 text-emerald-500 dark:text-emerald-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -119,10 +127,10 @@
             <button
               @click="exportPDF"
               title="Export PDF"
-              class="p-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl border border-white/10 transition-colors"
+              class="p-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-white rounded-xl border border-slate-200 dark:border-white/10 transition-colors shadow-sm dark:shadow-none"
             >
               <svg
-                class="w-5 h-5 text-rose-400"
+                class="w-5 h-5 text-rose-500 dark:text-rose-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -141,45 +149,55 @@
 
       <!-- Stats Grid -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div class="bg-slate-800/50 p-4 rounded-2xl border border-white/5">
+        <div
+          class="bg-white dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm dark:shadow-none"
+        >
           <p
-            class="text-white/40 text-xs font-bold uppercase tracking-wider mb-1"
+            class="text-slate-500 dark:text-white/40 text-xs font-bold uppercase tracking-wider mb-1"
           >
             Days Worked
           </p>
-          <p class="text-2xl font-bold text-white">{{ monthStats.days }}</p>
+          <p class="text-2xl font-bold text-slate-900 dark:text-white">
+            {{ monthStats.days }}
+          </p>
         </div>
-        <div class="bg-slate-800/50 p-4 rounded-2xl border border-white/5">
+        <div
+          class="bg-white dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm dark:shadow-none"
+        >
           <p
-            class="text-white/40 text-xs font-bold uppercase tracking-wider mb-1"
+            class="text-slate-500 dark:text-white/40 text-xs font-bold uppercase tracking-wider mb-1"
           >
             Total Hours
           </p>
-          <p class="text-2xl font-bold text-white">
+          <p class="text-2xl font-bold text-slate-900 dark:text-white">
             {{ monthStats.hours.toFixed(1) }}
           </p>
         </div>
-        <div class="bg-slate-800/50 p-4 rounded-2xl border border-white/5">
+        <div
+          class="bg-white dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm dark:shadow-none"
+        >
           <p
-            class="text-white/40 text-xs font-bold uppercase tracking-wider mb-1"
+            class="text-slate-500 dark:text-white/40 text-xs font-bold uppercase tracking-wider mb-1"
           >
             On Time
           </p>
-          <p class="text-2xl font-bold text-emerald-400">
+          <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
             {{ monthStats.atOffice }}
           </p>
-          <p class="text-xs text-white/30">At Office</p>
+          <p class="text-xs text-slate-400 dark:text-white/30">At Office</p>
         </div>
-        <div class="bg-slate-800/50 p-4 rounded-2xl border border-white/5">
+        <div
+          class="bg-white dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm dark:shadow-none"
+        >
           <p
-            class="text-white/40 text-xs font-bold uppercase tracking-wider mb-1"
+            class="text-slate-500 dark:text-white/40 text-xs font-bold uppercase tracking-wider mb-1"
           >
             Attendance Score
           </p>
-          <p class="text-2xl font-bold text-indigo-400">
+          <p class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
             {{ currentStreak }}
           </p>
-          <p class="text-xs text-white/30">Days Present</p>
+          <p class="text-xs text-slate-400 dark:text-white/30">Days Present</p>
         </div>
       </div>
 
@@ -188,20 +206,20 @@
         <div
           v-for="i in 3"
           :key="i"
-          class="h-24 bg-slate-800/50 rounded-2xl animate-pulse"
+          class="h-24 bg-white dark:bg-slate-800/50 rounded-2xl animate-pulse"
         ></div>
       </div>
 
       <!-- Empty State -->
       <div
         v-else-if="logs.length === 0"
-        class="text-center py-20 bg-slate-800/30 rounded-3xl border border-white/5 border-dashed"
+        class="text-center py-20 bg-white dark:bg-slate-800/30 rounded-3xl border border-slate-200 dark:border-white/5 border-dashed"
       >
         <div
-          class="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4"
+          class="w-16 h-16 bg-slate-100 dark:bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4"
         >
           <svg
-            class="w-8 h-8 text-white/20"
+            class="w-8 h-8 text-slate-400 dark:text-white/20"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -214,8 +232,12 @@
             />
           </svg>
         </div>
-        <h3 class="text-white font-medium mb-1">No records found</h3>
-        <p class="text-white/40 text-sm">Try selecting a different month</p>
+        <h3 class="text-slate-900 dark:text-white font-medium mb-1">
+          No records found
+        </h3>
+        <p class="text-slate-500 dark:text-white/40 text-sm">
+          Try selecting a different month
+        </p>
       </div>
 
       <!-- Calendar View -->
@@ -224,44 +246,43 @@
         class="animate-in fade-in duration-300"
       >
         <div
-          class="grid grid-cols-7 gap-px bg-slate-700 rounded-2xl overflow-hidden border border-slate-700"
+          class="grid grid-cols-7 gap-px bg-slate-200 dark:bg-slate-700 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700"
         >
           <!-- Headers -->
           <div
             v-for="day in ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']"
             :key="day"
-            class="bg-slate-800 text-center py-3"
+            class="bg-slate-100 dark:bg-slate-800 text-center py-3"
           >
-            <span class="text-xs font-bold text-white/40 uppercase">{{
-              day
-            }}</span>
+            <span
+              class="text-xs font-bold text-slate-500 dark:text-white/40 uppercase"
+              >{{ day }}</span
+            >
           </div>
 
           <!-- Days -->
           <div
             v-for="(item, index) in calendarData"
             :key="index"
-            class="min-h-[100px] bg-slate-900 p-2 relative group hover:bg-slate-800/50 transition-colors"
-            :class="{ 'bg-slate-900/50': !item.day }"
+            class="min-h-[100px] bg-white dark:bg-slate-900 p-2 relative group hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+            :class="{ 'bg-slate-50 dark:bg-slate-900/50': !item.day }"
           >
             <span
               v-if="item.day"
-              class="text-sm font-medium text-white/60 block mb-2"
+              class="text-sm font-medium text-slate-600 dark:text-white/60 block mb-2"
               >{{ item.day }}</span
             >
 
             <!-- Present -->
             <div
               v-if="item.status === 'present'"
-              class="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-1.5 mb-1 cursor-pointer hover:bg-emerald-500/20"
+              class="bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 rounded-lg p-1.5 mb-1 cursor-pointer hover:bg-emerald-200 dark:hover:bg-emerald-500/20"
             >
               <div class="flex items-center gap-1 mb-0.5">
                 <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-                <span class="text-[10px] text-emerald-400 font-bold"
-                  >Present</span
-                >
+                <span class="text-[10px] font-bold">Present</span>
               </div>
-              <span class="text-[10px] text-white block">{{
+              <span class="text-[10px] block">{{
                 formatTime(item.log.clockInTime)
               }}</span>
             </div>
@@ -269,13 +290,13 @@
             <!-- Warning/Remote -->
             <div
               v-else-if="item.status === 'warning'"
-              class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-1.5 mb-1 cursor-pointer hover:bg-blue-500/20"
+              class="bg-blue-100 text-blue-800 dark:bg-blue-500/10 dark:text-blue-400 border border-blue-200 dark:border-blue-500/20 rounded-lg p-1.5 mb-1 cursor-pointer hover:bg-blue-200 dark:hover:bg-blue-500/20"
             >
               <div class="flex items-center gap-1 mb-0.5">
                 <div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
-                <span class="text-[10px] text-blue-400 font-bold">Remote</span>
+                <span class="text-[10px] font-bold">Remote</span>
               </div>
-              <span class="text-[10px] text-white block">{{
+              <span class="text-[10px] block">{{
                 formatTime(item.log.clockInTime)
               }}</span>
             </div>
@@ -286,7 +307,7 @@
               class="flex items-center justify-center h-12"
             >
               <span
-                class="text-rose-500/20 text-xs font-bold uppercase rotation-45 select-none"
+                class="text-slate-300 dark:text-rose-500/20 text-xs font-bold uppercase rotation-45 select-none"
                 >Absent</span
               >
             </div>
@@ -299,7 +320,7 @@
         <div
           v-for="log in logs"
           :key="log.id"
-          class="group bg-slate-800/40 hover:bg-slate-800/60 transition-colors rounded-2xl border border-white/5 overflow-hidden"
+          class="group bg-white dark:bg-slate-800/40 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors rounded-2xl border border-slate-200 dark:border-white/5 overflow-hidden shadow-sm dark:shadow-none"
         >
           <div
             class="p-5 flex flex-col md:flex-row items-start md:items-center gap-6"
@@ -307,20 +328,25 @@
             <!-- Date Column -->
             <div class="flex items-center gap-4 min-w-[120px]">
               <div
-                class="text-center bg-white/5 rounded-xl p-2 w-14 border border-white/5"
+                class="text-center bg-slate-100 dark:bg-white/5 rounded-xl p-2 w-14 border border-slate-200 dark:border-white/5"
               >
-                <span class="block text-xs text-white/40 uppercase">{{
-                  formatMonth(log.clockInTime)
-                }}</span>
-                <span class="block text-xl font-bold text-white">{{
-                  formatDay(log.clockInTime)
-                }}</span>
+                <span
+                  class="block text-xs text-slate-500 dark:text-white/40 uppercase"
+                  >{{ formatMonth(log.clockInTime) }}</span
+                >
+                <span
+                  class="block text-xl font-bold text-slate-900 dark:text-white"
+                  >{{ formatDay(log.clockInTime) }}</span
+                >
               </div>
               <div>
-                <p class="text-sm font-medium text-white">
+                <p class="text-sm font-medium text-slate-900 dark:text-white">
                   {{ formatWeekday(log.clockInTime) }}
                 </p>
-                <p class="text-xs text-white/40" v-if="log.totalHours">
+                <p
+                  class="text-xs text-slate-500 dark:text-white/40"
+                  v-if="log.totalHours"
+                >
                   {{ log.totalHours.toFixed(1) }} hrs
                 </p>
               </div>
@@ -329,15 +355,18 @@
             <!-- Times Grid -->
             <div class="flex-1 grid grid-cols-2 gap-4 w-full md:w-auto">
               <!-- Clock In -->
-              <div class="bg-white/5 rounded-xl p-3 border border-white/5">
+              <div
+                class="bg-slate-50 dark:bg-white/5 rounded-xl p-3 border border-slate-100 dark:border-white/5"
+              >
                 <div class="flex items-center justify-between mb-1">
-                  <span class="text-xs text-white/40 font-medium"
+                  <span
+                    class="text-xs text-slate-500 dark:text-white/40 font-medium"
                     >CLOCK IN</span
                   >
                   <button
                     v-if="log.clockInPhoto"
                     @click="viewPhoto(log.clockInPhoto)"
-                    class="text-blue-400 hover:text-blue-300"
+                    class="text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300"
                   >
                     <svg
                       class="w-4 h-4"
@@ -354,7 +383,7 @@
                     </svg>
                   </button>
                 </div>
-                <p class="text-white font-medium">
+                <p class="text-slate-900 dark:text-white font-medium">
                   {{ formatTime(log.clockInTime) }}
                 </p>
                 <div
@@ -363,27 +392,33 @@
                 >
                   <span class="w-1.5 h-1.5 bg-orange-500 rounded-full"></span>
                   <span
-                    class="text-[10px] text-orange-300 cursor-pointer hover:underline"
+                    class="text-[10px] text-orange-600 dark:text-orange-300 cursor-pointer hover:underline"
                     @click="showReason(log)"
                     >Outside</span
                   >
                 </div>
                 <div class="mt-1 flex items-center gap-1.5" v-else>
                   <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
-                  <span class="text-[10px] text-emerald-300">Office</span>
+                  <span
+                    class="text-[10px] text-emerald-600 dark:text-emerald-300"
+                    >Office</span
+                  >
                 </div>
               </div>
 
               <!-- Clock Out -->
-              <div class="bg-white/5 rounded-xl p-3 border border-white/5">
+              <div
+                class="bg-slate-50 dark:bg-white/5 rounded-xl p-3 border border-slate-100 dark:border-white/5"
+              >
                 <div class="flex items-center justify-between mb-1">
-                  <span class="text-xs text-white/40 font-medium"
+                  <span
+                    class="text-xs text-slate-500 dark:text-white/40 font-medium"
                     >CLOCK OUT</span
                   >
                   <button
                     v-if="log.clockOutPhoto"
                     @click="viewPhoto(log.clockOutPhoto)"
-                    class="text-blue-400 hover:text-blue-300"
+                    class="text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300"
                   >
                     <svg
                       class="w-4 h-4"
@@ -400,7 +435,7 @@
                     </svg>
                   </button>
                 </div>
-                <p class="text-white font-medium">
+                <p class="text-slate-900 dark:text-white font-medium">
                   {{
                     log.clockOutTime ? formatTime(log.clockOutTime) : "--:--"
                   }}
@@ -411,13 +446,19 @@
                     v-if="log.isClockOutOutside"
                   >
                     <span class="w-1.5 h-1.5 bg-orange-500 rounded-full"></span>
-                    <span class="text-[10px] text-orange-300">Outside</span>
+                    <span
+                      class="text-[10px] text-orange-600 dark:text-orange-300"
+                      >Outside</span
+                    >
                   </div>
                   <div class="mt-1 flex items-center gap-1.5" v-else>
                     <span
                       class="w-1.5 h-1.5 bg-emerald-500 rounded-full"
                     ></span>
-                    <span class="text-[10px] text-emerald-300">Office</span>
+                    <span
+                      class="text-[10px] text-emerald-600 dark:text-emerald-300"
+                      >Office</span
+                    >
                   </div>
                 </div>
               </div>
@@ -430,10 +471,10 @@
             class="px-5 pb-5 pt-0"
           >
             <div
-              class="bg-orange-500/10 border border-orange-500/20 rounded-lg p-3 text-sm flex items-start gap-2"
+              class="bg-orange-50 text-orange-800 dark:bg-orange-500/10 dark:text-orange-200/80 border border-orange-200 dark:border-orange-500/20 rounded-lg p-3 text-sm flex items-start gap-2"
             >
               <svg
-                class="w-4 h-4 text-orange-400 mt-0.5 shrink-0"
+                class="w-4 h-4 text-orange-500 dark:text-orange-400 mt-0.5 shrink-0"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -445,7 +486,7 @@
                   d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
-              <p class="text-orange-200/80 italic">
+              <p class="italic">
                 "{{ log.clockInReason || log.clockOutReason }}"
               </p>
             </div>
