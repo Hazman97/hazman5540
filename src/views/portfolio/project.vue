@@ -363,6 +363,25 @@ export default {
         },
       ],
       standardProjects: [
+        // {
+        //   image:
+        //     "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&h=600&fit=crop",
+        //   title: "Pejabat Ayah Tracker",
+        //   description:
+        //     "Senarai ringkas untuk kiraan saiz baju pejabat. Mudah dan pantas. 🏢",
+        //   url: "/office",
+        //   tech: ["List", "Counter"],
+        // },
+        // {
+        //   image:
+        //     "https://images.unsplash.com/photo-1511895426328-dc8714191300?w=800&h=600&fit=crop",
+        //   title: "Keluarga Besar Size Tracker",
+        //   description:
+        //     "A specialized app for my family to track clothing sizes. Organized by family units (Dad, Siblings, etc.) for easy shopping by Grandma.",
+        //   url: "/family",
+        //   tech: ["Vue.js", "Firebase", "Tailwind"],
+        // },
+
         {
           image: "/img/photo_collection.png",
           title: "Photo Collection",

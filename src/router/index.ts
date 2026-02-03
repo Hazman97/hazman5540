@@ -251,6 +251,16 @@ const routes = [
     ],
   },
   {
+    path: "/family",
+    name: "FamilyView",
+    component: () => import("@/views/family/FamilyView.vue"),
+  },
+  {
+    path: "/office",
+    name: "OfficeView",
+    component: () => import("@/views/office/OfficeView.vue"),
+  },
+  {
     path: "/:pathMatch(.*)*", // Catch-all route
     name: "NotFound",
     component: NotFound,
