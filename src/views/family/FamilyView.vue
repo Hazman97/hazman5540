@@ -376,6 +376,16 @@
         </div>
       </transition>
 
+      <!-- Error State -->
+      <div
+        v-if="errorMsg"
+        class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6"
+        role="alert"
+      >
+        <strong class="font-bold">Ralat!</strong>
+        <span class="block sm:inline ml-2">{{ errorMsg }}</span>
+      </div>
+
       <!-- Loading State -->
       <div
         v-if="loading"
@@ -783,6 +793,7 @@ const globalEditEnabled = ref(true);
 const isEditing = ref(false);
 const editingId = ref(null);
 const saving = ref(false);
+const errorMsg = ref("");
 
 // View & Filter State
 const viewMode = ref("grid"); // 'grid' | 'table'
@@ -1025,6 +1036,7 @@ const fetchMembers = async () => {
     }));
   } catch (error) {
     console.error("Error fetching family members: ", error);
+    errorMsg.value = "Gagal memuatkan data: " + error.message;
   } finally {
     loading.value = false;
   }
