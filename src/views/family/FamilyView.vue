@@ -20,6 +20,76 @@
         </p>
       </div>
 
+      <!-- Stats Card & Copy Section -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <!-- Stats Card -->
+        <div
+          class="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl shadow-teal-900/5 border border-slate-100 dark:border-slate-700 transform transition-all hover:scale-[1.01]"
+        >
+          <div class="flex items-center justify-between gap-6">
+            <div>
+              <h3
+                class="text-slate-500 dark:text-slate-400 font-bold uppercase text-xs tracking-wider mb-1"
+              >
+                Jumlah Ahli
+              </h3>
+              <div
+                class="text-5xl sm:text-6xl font-black text-slate-800 dark:text-white tracking-tight"
+              >
+                {{ members.length }}
+                <span
+                  class="text-lg sm:text-2xl text-slate-400 font-medium ml-1"
+                  >orang</span
+                >
+              </div>
+            </div>
+            <div
+              class="w-16 h-16 bg-gradient-to-br from-teal-100 to-emerald-100 dark:from-teal-900/30 dark:to-emerald-900/30 rounded-2xl flex items-center justify-center text-3xl shadow-inner"
+            >
+              👨‍👩‍👧‍👦
+            </div>
+          </div>
+          <!-- Visual Bar -->
+          <div
+            class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2 mt-6 overflow-hidden"
+          >
+            <div
+              class="bg-gradient-to-r from-teal-400 to-emerald-500 h-full rounded-full"
+              style="width: 100%"
+            ></div>
+          </div>
+        </div>
+
+        <!-- Preview & Copy Box -->
+        <div
+          class="bg-slate-100 dark:bg-slate-900/50 rounded-3xl p-6 border-2 border-dashed border-slate-300 dark:border-slate-700 flex flex-col h-full"
+        >
+          <div class="flex items-center justify-between mb-3">
+            <h3
+              class="text-slate-500 dark:text-slate-400 font-bold uppercase text-xs tracking-wider"
+            >
+              Preview & Copy
+            </h3>
+            <button
+              @click="copyList"
+              class="px-4 py-1.5 rounded-lg font-bold text-xs sm:text-sm transition-all flex items-center gap-2"
+              :class="
+                copied
+                  ? 'bg-green-500 text-white'
+                  : 'bg-slate-800 dark:bg-slate-700 text-white hover:bg-slate-700'
+              "
+            >
+              {{ copied ? "✅ Disalin!" : "📋 Salin Semua" }}
+            </button>
+          </div>
+          <div
+            class="bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700 font-mono text-[10px] sm:text-xs text-slate-600 dark:text-slate-300 whitespace-pre-wrap overflow-y-auto flex-1 max-h-32 md:max-h-full"
+          >
+            {{ formattedText || "Tiada data..." }}
+          </div>
+        </div>
+      </div>
+
       <!-- Controls Bar -->
       <div class="sticky top-24 z-30 mb-8 space-y-4">
         <div
@@ -59,13 +129,42 @@
 
             <div class="h-6 w-px bg-slate-200 dark:bg-slate-600 mx-1"></div>
 
-            <!-- Age Filter -->
-            <select v-model="filterAge" class="filter-select">
-              <option value="all">Semua Umur</option>
-              <option value="kids">👶 Bawah 12 Tahun</option>
-              <option value="teens">🧑‍🎓 13 - 17 Tahun</option>
-              <option value="adults">👨‍💼 Dewasa</option>
+            <!-- Sort -->
+            <select v-model="sortBy" class="filter-select w-28 md:w-auto">
+              <option value="default">Susunan Asal</option>
+              <option value="age-asc">👶 Muda -> Tua</option>
+              <option value="age-desc">👴 Tua -> Muda</option>
+              <option value="name">🔤 Nama A-Z</option>
             </select>
+
+            <!-- Age Filter -->
+            <select v-model="filterAge" class="filter-select w-28 md:w-auto">
+              <option value="all">Semua Umur</option>
+              <option value="kids">👶 Bawah 12</option>
+              <option value="teens">🧑‍🎓 13 - 17</option>
+              <option value="adults">👨‍💼 Dewasa (18+)</option>
+              <option value="custom">🛠️ Custom</option>
+            </select>
+
+            <!-- Custom Age Inputs -->
+            <div
+              v-if="filterAge === 'custom'"
+              class="flex items-center gap-1 bg-slate-100 dark:bg-slate-700 p-1 rounded-xl animate-fade-in-right"
+            >
+              <input
+                v-model="minAge"
+                type="number"
+                placeholder="Min"
+                class="w-12 p-1 text-center rounded-lg text-xs font-bold focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200"
+              />
+              <span class="text-slate-400 text-xs">-</span>
+              <input
+                v-model="maxAge"
+                type="number"
+                placeholder="Max"
+                class="w-12 p-1 text-center rounded-lg text-xs font-bold focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200"
+              />
+            </div>
 
             <!-- Gender Filter -->
             <button
@@ -81,7 +180,7 @@
             >
               {{
                 filterGender === "all"
-                  ? "Semua Jantina"
+                  ? "Semua"
                   : filterGender === "male"
                     ? "👨 Lelaki"
                     : "🧕 Perempuan"
@@ -673,8 +772,11 @@ const saving = ref(false);
 
 // View & Filter State
 const viewMode = ref("grid"); // 'grid' | 'table'
-const filterAge = ref("all"); // 'all', 'kids', 'teens', 'adults'
-const filterGender = ref("all"); // 'all', 'male', 'female'
+const filterAge = ref("all");
+const filterGender = ref("all");
+const minAge = ref("");
+const maxAge = ref("");
+const sortBy = ref("default"); // 'default' | 'age-asc' | 'age-desc' | 'name'
 const tableSort = ref("familyOrder");
 
 const form = ref({
@@ -702,9 +804,16 @@ const filterMember = (member) => {
 
   // Age
   const age = Number(member.age) || 0;
-  if (filterAge.value === "kids" && age >= 12) return false; // < 12
-  if (filterAge.value === "teens" && (age < 13 || age > 17)) return false; // 13-17
-  if (filterAge.value === "adults" && age < 18) return false; // 18+
+  
+  if (filterAge.value === 'custom') {
+    if (minAge.value && age < Number(minAge.value)) return false;
+    if (maxAge.value && age > Number(maxAge.value)) return false;
+  } else {
+    // Preset Filters
+    if (filterAge.value === "kids" && age >= 12) return false;
+    if (filterAge.value === "teens" && (age < 13 || age > 17)) return false;
+    if (filterAge.value === "adults" && age < 18) return false;
+  }
 
   return true;
 };
@@ -715,12 +824,16 @@ const filteredFlatMembers = computed(() => {
 
   // Sort
   list.sort((a, b) => {
+    if (sortBy.value === "age-asc")
+      return (Number(a.age) || 0) - (Number(b.age) || 0);
+    if (sortBy.value === "age-desc")
+      return (Number(b.age) || 0) - (Number(a.age) || 0);
+    if (sortBy.value === "name") return a.name.localeCompare(b.name);
+
+    // Default Table Sort override
     if (tableSort.value === "familyOrder")
       return (a.familyOrder || 0) - (b.familyOrder || 0);
-    if (tableSort.value === "age")
-      return (Number(a.age) || 0) - (Number(b.age) || 0);
-    if (tableSort.value === "name") return a.name.localeCompare(b.name);
-    if (tableSort.value === "size") return a.size.localeCompare(b.size);
+
     return 0;
   });
 
@@ -730,11 +843,9 @@ const filteredFlatMembers = computed(() => {
 // Computed: Groups for Grid View
 const sortedFilteredGroups = computed(() => {
   const groups = {};
+  const activeMembers = members.value.filter(filterMember);
 
-  members.value.forEach((member) => {
-    // Apply filters strictly
-    if (!filterMember(member)) return;
-
+  activeMembers.forEach((member) => {
     const order = member.familyOrder || 99;
     const name = member.group || "Keluarga Lain";
     const key = `${order}-${name}`;
@@ -751,12 +862,35 @@ const sortedFilteredGroups = computed(() => {
   });
 
   // Convert to array and sort
-  const result = Object.values(groups).sort((a, b) => a.order - b.order);
+  let result = Object.values(groups);
 
-  // Check for "Single" status (simple heuristic: 1 or 2 members, no explicitly labeled kids?)
-  // For now, let's just assume if it's 1 person, it's a single unit.
-  result.forEach((g) => {
-    g.isSingle = g.members.length === 1;
+  if (sortBy.value === "default") {
+    result.sort((a, b) => a.order - b.order);
+  } else {
+    // If sorting by age/name, we might sort the FAMILIES based on their contents?
+    // Or just keep family order but sort members INSIDE?
+    // Let's keep family order for sanity in grid view, sort members inside.
+    result.sort((a, b) => a.order - b.order);
+  }
+
+  // Sort members inside groups based on global sort preference
+  result.forEach((group) => {
+    group.members.sort((a, b) => {
+      if (sortBy.value === "age-asc")
+        return (Number(a.age) || 0) - (Number(b.age) || 0);
+      if (sortBy.value === "age-desc")
+        return (Number(b.age) || 0) - (Number(a.age) || 0);
+      if (sortBy.value === "name") return a.name.localeCompare(b.name);
+
+      // Default role-based sort
+      const roleOrder = { grandparent: 0, parent: 1, child: 2, relative: 3 };
+      if (roleOrder[a.role] !== roleOrder[b.role]) {
+        return roleOrder[a.role] - roleOrder[b.role];
+      }
+      return (Number(a.age) || 0) - (Number(b.age) || 0);
+    });
+
+    group.isSingle = group.members.length === 1;
   });
 
   return result;
@@ -781,6 +915,72 @@ const getRoleLabel = (member) => {
   return "Anak";
 };
 
+const copied = ref(false);
+
+const sizeSummary = computed(() => {
+  const summary = {};
+  members.value.forEach((m) => {
+    if (!m.size) return;
+    const s = m.size.toUpperCase();
+    summary[s] = (summary[s] || 0) + 1;
+  });
+  return summary;
+});
+
+const formattedText = computed(() => {
+  if (sortedFilteredGroups.value.length === 0) return "";
+
+  let text = "*SENARAI KELUARGA BESAR 🏡*\n\n";
+
+  // Iterate through groups
+  sortedFilteredGroups.value.forEach((group) => {
+    text += `*Keluarga ${group.order}: ${group.name}*\n`;
+
+    // Sort members: Parents first, then by age/role
+    const groupMembers = [...group.members].sort((a, b) => {
+      const roleOrder = { grandparent: 0, parent: 1, child: 2, relative: 3 };
+      if (roleOrder[a.role] !== roleOrder[b.role]) {
+        return roleOrder[a.role] - roleOrder[b.role];
+      }
+      return (Number(a.age) || 0) - (Number(b.age) || 0);
+    });
+
+    groupMembers.forEach((m, idx) => {
+      let icon = "";
+      if (m.role === "grandparent") icon = m.gender === "male" ? "👴" : "👵";
+      else if (m.role === "parent") icon = m.gender === "male" ? "👨" : "🧕";
+      else icon = m.gender === "male" ? "👦" : "👧";
+
+      text += `${idx + 1}. ${m.name} ${icon} - ${m.size}\n`;
+    });
+    text += "\n";
+  });
+
+  text += "*RUMUSAN SAIZ:*\n";
+  Object.keys(sizeSummary.value)
+    .sort()
+    .forEach((size) => {
+      text += `${size}: ${sizeSummary.value[size]}\n`;
+    });
+
+  text += `\n*Jumlah Besar: ${members.value.length} orang*`;
+  return text;
+});
+
+const copyList = async () => {
+  if (!formattedText.value) return;
+
+  try {
+    await navigator.clipboard.writeText(formattedText.value);
+    copied.value = true;
+    setTimeout(() => {
+      copied.value = false;
+    }, 2000);
+  } catch (err) {
+    console.error("Failed to copy", err);
+  }
+};
+
 const toggleEditMode = () => (editMode.value = !editMode.value);
 
 const resetForm = () => {
@@ -798,6 +998,112 @@ const resetForm = () => {
 };
 
 // Data Fetching
+const fetchMembers = async () => {
+  try {
+    const q = query(collection(db, "family_members"), orderBy("familyOrder", "asc"));
+    const querySnapshot = await getDocs(q);
+    members.value = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+  } catch (error) {
+    console.error("Error fetching family members: ", error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const saveMember = async () => {
+  if (!form.value.name) return;
+  saving.value = true;
+
+  try {
+    const memberData = {
+      ...form.value,
+      updatedAt: new Date(),
+    };
+
+    if (isEditing.value && editingId.value) {
+      await updateDoc(doc(db, "family_members", editingId.value), memberData);
+      
+      const index = members.value.findIndex(m => m.id === editingId.value);
+      if (index !== -1) {
+          members.value[index] = { ...members.value[index], ...memberData };
+      }
+    } else {
+      memberData.createdAt = new Date();
+      const docRef = await addDoc(collection(db, "family_members"), memberData);
+      members.value.push({ id: docRef.id, ...memberData });
+    }
+    
+    resetForm();
+    if (editMode.value) toggleEditMode(); // Optional: close edit mode after save? or keep open. Let's keep open.
+  } catch (error) {
+    console.error("Error saving member: ", error);
+    alert("Gagal menyimpan.");
+  } finally {
+    saving.value = false;
+  }
+};
+
+const editMember = (member) => {
+  form.value = { ...member };
+  isEditing.value = true;
+  editingId.value = member.id;
+  if (!editMode.value) editMode.value = true;
+  
+  // scroll to form
+  window.scrollTo({ top: 100, behavior: 'smooth' });
+};
+
+const deleteMember = async (id) => {
+  if (!confirm("Adakah anda pasti?")) return;
+  try {
+    await deleteDoc(doc(db, "family_members", id));
+    members.value = members.value.filter(m => m.id !== id);
+  } catch (error) {
+    console.error("Error deleting: ", error);
+  }
+};
+
+onMounted(() => {
+  fetchMembers();
+});
+</script>
+
+<style scoped>
+.label {
+  @apply block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 ml-1;
+}
+.form-input {
+  @apply w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none transition-all dark:text-white shadow-sm;
+}
+.btn-primary {
+  @apply px-6 py-3 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white rounded-xl font-bold shadow-lg shadow-teal-500/30 transform hover:-translate-y-1 transition-all duration-300 active:scale-95;
+}
+.btn-secondary {
+  @apply px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors;
+}
+.filter-select {
+  @apply appearance-none px-4 py-2 bg-slate-100 dark:bg-slate-700 border-none rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 focus:ring-2 focus:ring-teal-500 outline-none cursor-pointer;
+}
+.filter-btn {
+  @apply px-4 py-2 rounded-xl text-sm font-bold border transition-all;
+}
+
+/* Animations */
+@keyframes fadeInRight {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+.animate-fade-in-right {
+    animation: fadeInRight 0.3s ease-out forwards;
+}
+
+.reveal {
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+</style>
 const fetchSettings = async () => {
   try {
     const docRef = doc(db, "settings", "family_config");
