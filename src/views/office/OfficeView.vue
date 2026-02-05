@@ -13,7 +13,7 @@
         <h1
           class="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-800 dark:text-white mb-3 font-serif"
         >
-          Senarai Pejabat 🏢
+          Senarai 
         </h1>
         <p
           class="text-base sm:text-lg text-slate-500 dark:text-slate-400 max-w-xl mx-auto leading-relaxed"
@@ -64,6 +64,33 @@
             class="bg-gradient-to-r from-blue-500 to-indigo-500 h-full rounded-full transition-all duration-1000 ease-out"
             :style="{ width: `${Math.min(members.length * 5, 100)}%` }"
           ></div>
+        </div>
+      </div>
+
+      <!-- Copy Preview Section -->
+      <div
+        v-if="members.length > 0"
+        class="bg-slate-100 dark:bg-slate-900/50 rounded-3xl p-6 border-2 border-dashed border-slate-300 dark:border-slate-700 mb-10"
+      >
+        <div class="flex items-center justify-between mb-4">
+          <h3
+            class="text-slate-500 dark:text-slate-400 font-bold uppercase text-xs tracking-wider"
+          >
+            Preview & Copy
+          </h3>
+          <button
+            @click="copyList"
+            class="group relative px-6 py-2 bg-slate-800 dark:bg-slate-700 hover:bg-blue-600 dark:hover:bg-blue-500 text-white rounded-xl font-bold transition-all duration-300 flex items-center gap-2 shadow-lg shadow-blue-900/20"
+            :class="{ '!bg-green-500': copied }"
+          >
+            <span class="text-lg">{{ copied ? "✅" : "📋" }}</span>
+            <span>{{ copied ? "Disalin!" : "Salin Teks" }}</span>
+          </button>
+        </div>
+        <div
+          class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 font-mono text-xs sm:text-sm text-slate-600 dark:text-slate-300 whitespace-pre-wrap leading-relaxed max-h-60 overflow-y-auto"
+        >
+          {{ formattedText }}
         </div>
       </div>
 
@@ -279,7 +306,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { db } from "@/firebase";
 import {
   collection,
@@ -296,6 +323,49 @@ const members = ref([]);
 const saving = ref(false);
 const isEditing = ref(false);
 const editingId = ref(null);
+const copied = ref(false);
+
+const sizeSummary = computed(() => {
+  const summary = {};
+  members.value.forEach((m) => {
+    const s = m.size.toUpperCase();
+    summary[s] = (summary[s] || 0) + 1;
+  });
+  return summary;
+});
+
+const formattedText = computed(() => {
+  if (members.value.length === 0) return "";
+  let text = "*SENARAI*\n\n";
+  members.value.forEach((member, index) => {
+    text += `${index + 1}. ${member.name} - ${member.size}\n`;
+  });
+
+  text += "\n*RUMUSAN:*\n";
+  Object.keys(sizeSummary.value)
+    .sort()
+    .forEach((size) => {
+      text += `${size}: ${sizeSummary.value[size]}\n`;
+    });
+
+  text += `\n*Jumlah Besar: ${members.value.length} unit*`;
+  return text;
+});
+
+const copyList = async () => {
+  if (!formattedText.value) return;
+
+  try {
+    await navigator.clipboard.writeText(formattedText.value);
+    copied.value = true;
+    setTimeout(() => {
+      copied.value = false;
+    }, 2000);
+  } catch (err) {
+    console.error("Failed to copy list: ", err);
+    alert("Gagal menyalin senarai");
+  }
+};
 
 const form = ref({
   name: "",
