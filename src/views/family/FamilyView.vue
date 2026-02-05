@@ -24,68 +24,82 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <!-- Stats Card -->
         <div
-          class="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl shadow-teal-900/5 border border-slate-100 dark:border-slate-700 transform transition-all hover:scale-[1.01]"
+          class="bg-white dark:bg-slate-800 rounded-[2rem] p-6 sm:p-8 shadow-2xl shadow-teal-900/5 border border-slate-100 dark:border-slate-700 relative overflow-hidden group hover:shadow-teal-500/10 transition-all duration-500"
         >
-          <div class="flex items-center justify-between gap-6">
-            <div>
-              <h3
-                class="text-slate-500 dark:text-slate-400 font-bold uppercase text-xs tracking-wider mb-1"
-              >
-                Jumlah Ahli
-              </h3>
-              <div
-                class="text-5xl sm:text-6xl font-black text-slate-800 dark:text-white tracking-tight"
-              >
-                {{ members.length }}
-                <span
-                  class="text-lg sm:text-2xl text-slate-400 font-medium ml-1"
-                  >orang</span
+          <div
+            class="absolute top-0 right-0 w-64 h-64 bg-teal-50 dark:bg-teal-900/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl opacity-50 group-hover:opacity-100 transition-opacity duration-700"
+          ></div>
+          <div class="relative z-10">
+            <div class="flex items-center justify-between gap-6 mb-6">
+              <div>
+                <h3
+                  class="text-slate-500 dark:text-slate-400 font-bold uppercase text-xs tracking-wider mb-2 flex items-center gap-2"
                 >
+                  <span class="w-1.5 h-1.5 rounded-full bg-teal-500"></span>
+                  Jumlah Ahli
+                </h3>
+                <div
+                  class="text-6xl sm:text-7xl font-black text-slate-800 dark:text-white tracking-tighter"
+                >
+                  {{ members.length }}
+                  <span
+                    class="text-lg sm:text-2xl text-slate-400 font-medium ml-1 tracking-normal"
+                    >orang</span
+                  >
+                </div>
+              </div>
+              <div
+                class="w-20 h-20 bg-gradient-to-br from-teal-50 to-emerald-50 dark:from-teal-900/20 dark:to-emerald-900/20 rounded-2xl flex items-center justify-center text-4xl shadow-inner border border-teal-100 dark:border-teal-800/30"
+              >
+                👨‍👩‍👧‍👦
               </div>
             </div>
+            <!-- Visual Bar -->
             <div
-              class="w-16 h-16 bg-gradient-to-br from-teal-100 to-emerald-100 dark:from-teal-900/30 dark:to-emerald-900/30 rounded-2xl flex items-center justify-center text-3xl shadow-inner"
+              class="w-full bg-slate-100 dark:bg-slate-700/50 rounded-full h-3 overflow-hidden"
             >
-              👨‍👩‍👧‍👦
+              <div
+                class="bg-gradient-to-r from-teal-400 via-teal-500 to-emerald-500 h-full rounded-full animate-shimmer bg-[length:200%_100%]"
+                style="width: 100%"
+              ></div>
             </div>
-          </div>
-          <!-- Visual Bar -->
-          <div
-            class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2 mt-6 overflow-hidden"
-          >
             <div
-              class="bg-gradient-to-r from-teal-400 to-emerald-500 h-full rounded-full"
-              style="width: 100%"
-            ></div>
+              class="mt-3 flex justify-between items-center text-xs text-slate-400 font-medium"
+            >
+              <span>Semua Keluarga</span>
+              <span>100%</span>
+            </div>
           </div>
         </div>
 
         <!-- Preview & Copy Box -->
         <div
-          class="bg-slate-100 dark:bg-slate-900/50 rounded-3xl p-6 border-2 border-dashed border-slate-300 dark:border-slate-700 flex flex-col h-full"
+          class="bg-slate-50 dark:bg-slate-900/50 rounded-[2rem] p-6 border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-teal-300 dark:hover:border-teal-700 transition-colors flex flex-col h-full group"
         >
-          <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center justify-between mb-4">
             <h3
-              class="text-slate-500 dark:text-slate-400 font-bold uppercase text-xs tracking-wider"
+              class="text-slate-500 dark:text-slate-400 font-bold uppercase text-xs tracking-wider flex items-center gap-2"
             >
+              <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
               Preview & Copy
             </h3>
             <button
               @click="copyList"
-              class="px-4 py-1.5 rounded-lg font-bold text-xs sm:text-sm transition-all flex items-center gap-2"
+              class="px-5 py-2 rounded-xl font-bold text-xs sm:text-sm transition-all duration-300 flex items-center gap-2 transform active:scale-95 shadow-lg"
               :class="
                 copied
-                  ? 'bg-green-500 text-white'
-                  : 'bg-slate-800 dark:bg-slate-700 text-white hover:bg-slate-700'
+                  ? 'bg-emerald-500 text-white shadow-emerald-500/30'
+                  : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-white hover:bg-teal-50 dark:hover:bg-slate-600 shadow-slate-200/50 dark:shadow-none'
               "
             >
-              {{ copied ? "✅ Disalin!" : "📋 Salin Semua" }}
+              <span class="text-lg">{{ copied ? "✨" : "📋" }}</span>
+              {{ copied ? "Berjaya Disalin!" : "Salin Semua" }}
             </button>
           </div>
           <div
-            class="bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700 font-mono text-[10px] sm:text-xs text-slate-600 dark:text-slate-300 whitespace-pre-wrap overflow-y-auto flex-1 max-h-32 md:max-h-full"
+            class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 font-mono text-[11px] sm:text-xs text-slate-600 dark:text-slate-300 whitespace-pre-wrap overflow-y-auto flex-1 max-h-48 md:max-h-full custom-scrollbar shadow-inner"
           >
-            {{ formattedText || "Tiada data..." }}
+            {{ formattedText || "Tiada data untuk dipaparkan..." }}
           </div>
         </div>
       </div>
@@ -493,12 +507,12 @@
           >
             <!-- Smart Card Design: Adapts to "Single" (Unmarried) vs "Family" -->
             <div
-              class="rounded-[2.5rem] shadow-sm border relative overflow-hidden transition-all duration-300"
+              class="rounded-[2.5rem] shadow-sm border relative overflow-hidden transition-all duration-500 hover:shadow-xl hover:-translate-y-1"
               :class="[
                 group.order === 0
                   ? 'bg-gradient-to-br from-amber-50 to-orange-50 dark:from-slate-800 dark:to-slate-800 border-amber-200 dark:border-amber-700/50 ring-4 ring-amber-100 dark:ring-amber-900/20'
                   : group.isSingle
-                    ? 'bg-gradient-to-r from-white to-slate-50 dark:from-slate-800 dark:to-slate-800/80 p-6 flex flex-col md:flex-row items-center gap-6 border-slate-200 dark:border-slate-700'
+                    ? 'bg-gradient-to-r from-white to-slate-50 dark:from-slate-800 dark:to-slate-800/80 p-6 flex flex-col md:flex-row items-center gap-6 border-slate-200 dark:border-slate-700/50'
                     : 'bg-white dark:bg-slate-800/50 p-6 md:p-10 border-slate-100 dark:border-slate-700/50',
               ]"
             >
@@ -804,8 +818,8 @@ const filterMember = (member) => {
 
   // Age
   const age = Number(member.age) || 0;
-  
-  if (filterAge.value === 'custom') {
+
+  if (filterAge.value === "custom") {
     if (minAge.value && age < Number(minAge.value)) return false;
     if (maxAge.value && age > Number(maxAge.value)) return false;
   } else {
@@ -1000,7 +1014,10 @@ const resetForm = () => {
 // Data Fetching
 const fetchMembers = async () => {
   try {
-    const q = query(collection(db, "family_members"), orderBy("familyOrder", "asc"));
+    const q = query(
+      collection(db, "family_members"),
+      orderBy("familyOrder", "asc"),
+    );
     const querySnapshot = await getDocs(q);
     members.value = querySnapshot.docs.map((doc) => ({
       id: doc.id,
@@ -1025,17 +1042,17 @@ const saveMember = async () => {
 
     if (isEditing.value && editingId.value) {
       await updateDoc(doc(db, "family_members", editingId.value), memberData);
-      
-      const index = members.value.findIndex(m => m.id === editingId.value);
+
+      const index = members.value.findIndex((m) => m.id === editingId.value);
       if (index !== -1) {
-          members.value[index] = { ...members.value[index], ...memberData };
+        members.value[index] = { ...members.value[index], ...memberData };
       }
     } else {
       memberData.createdAt = new Date();
       const docRef = await addDoc(collection(db, "family_members"), memberData);
       members.value.push({ id: docRef.id, ...memberData });
     }
-    
+
     resetForm();
     if (editMode.value) toggleEditMode(); // Optional: close edit mode after save? or keep open. Let's keep open.
   } catch (error) {
@@ -1051,16 +1068,16 @@ const editMember = (member) => {
   isEditing.value = true;
   editingId.value = member.id;
   if (!editMode.value) editMode.value = true;
-  
+
   // scroll to form
-  window.scrollTo({ top: 100, behavior: 'smooth' });
+  window.scrollTo({ top: 100, behavior: "smooth" });
 };
 
 const deleteMember = async (id) => {
   if (!confirm("Adakah anda pasti?")) return;
   try {
     await deleteDoc(doc(db, "family_members", id));
-    members.value = members.value.filter(m => m.id !== id);
+    members.value = members.value.filter((m) => m.id !== id);
   } catch (error) {
     console.error("Error deleting: ", error);
   }
@@ -1093,156 +1110,58 @@ onMounted(() => {
 
 /* Animations */
 @keyframes fadeInRight {
-    from { opacity: 0; transform: translateX(-10px); }
-    to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 .animate-fade-in-right {
-    animation: fadeInRight 0.3s ease-out forwards;
+  animation: fadeInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .reveal {
-  animation: fadeInUp 0.5s ease-out forwards;
+  animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
-</style>
-const fetchSettings = async () => {
-  try {
-    const docRef = doc(db, "settings", "family_config");
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      globalEditEnabled.value = docSnap.data().editMode !== false;
-    } else {
-      await setDoc(docRef, { editMode: true });
-      globalEditEnabled.value = true;
-    }
-  } catch (e) {
-    console.error("Settings fetch error:", e);
-    globalEditEnabled.value = true;
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
   }
-};
-
-const fetchMembers = async () => {
-  loading.value = true;
-  await fetchSettings();
-
-  try {
-    const q = query(
-      collection(db, "family_baju"),
-      orderBy("familyOrder", "asc"),
-    );
-    const querySnapshot = await getDocs(q);
-    members.value = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-  } catch (error) {
-    console.error("Error fetching members: ", error);
-  } finally {
-    loading.value = false;
+  100% {
+    background-position: -200% 0;
   }
-};
-
-const saveMember = async () => {
-  if (!form.value.name || !form.value.size) return;
-  saving.value = true;
-
-  try {
-    const memberData = {
-      ...form.value,
-      updatedAt: new Date(),
-    };
-
-    if (isEditing.value && editingId.value) {
-      await updateDoc(doc(db, "family_baju", editingId.value), memberData);
-      const index = members.value.findIndex((m) => m.id === editingId.value);
-      if (index !== -1)
-        members.value[index] = { ...members.value[index], ...memberData };
-    } else {
-      const docRef = await addDoc(collection(db, "family_baju"), {
-        ...memberData,
-        createdAt: new Date(),
-      });
-      members.value.push({ id: docRef.id, ...memberData });
-    }
-    resetForm();
-    alert("Simpan berjaya! ✅");
-  } catch (error) {
-    console.error("Error saving: ", error);
-    alert("Gagal menyimpan data.");
-  } finally {
-    saving.value = false;
-  }
-};
-
-const editMember = (member) => {
-  form.value = { ...member };
-  isEditing.value = true;
-  editingId.value = member.id;
-  window.scrollTo({ top: 0, behavior: "smooth" });
-};
-
-const deleteMember = async (id) => {
-  if (!confirm("Adakah anda pasti mahu memadam ahli ini?")) return;
-  try {
-    await deleteDoc(doc(db, "family_baju", id));
-    members.value = members.value.filter((m) => m.id !== id);
-  } catch (error) {
-    console.error("Delete error: ", error);
-  }
-};
-
-onMounted(() => {
-  fetchMembers();
-});
-</script>
-
-<style scoped>
-.label {
-  @apply text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1 mb-1 block;
-}
-.form-input {
-  @apply w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none transition-all dark:text-white mb-2;
-}
-.btn-primary {
-  @apply px-6 py-3 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white rounded-xl font-bold shadow-lg shadow-teal-500/30 transform hover:-translate-y-1 transition-all duration-300;
-}
-.btn-secondary {
-  @apply px-5 py-3 rounded-xl font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-colors;
 }
 
-/* Parent Card */
-.parent-card {
-  @apply bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 w-full sm:w-[320px] relative overflow-hidden transition-all duration-300 hover:shadow-md hover:-translate-y-1;
+.animate-shimmer {
+  animation: shimmer 3s linear infinite;
 }
 
-/* Child Card */
-.child-card {
-  @apply bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col items-center relative transition-all duration-300 hover:shadow-md hover:-translate-y-1;
+/* Custom Scrollbar for preview box */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
 }
-
-/* Filters */
-.filter-select {
-  @apply px-3 py-1.5 rounded-lg text-sm font-bold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 border-none focus:ring-2 focus:ring-teal-500 cursor-pointer;
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
 }
-.filter-btn {
-  @apply px-3 py-1.5 rounded-lg text-sm font-bold transition-all border border-transparent hover:brightness-95 active:scale-95;
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-slate-200 dark:bg-slate-600 rounded-full;
 }
-
-/* Actions */
-.card-actions {
-  @apply absolute top-2 right-2 flex gap-1 bg-white/90 dark:bg-slate-800/90 p-1 rounded-lg backdrop-blur-sm opacity-0 group-hover/card:opacity-100 transition-opacity shadow-sm border border-slate-100 dark:border-slate-700;
-}
-.child-actions {
-  @apply absolute top-2 right-2 flex gap-1 bg-white/90 dark:bg-slate-800/90 p-1 rounded-lg backdrop-blur-sm opacity-0 group-hover/card:opacity-100 transition-opacity shadow-sm border border-slate-100 dark:border-slate-700 scale-75 origin-top-right;
-}
-.action-btn {
-  @apply p-1.5 rounded-md transition-colors;
-}
-
-.hide-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.hide-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  @apply bg-slate-300 dark:bg-slate-500;
 }
 </style>
