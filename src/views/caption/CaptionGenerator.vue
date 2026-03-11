@@ -11,7 +11,7 @@
       <!-- LEFT: Input Panel -->
       <aside class="panel input-panel glass">
         <header class="panel-header">
-          <div class="brand-icon">✍️</div>
+          <div class="brand-icon"></div>
           <div>
             <h1>Penjana Copywriting</h1>
             <p>Caption Generator Tool</p>
@@ -24,13 +24,13 @@
             @click="mode = 'template'"
             :class="['mode-btn', { active: mode === 'template' }]"
           >
-            📝 Template
+             Template
           </button>
           <button
             @click="mode = 'ai'"
             :class="['mode-btn ai', { active: mode === 'ai' }]"
           >
-            🤖 AI (Gemini)
+             AI (Gemini)
           </button>
         </div>
 
@@ -42,7 +42,7 @@
             <button @click="showApiKeyInput = true" class="key-edit-btn">Tukar</button>
           </div>
           <div v-else class="api-key-form">
-            <label>🔑 Gemini API Key</label>
+            <label> Gemini API Key</label>
             <div class="key-input-row">
               <input
                 v-model="apiKeyInput"
@@ -61,7 +61,7 @@
         <div class="scroll-area">
           <!-- Category -->
           <section class="section">
-            <h3>📂 Kategori</h3>
+            <h3> Kategori</h3>
             <div class="card-grid">
               <button
                 v-for="cat in categories"
@@ -77,7 +77,7 @@
 
           <!-- Platform -->
           <section class="section">
-            <h3>📱 Platform</h3>
+            <h3> Platform</h3>
             <div class="platform-row">
               <button
                 v-for="p in platforms"
@@ -94,7 +94,7 @@
 
           <!-- Tone -->
           <section class="section">
-            <h3>🎭 Nada / Tone</h3>
+            <h3> Nada / Tone</h3>
             <div class="tone-row">
               <button
                 v-for="t in tones"
@@ -110,7 +110,7 @@
 
           <!-- Details -->
           <section class="section">
-            <h3>📝 Butiran</h3>
+            <h3> Butiran</h3>
 
             <div class="input-group">
               <label>Tajuk / Nama</label>
@@ -124,11 +124,11 @@
 
             <div class="input-row">
               <div class="input-group">
-                <label>📅 Tarikh</label>
+                <label> Tarikh</label>
                 <input v-model="form.tarikh" type="date" class="text-input" />
               </div>
               <div class="input-group">
-                <label>📍 Lokasi</label>
+                <label> Lokasi</label>
                 <input
                   v-model="form.lokasi"
                   type="text"
@@ -149,16 +149,59 @@
             </div>
           </section>
 
+          <!-- Reference Collection (Only for AI Mode) -->
+          <section v-if="mode === 'ai'" class="section">
+            <div class="section-header-row">
+              <h3>📚 Koleksi Rujukan</h3>
+              <span class="badge ai-badge" style="font-size: 0.65rem; padding: 0.2rem 0.4rem;">Baru</span>
+            </div>
+            
+            <!-- Reference Input -->
+            <div class="input-group">
+              <label>Tambah Rujukan Baru</label>
+              <div class="ref-input-area">
+                <textarea
+                  v-model="newReferenceInput"
+                  class="text-input textarea"
+                  rows="2"
+                  placeholder="Tampal caption contoh di sini untuk AI tiru gaya bahasanya..."
+                ></textarea>
+                <button @click="handleAddReference" class="btn-sm mt-2 save-ref-btn" :disabled="!newReferenceInput.trim()">
+                  💾 Simpan Rujukan
+                </button>
+              </div>
+            </div>
+
+            <!-- Saved References List -->
+            <div v-if="referenceCollection.length > 0" class="input-group mt-3">
+              <label>Pilih Rujukan (Pilihan)</label>
+              <div class="ref-list">
+                <div 
+                  v-for="ref in referenceCollection" 
+                  :key="ref.id"
+                  @click="selectedReferenceId = (selectedReferenceId === ref.id ? null : ref.id)"
+                  :class="['ref-card', { active: selectedReferenceId === ref.id }]"
+                >
+                  <div class="ref-text">{{ ref.text }}</div>
+                  <button @click.stop="handleDeleteReference(ref.id)" class="del-ref-btn" title="Padam">🗑️</button>
+                </div>
+              </div>
+            </div>
+            <div v-else class="empty-ref-msg">
+              Belum ada rujukan disimpan.
+            </div>
+          </section>
+
           <!-- Generate Button -->
           <button @click="handleGenerate" class="generate-btn" :disabled="!canGenerate || generating">
             <span v-if="generating" class="spinner"></span>
-            <span v-else class="gen-icon">{{ mode === 'ai' ? '🤖' : '⚡' }}</span>
+            <span v-else class="gen-icon">{{ mode === 'ai' ? '' : '' }}</span>
             <span>{{ generating ? 'Menjana...' : mode === 'ai' ? 'Jana dengan AI' : 'Jana Caption' }}</span>
           </button>
 
           <!-- AI Error -->
           <div v-if="aiError" class="ai-error">
-            ⚠️ {{ aiError }}
+             {{ aiError }}
           </div>
         </div>
       </aside>
@@ -167,7 +210,7 @@
       <main class="panel output-panel glass">
         <!-- Empty State -->
         <div v-if="!result && history.length === 0" class="empty-state">
-          <div class="empty-icon">✨</div>
+          <div class="empty-icon"></div>
           <h2>Sedia untuk menjana!</h2>
           <p>Pilih kategori, platform & nada di sebelah kiri, kemudian tekan <strong>"Jana Caption"</strong>.</p>
         </div>
@@ -175,13 +218,13 @@
         <!-- Result -->
         <div v-if="result" class="result-section">
           <div class="result-header">
-            <h2>{{ result.isAI ? '🤖 Hasil AI' : '📋 Hasil Caption' }}</h2>
+            <h2>{{ result.isAI ? ' Hasil AI' : ' Hasil Caption' }}</h2>
             <div class="result-meta">
               <span class="meta-badge" :class="{ warning: result.maxChars && result.charCount > result.maxChars }">
                 {{ result.charCount }} aksara
                 <template v-if="result.maxChars"> / {{ result.maxChars }}</template>
               </span>
-              <span v-if="result.isAI" class="meta-badge ai-badge">✨ AI Generated</span>
+              <span v-if="result.isAI" class="meta-badge ai-badge"> AI Generated</span>
               <span v-else class="meta-badge neutral">
                 Variasi {{ result.templateIndex + 1 }}/{{ result.totalVariations }}
               </span>
@@ -190,7 +233,7 @@
 
           <!-- Character limit warning -->
           <div v-if="result.maxChars && result.charCount > result.maxChars" class="limit-warning">
-            ⚠️ Melebihi had {{ selectedPlatform?.label }}! Sila pendekkan caption anda.
+             Melebihi had {{ selectedPlatform?.label }}! Sila pendekkan caption anda.
           </div>
 
           <!-- Caption Output -->
@@ -201,20 +244,20 @@
           <!-- Action Buttons -->
           <div class="action-row">
             <button @click="copyCaption" :class="['action-btn copy-btn', { copied }]">
-              {{ copied ? '✅ Disalin!' : '📋 Salin' }}
+              {{ copied ? ' Disalin!' : ' Salin' }}
             </button>
             <button @click="regenerate" class="action-btn regen-btn">
-              🔄 Jana Semula
+               Jana Semula
             </button>
             <button @click="saveCaption" class="action-btn save-btn" v-if="!justSaved">
-              💾 Simpan
+               Simpan
             </button>
-            <span v-else class="saved-msg">✅ Disimpan!</span>
+            <span v-else class="saved-msg"> Disimpan!</span>
           </div>
 
           <!-- Platform Tip -->
           <div v-if="selectedPlatform?.tip" class="platform-tip">
-            <span class="tip-icon">💡</span>
+            <span class="tip-icon"></span>
             <span>{{ selectedPlatform.tip }}</span>
           </div>
         </div>
@@ -222,7 +265,7 @@
         <!-- History -->
         <div v-if="history.length > 0" class="history-section">
           <div class="history-header">
-            <h3>📜 Sejarah ({{ history.length }})</h3>
+            <h3> Sejarah ({{ history.length }})</h3>
             <button @click="handleClearHistory" class="clear-btn">Kosongkan</button>
           </div>
           <div class="history-list">
@@ -249,7 +292,7 @@
       @click="handleGenerate"
       class="mobile-fab"
     >
-      ⚡ Jana
+       Jana
     </button>
   </div>
 </template>
@@ -265,6 +308,9 @@ import {
   getHistory,
   saveToHistory,
   clearHistory,
+  getReferenceCollection,
+  saveReference,
+  deleteReference
 } from './captionTemplates.js';
 import {
   generateWithAI,
@@ -292,12 +338,17 @@ const form = reactive({
   butiran: '',
 });
 
-// Output state
+// Output & Features state
 const result = ref(null);
 const copied = ref(false);
 const justSaved = ref(false);
 const history = ref([]);
 const variationCounter = ref(0);
+
+// References State
+const referenceCollection = ref([]);
+const selectedReferenceId = ref(null);
+const newReferenceInput = ref('');
 
 // Computed
 const canGenerate = computed(() => {
@@ -331,6 +382,7 @@ const handleGenerate = async () => {
         tarikh: form.tarikh ? formatDate(form.tarikh) : '',
         lokasi: form.lokasi,
         butiran: form.butiran,
+        rujukan: selectedReferenceId.value ? referenceCollection.value.find(r => r.id === selectedReferenceId.value)?.text : null,
       });
 
       // Apply platform max chars
@@ -423,7 +475,7 @@ const handleClearHistory = () => {
 };
 
 const getCategoryEmoji = (catId) => {
-  return categories.find(c => c.id === catId)?.emoji || '📝';
+  return categories.find(c => c.id === catId)?.emoji || '';
 };
 
 const formatHistoryTime = (isoStr) => {
@@ -436,8 +488,22 @@ const formatHistoryTime = (isoStr) => {
   return `${d.getDate()}/${d.getMonth() + 1}`;
 };
 
+const handleAddReference = () => {
+  if (!newReferenceInput.value.trim()) return;
+  saveReference(newReferenceInput.value);
+  newReferenceInput.value = '';
+  referenceCollection.value = getReferenceCollection();
+};
+
+const handleDeleteReference = (id) => {
+  if (selectedReferenceId.value === id) selectedReferenceId.value = null;
+  deleteReference(id);
+  referenceCollection.value = getReferenceCollection();
+};
+
 onMounted(() => {
   history.value = getHistory();
+  referenceCollection.value = getReferenceCollection();
   apiKeyConfigured.value = hasApiKey();
 });
 </script>
@@ -1233,13 +1299,143 @@ onMounted(() => {
 .key-help {
   display: block;
   margin-top: 0.5rem;
-  font-size: 0.7rem;
-  color: #67e8f9;
+  font-size: 0.65rem;
+  color: #10b981;
   text-decoration: none;
 }
 
 .key-help:hover {
   text-decoration: underline;
+}
+
+/* ============================================
+   REFERENCE COLLECTION
+   ============================================ */
+.section-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.section-header-row h3 {
+  margin-bottom: 0;
+}
+
+.badge {
+  color: white;
+  border-radius: 0.25rem;
+  font-weight: bold;
+}
+
+.ref-input-area {
+  display: flex;
+  flex-direction: column;
+}
+
+.btn-sm {
+  align-self: flex-end;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.7rem;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  border: none;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.save-ref-btn {
+  background: rgba(168, 85, 247, 0.2);
+  color: #d8b4fe;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.save-ref-btn:hover:not(:disabled) {
+  background: rgba(168, 85, 247, 0.4);
+  color: white;
+}
+
+.save-ref-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ref-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 250px;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.ref-list::-webkit-scrollbar {
+  width: 4px;
+}
+.ref-list::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.15);
+  border-radius: 2px;
+}
+
+.ref-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0.6rem;
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ref-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+.ref-card.active {
+  background: rgba(99, 102, 241, 0.2);
+  border-color: rgba(99, 102, 241, 0.5);
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.1);
+}
+
+.ref-text {
+  font-size: 0.75rem;
+  color: #e2e8f0;
+  line-height: 1.4;
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.del-ref-btn {
+  background: none;
+  border: none;
+  color: #fca5a5;
+  cursor: pointer;
+  padding: 0.2rem;
+  font-size: 0.8rem;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+  flex-shrink: 0;
+  margin-left: 0.5rem;
+}
+
+.del-ref-btn:hover {
+  opacity: 1;
+}
+
+.empty-ref-msg {
+  font-size: 0.75rem;
+  color: #64748b;
+  text-align: center;
+  padding: 1rem;
+  background: rgba(0,0,0,0.1);
+  border-radius: 0.5rem;
+  font-style: italic;
 }
 
 /* ============================================
