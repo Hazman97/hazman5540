@@ -1,6 +1,6 @@
 # CRUD Status — hazman5540
 
-> **Last updated:** 2026-03-11 08:09 MYT
+> **Last updated:** 2026-03-11 10:55 MYT
 
 ---
 
@@ -58,7 +58,7 @@
 | **Create** | ✅ | `UploadView.vue` (add new country) |
 | **Read** | ✅ | `HomeCollection.vue`, `CountryView.vue`, `LocationView.vue`, `UploadView.vue` |
 | **Update** | ✅ | `UploadView.vue` (add location via `arrayUnion`, add image via `arrayUnion`) |
-| **Delete** | ❌ | Not implemented |
+| **Delete** | ✅ | `LocationView.vue` (delete image from array + storage API) |
 
 ### `family_members`
 
@@ -140,12 +140,21 @@
 | **Update** | ✅ (toggle complete) | Component state |
 | **Delete** | ✅ (remove todo) | Component state |
 
+### Caption Generator
+
+| Operation | Implemented | Storage |
+|-----------|-------------|--------|
+| **Create** | ✅ (generate caption via template/AI) | Template engine + Gemini API |
+| **Read** | ✅ (view generated caption, history) | Component state + localStorage |
+| **Update** | ✅ (regenerate with new variation) | Component state |
+| **Delete** | ✅ (clear history) | localStorage |
+
 ---
 
 ## Summary
 
 | Database | Tables | Full CRUD | Partial CRUD |
 |----------|--------|-----------|--------------|
-| Firebase Firestore | 7 | 3 (`family_members`, `office_baju`, `attendance_students`) | 4 (missing delete on logs/leaves/countries, missing update on admins) |
+| Firebase Firestore | 7 | 4 (`family_members`, `office_baju`, `attendance_students`, `countries`) | 3 (missing delete on logs/leaves, missing update on admins) |
 | Supabase | 3 | 3 (`org_charts`, `birthday_pages`, `birthday_wishes`) | 0 |
-| Client-side | 3 | 1 (Todo) | 2 (E-Claim, WiFi QR) |
+| Client-side | 4 | 2 (Todo, Caption Generator) | 2 (E-Claim, WiFi QR) |

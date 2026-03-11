@@ -1,12 +1,12 @@
 # Project Documentation — hazman5540
 
-> **Last updated:** 2026-03-11 08:09 MYT
+> **Last updated:** 2026-03-11 10:55 MYT
 
 ---
 
 ## 1. Project Overview
 
-**hazman5540** is a multi-tool portfolio web application built as a single Vue 3 SPA. It bundles a personal portfolio site with several standalone mini-apps (attendance system, birthday page builder, org chart creator, photo collection, e-claim demo, WiFi QR generator, family database, office list).
+**hazman5540** is a multi-tool portfolio web application built as a single Vue 3 SPA. It bundles a personal portfolio site with several standalone mini-apps (attendance system, birthday page builder, org chart creator, photo collection, e-claim demo, WiFi QR generator, caption generator, family database, office list).
 
 ---
 
@@ -28,6 +28,8 @@
 | PDF Export | jsPDF + html2canvas |
 | Email | emailjs-com |
 | Image Editing | FilePond + Pintura |
+| Password Hashing | bcryptjs |
+| AI Integration | Google Gemini API (2.0 Flash) |
 | Deployment | Vite build (`dist/`) |
 
 ---
@@ -43,6 +45,7 @@ hazman5540/
 ├── postcss.config.js
 ├── tsconfig.json
 ├── firestore.indexes.json      # Firestore composite indexes
+├── firestore.rules             # Firestore security rules
 ├── supabase_org_charts.sql     # Supabase table: org_charts
 ├── create_demo_org_chart.sql   # Demo data seed
 ├── public/                     # Static assets
@@ -64,6 +67,7 @@ hazman5540/
 │   │   ├── setupAdmin.mjs      # Create admin account in Firestore
 │   │   └── createStudent.mjs   # Create student account in Firestore
 │   ├── components/
+│   │   ├── ErrorBoundary.vue   # Reusable error boundary wrapper
 │   │   ├── HelloWorld.vue
 │   │   └── todolistComponent.vue
 │   └── views/
@@ -81,6 +85,7 @@ hazman5540/
 │       ├── project/            # Todo list + org chart (3 files)
 │       ├── weather/            # Weather search (2 files)
 │       ├── wifi-qr/            # WiFi QR generator (1 file)
+│       ├── caption/            # Caption generator with AI (3 files)
 │       └── notfoundpage/       # 404 page (1 file)
 └── docs/                       # This documentation
 ```
@@ -136,6 +141,11 @@ hazman5540/
 | Path | Component | Auth |
 |------|-----------|------|
 | `/wifi-qr` | `WifiQrGenerator.vue` | — |
+
+### Caption Generator
+| Path | Component | Auth |
+|------|-----------|------|
+| `/caption` | `CaptionGenerator.vue` | — |
 
 ### Attendance System — Student
 | Path | Component | Auth |
@@ -193,7 +203,9 @@ hazman5540/
 | `birthday_pages` | `id` (UUID), `owner_token`, `slug` (unique), `title`, `person_name`, `subtitle`, `hero_image_url`, `template`, `youtube_video_id`, `youtube_start_time`, `memories_video_id`, `use_video_sound`, `settings` (JSONB), `wishes_require_approval`, `created_at`, `updated_at` | `src/views/birthday/sql/create_birthday_pages.sql` |
 | `birthday_wishes` | `page_id` (FK → birthday_pages), `status` | Referenced in birthday SQL |
 
-**RLS Policies:** Both tables have open RLS (public read/insert, owner-based update/delete validated at app level via `owner_token`).
+**RLS Policies:** Both tables have open RLS (public read/insert, owner-based update/delete validated at app level via `owner_token`). SQL files include commented examples for stricter header-based enforcement.
+
+**Firestore Security Rules:** Explicit rules defined in `firestore.rules` for all collections. Unknown collections are denied access by default.
 
 ---
 
@@ -210,6 +222,7 @@ This project uses **hardcoded configuration** (no `.env` file detected):
 | Storage API Key | `src/services/storageService.js` | `my-secret-key-123` |
 | Storage Bucket (Photos) | `src/services/storageService.js` | `photocollection` |
 | Storage Bucket (Attendance) | `src/services/attendanceStorageService.js` | `attendanceintern` |
+| Gemini API Key | `localStorage` (user-provided) | Caption Generator AI mode |
 | Dev Server Port | `vite.config.ts` | `8080` |
 
 ---
@@ -218,6 +231,12 @@ This project uses **hardcoded configuration** (no `.env` file detected):
 
 | Date | Module | Change |
 |------|--------|--------|
+| 2026-03-11 | Security | Password hashing with bcryptjs (10 salt rounds), auth guard 24h TTL, Firestore security rules |
+| 2026-03-11 | Caption Generator | New module — template-based + Gemini AI copywriting tool with 6 categories, 5 platforms, 4 tones |
+| 2026-03-11 | Router | Lazy-loaded ~25 routes (only portfolio eager), SEO meta titles on all routes |
+| 2026-03-11 | Photo Collection | Photo delete UI (hover trash icon → deletes from storage API + Firestore) |
+| 2026-03-11 | Office | Added missing `deleteMember` function with confirmation dialog |
+| 2026-03-11 | Components | ErrorBoundary.vue — reusable error boundary component |
 | 2026-03 | Attendance | Leave application & history features, leave request management for admin |
 | 2026-03 | Birthday | Multi-user birthday system with step-by-step creator, template picker, custom settings (fonts, colors, effects), memories video support |
 | 2026-03 | Photo Collection | File upload via custom storage API with progress tracking, drag-and-drop support |

@@ -1,6 +1,6 @@
 # TODO List — hazman5540
 
-> **Last updated:** 2026-03-11 08:09 MYT
+> **Last updated:** 2026-03-11 10:55 MYT
 
 ---
 
@@ -8,6 +8,12 @@
 
 | Date | Update |
 |------|--------|
+| 2026-03-11 | Security: password hashing (bcryptjs), auth guard 24h TTL, Firestore rules, Supabase RLS docs |
+| 2026-03-11 | New: Caption Generator page (`/caption`) with template engine + Gemini AI integration |
+| 2026-03-11 | Router: lazy-loaded ~25 routes, SEO meta titles, dynamic document.title |
+| 2026-03-11 | Photo collection: delete UI (trash icon + storage API + Firestore) |
+| 2026-03-11 | Office: added missing `deleteMember` with confirmation dialog |
+| 2026-03-11 | New: `ErrorBoundary.vue` reusable component |
 | 2026-03-11 | Generated comprehensive project documentation (`docs/` folder) |
 | 2026-03 | Added leave management features (apply leave, leave history, admin leave requests) |
 | 2026-03 | Multi-user birthday system with 6 templates, custom effects, memories video |
@@ -22,13 +28,13 @@
 ## Phase 1 — Must-Fix Before Production
 
 - [ ] **Security: Move hardcoded API keys to environment variables** — Firebase config, Supabase key, and storage API key are all hardcoded in source files
-- [ ] **Security: Hash passwords** — `attendance_admins` and `attendance_students` store passwords in plain text
+- [x] **Security: Hash passwords** — Implemented with bcryptjs (10 salt rounds) + legacy plain-text fallback
 - [ ] **Security: Storage API key exposure** — `my-secret-key-123` is visible in client-side code
-- [ ] **Auth: Implement proper authentication** — Currently using `localStorage` flags for auth guards; easily bypassed
+- [x] **Auth: Improved authentication guards** — Session JSON validation, required fields check, 24-hour TTL
 - [ ] **E-Claim: No backend persistence** — Runs entirely on client-side mock data; no database
-- [ ] **Attendance: Firestore security rules** — No custom Firestore security rules defined; relying on default/open access
-- [ ] **Birthday/OrgChart RLS: Owner validation at DB level** — RLS policies are fully open; owner_token validation happens only in app code
-- [ ] **Photo Collection: Delete photo from storage** — No UI to delete uploaded photos from the storage API
+- [x] **Attendance: Firestore security rules** — Explicit rules in `firestore.rules`, unknown collections denied
+- [x] **Birthday/OrgChart RLS: Owner validation documented** — SQL files updated with stricter policy examples
+- [x] **Photo Collection: Delete photo from storage** — Delete UI with trash icon on hover + API + Firestore removal
 
 ---
 
@@ -43,11 +49,14 @@
 - [ ] Birthday page: handle image upload failures gracefully
 - [ ] Org chart: add mobile-responsive view
 - [ ] Photo collection: add image lazy loading for performance
-- [ ] Family/office: add confirmation dialog before delete
+- [x] Family/office: add confirmation dialog before delete — Both views now have `confirm()` dialog
 - [x] Dark mode support via `useTheme.js` composable
 - [x] 404 page implemented
 - [x] Router scroll behavior configured
 - [x] Firestore composite index for attendance_logs
+- [x] Error boundaries — `ErrorBoundary.vue` component created
+- [x] Lazy-loaded routes — ~25 routes lazy-loaded (only portfolio eager)
+- [x] SEO meta tags — Dynamic `document.title` via `router.afterEach`
 
 ---
 
@@ -66,4 +75,4 @@
 - [ ] Add i18n support (Malay/English)
 - [ ] Add unit tests (currently no test setup)
 - [ ] Add CI/CD pipeline
-- [ ] SEO: add meta tags and structured data per page
+- [x] Caption Generator — Template + Gemini AI copywriting tool at `/caption`

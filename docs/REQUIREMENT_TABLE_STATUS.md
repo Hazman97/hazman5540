@@ -1,6 +1,6 @@
 # Requirement Table Status — hazman5540
 
-> **Last updated:** 2026-03-11 08:09 MYT
+> **Last updated:** 2026-03-11 10:55 MYT
 
 ---
 
@@ -44,7 +44,7 @@
 | 34 | Photo Collection | Browse by location | [DONE] | `/country/:name/location/:location` |
 | 35 | Photo Collection | Upload photo | [DONE] | File upload with progress via custom storage API |
 | 36 | Photo Collection | Add country/location | [DONE] | Inline creation on upload page |
-| 37 | Photo Collection | Delete photos | [PENDING] | Storage service has `deleteFile()` but no UI |
+| 37 | Photo Collection | Delete photos | [DONE] | Trash icon on hover → deletes from storage API + Firestore |
 | 38 | E-Claim | Submit claim | [DONE] | Client-side only (demo) |
 | 39 | E-Claim | View claims list | [DONE] | With filter by status |
 | 40 | E-Claim | Approval workflow | [DONE] | Role-based (HOD/Finance/HR) |
@@ -55,19 +55,25 @@
 | 45 | WiFi QR | Download PNG | [DONE] | Canvas-based export |
 | 46 | WiFi QR | Print card | [DONE] | Themed A4 print layout |
 | 47 | Family | View family members | [DONE] | Grid + table views |
-| 48 | Family | Add/edit/delete members | [DONE] | Full CRUD with Firestore |
+| 48 | Family | Add/edit/delete members | [DONE] | Full CRUD with confirmation dialog |
 | 49 | Family | Filter & sort | [DONE] | By age, gender, name, family order |
 | 50 | Family | Copy to clipboard | [DONE] | WhatsApp-friendly formatted text |
 | 51 | Office | View shirt size list | [DONE] | Table format with size summary |
-| 52 | Office | Add/edit/delete entries | [DONE] | Full CRUD with Firestore |
+| 52 | Office | Add/edit/delete entries | [DONE] | Full CRUD with confirmation dialog |
 | 53 | Office | Copy to clipboard | [DONE] | Formatted list output |
 | 54 | Converter | Unit converter tool | [DONE] | Standalone view |
 | 55 | Todo List | Local todo management | [DONE] | Add/toggle/remove tasks |
-| 56 | Security | Environment variable management | [PENDING] | All secrets hardcoded |
-| 57 | Security | Password hashing | [PENDING] | Plain text passwords |
-| 58 | Security | Proper auth system | [PENDING] | Using localStorage flags |
-| 59 | Testing | Unit tests | [PENDING] | No test framework configured |
-| 60 | CI/CD | Deployment pipeline | [PENDING] | Manual builds only |
+| 56 | Security | Environment variable management | [PENDING] | All secrets hardcoded (user chose to skip) |
+| 57 | Security | Password hashing | [DONE] | bcryptjs with 10 salt rounds + legacy fallback |
+| 58 | Security | Improved auth guards | [DONE] | JSON validation, required fields, 24h TTL |
+| 59 | Security | Firestore security rules | [DONE] | Explicit rules in `firestore.rules` |
+| 60 | Caption Generator | Template-based caption generation | [DONE] | 6 categories × 4 tones × 5 platforms |
+| 61 | Caption Generator | AI-powered generation (Gemini) | [DONE] | Gemini 2.0 Flash with model fallback |
+| 62 | Router | Lazy-loaded routes | [DONE] | ~25 routes lazy-loaded |
+| 63 | Router | SEO meta tags | [DONE] | Dynamic document.title via afterEach |
+| 64 | Components | Error boundary | [DONE] | Reusable `ErrorBoundary.vue` |
+| 65 | Testing | Unit tests | [PENDING] | No test framework configured |
+| 66 | CI/CD | Deployment pipeline | [PENDING] | Manual builds only |
 
 ---
 
@@ -75,18 +81,16 @@
 
 | Status | Count | Percentage |
 |--------|-------|-----------|
-| [DONE] | 53 | 88% |
+| [DONE] | 62 | 94% |
 | [PARTIAL] | 0 | 0% |
-| [PENDING] | 7 | 12% |
-| **Total** | **60** | **100%** |
+| [PENDING] | 4 | 6% |
+| **Total** | **66** | **100%** |
 
 ---
 
 ## Priority Gaps
 
-1. **🔴 Critical:** Hardcoded API keys and plain-text passwords — must be addressed before any public deployment
-2. **🔴 Critical:** No proper authentication — localStorage-based auth guards can be bypassed
-3. **🟡 Medium:** E-Claim has no backend — currently a front-end demo only
-4. **🟡 Medium:** Photo collection has no delete UI despite the API being ready
-5. **🟢 Low:** No unit tests or CI/CD pipeline configured
-6. **🟢 Low:** Weather module is minimal/incomplete
+1. **🟡 Medium:** Hardcoded API keys in source files (user chose to skip `.env` migration)
+2. **🟡 Medium:** E-Claim has no backend — currently a front-end demo only
+3. **🟢 Low:** No unit tests or CI/CD pipeline configured
+4. **🟢 Low:** Weather module is minimal/incomplete

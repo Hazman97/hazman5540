@@ -1,6 +1,6 @@
 # User Flow — hazman5540
 
-> **Last updated:** 2026-03-11 08:09 MYT
+> **Last updated:** 2026-03-11 10:55 MYT
 
 ---
 
@@ -11,8 +11,8 @@
 | **Public Visitor** | Views portfolio, birthday pages, org charts, photo gallery | None |
 | **Birthday Page Owner** | Creates & manages birthday pages | `owner_token` (via URL param) |
 | **Org Chart Owner** | Creates & edits org charts | `owner_token` (via URL param) |
-| **Attendance Student (Intern)** | Clocks in/out, applies for leave, views history | `localStorage` (`attendance_student`) |
-| **Attendance Admin** | Manages students, views records, approves leave | `localStorage` (`attendance_admin`) |
+| **Attendance Student (Intern)** | Clocks in/out, applies for leave, views history | `localStorage` session with JSON validation + 24h TTL |
+| **Attendance Admin** | Manages students, views records, approves leave | `localStorage` session with JSON validation + 24h TTL |
 | **E-Claim User** | Demo only — switches between Staff/HOD/Finance/HR roles | Client-side role switcher |
 | **Family Editor** | Adds/edits family members when edit mode is enabled | In-app toggle |
 | **Office Editor** | Adds/edits office shirt-size entries | Open access (no auth) |
@@ -59,6 +59,7 @@ graph TD
 
     A --> AA["/eclaim"]
     A --> AB["/wifi-qr"]
+    A --> AG["/caption"]
     A --> AC["/converter"]
     A --> AD["/todolist"]
     A --> AE["/family"]
@@ -80,8 +81,8 @@ graph TD
 ### 3.2 Attendance — Student Flow
 
 1. Student opens `/attendance` → login form (username + password)
-2. Credentials checked against `attendance_students` Firestore collection
-3. On success → `localStorage.attendance_student` set → redirect to `/attendance/dashboard`
+2. Credentials checked against `attendance_students` Firestore collection (passwords hashed with bcryptjs)
+3. On success → `localStorage.attendance_student` set (with `loginAt` timestamp) → redirect to `/attendance/dashboard`
 4. Dashboard shows:
    - Location status (geofence check against Tamarind Square coordinates)
    - Clock In / Clock Out button
@@ -94,7 +95,7 @@ graph TD
 
 ### 3.3 Attendance — Admin Flow
 
-1. Admin opens `/attendance/admin/login` → credentials checked against `attendance_admins`
+1. Admin opens `/attendance/admin/login` → credentials checked against `attendance_admins` (passwords hashed with bcryptjs)
 2. On success → redirect to admin dashboard (nested under `AdminLayout.vue`)
 3. **Dashboard:** Shows stats (total students, today's present, clocked out, remote), live activity feed
 4. **Student Management:** Add/edit/toggle active students via `attendance_students` collection
@@ -170,3 +171,16 @@ graph TD
 ### 3.12 Todo List
 
 1. Open `/todolist` → local todo list interface with add/remove/toggle functionality
+
+### 3.13 Caption Generator
+
+1. Open `/caption` → two-panel layout (input left, output right)
+2. **Select options:** Category (6), Platform (5), Tone (4)
+3. **Fill details:** Subject name, date, location, bullet points
+4. **Choose mode:**
+   - **Template mode:** Uses pre-built templates (40+ variations) — instant, free
+   - **AI mode:** Sends structured prompt to Gemini API — natural, contextual captions
+5. Click "Jana Caption" / "Jana dengan AI" → output appears with character count
+6. **Actions:** Copy to clipboard, Regenerate (new variation), Save to history
+7. History (last 10) saved in localStorage, click to reload any past caption
+8. Platform-specific formatting: WhatsApp bold, Instagram hashtags, Twitter 280-char limit
