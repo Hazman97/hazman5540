@@ -72,12 +72,15 @@
             <h3 class="text-lg font-bold text-white transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">{{ image.title || 'Untitled' }}</h3>
             <div class="flex items-center justify-between mt-2 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 delay-75">
               <span class="text-xs font-mono text-teal-400">{{ image.date || 'Unknown Date' }}</span>
-              <div class="flex items-center gap-1 text-slate-300 text-xs">
+              <button
+                @click.stop="deleteImage(index)"
+                class="p-2 rounded-full bg-red-500/20 hover:bg-red-500/40 text-red-400 hover:text-red-300 transition-all"
+                title="Delete photo"
+              >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
-                <span>{{ image.likes || 0 }}</span>
-              </div>
+              </button>
             </div>
           </div>
         </div>
@@ -166,7 +169,8 @@
 <script>
 import { ref, computed, onMounted, watch, onUnmounted } from "vue";
 import { db } from "../../firebase";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs, doc, updateDoc } from "firebase/firestore";
+import { deleteFile } from "../../services/storageService";
 import { useRoute } from "vue-router";
 
 export default {
@@ -284,6 +288,42 @@ export default {
       document.body.style.overflow = '';
     });
 
+    const deleteImage = async (index) => {
+      const image = images.value[index];
+      if (!image) return;
+      if (!confirm(`Delete "${image.title || 'this photo'}"? This cannot be undone.`)) return;
+
+      try {
+        // Delete from storage API if it's a storage URL
+        if (image.url && image.url.includes('storage.bijokdev.com')) {
+          await deleteFile(image.url);
+        }
+
+        // Remove from Firestore countries.images array
+        const q2 = query(
+          collection(db, "countries"),
+          where("country", "==", countryName.value)
+        );
+        const snap = await getDocs(q2);
+        if (!snap.empty) {
+          const countryDoc = snap.docs[0];
+          const countryData = countryDoc.data();
+          const updatedImages = (countryData.images || []).filter(
+            (img) => img.url !== image.url || img.title !== image.title
+          );
+          await updateDoc(doc(db, "countries", countryDoc.id), {
+            images: updatedImages,
+          });
+        }
+
+        // Remove from local state
+        images.value.splice(index, 1);
+      } catch (error) {
+        console.error('Error deleting image:', error);
+        alert('Failed to delete image. Please try again.');
+      }
+    };
+
     watch(() => route.params.location, fetchImages);
 
     return {
@@ -302,7 +342,8 @@ export default {
       openModal,
       closeModal,
       nextImage,
-      prevImage
+      prevImage,
+      deleteImage
     };
   },
 };

@@ -198,6 +198,7 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { db } from "@/firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
+import bcrypt from "bcryptjs";
 
 const router = useRouter();
 
@@ -227,8 +228,17 @@ const handleLogin = async () => {
     const adminDoc = snapshot.docs[0];
     const adminData = adminDoc.data();
 
-    // Check password (plain text comparison)
-    if (adminData.password !== password.value) {
+    // Check password using bcrypt (supports both hashed and legacy plain text)
+    let passwordValid = false;
+    if (adminData.password.startsWith("$2")) {
+      // Bcrypt hash detected
+      passwordValid = await bcrypt.compare(password.value, adminData.password);
+    } else {
+      // Legacy plain text fallback
+      passwordValid = adminData.password === password.value;
+    }
+
+    if (!passwordValid) {
       error.value = "Invalid username or password";
       loading.value = false;
       return;
@@ -241,6 +251,7 @@ const handleLogin = async () => {
         id: adminDoc.id,
         name: adminData.name,
         username: adminData.username,
+        loginAt: Date.now(),
       }),
     );
 

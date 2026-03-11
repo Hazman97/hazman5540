@@ -12,6 +12,7 @@
     "@supabase/supabase-js": "^2.46.1",
     "@types/qrcode": "^1.5.6",
     "axios": "^1.7.7",
+    "bcryptjs": "^3.0.3",
     "core-js": "^3.8.3",
     "d3": "^7.9.0",
     "d3-org-chart": "^3.1.1",

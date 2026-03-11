@@ -65,12 +65,19 @@ CREATE POLICY "Anyone can create birthday pages" ON birthday_pages
   FOR INSERT WITH CHECK (true);
 
 -- Only owner can update their page (validated by owner_token in app)
+-- The app must filter by owner_token in WHERE clause
 CREATE POLICY "Anyone can update birthday pages" ON birthday_pages
   FOR UPDATE USING (true);
 
 -- Only owner can delete their page (validated by owner_token in app)
+-- The app must filter by owner_token in WHERE clause
 CREATE POLICY "Anyone can delete birthday pages" ON birthday_pages
   FOR DELETE USING (true);
+
+-- NOTE: For stronger security, replace the UPDATE/DELETE policies above with:
+-- CREATE POLICY "Owner update" ON birthday_pages
+--   FOR UPDATE USING (owner_token = current_setting('request.headers')::json->>'x-owner-token');
+-- This requires passing owner_token as a custom header from the app.
 
 -- 6. RLS Policies for birthday_wishes (if not already set)
 -- Drop existing policies first to avoid conflicts

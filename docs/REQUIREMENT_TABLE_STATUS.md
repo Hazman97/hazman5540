@@ -1,0 +1,92 @@
+# Requirement Table Status — hazman5540
+
+> **Last updated:** 2026-03-11 08:09 MYT
+
+---
+
+## Requirements Status
+
+| Bil | Fungsi | Requirement Item | Status | Notes |
+|-----|--------|-----------------|--------|-------|
+| 1 | Portfolio | Landing page with hero section | [DONE] | Redirects `/` to `/portfolio` |
+| 2 | Portfolio | About page | [DONE] | `/about` with nav |
+| 3 | Portfolio | Project showcase | [DONE] | `/project` with nav |
+| 4 | Portfolio | Contact form | [DONE] | Uses emailjs-com |
+| 5 | Portfolio | Dark/light theme toggle | [DONE] | `useTheme.js` composable |
+| 6 | Attendance | Student login | [DONE] | Username + password via Firestore |
+| 7 | Attendance | Clock in with photo + GPS | [DONE] | Camera capture, geofence check, photo upload |
+| 8 | Attendance | Clock out with photo + GPS | [DONE] | Updates same attendance log |
+| 9 | Attendance | Work duration timer | [DONE] | Live countdown on dashboard |
+| 10 | Attendance | Attendance history (student) | [DONE] | `/attendance/logs` with calendar view |
+| 11 | Attendance | Apply leave (MC/Annual) | [DONE] | Upload attachment, submit to Firestore |
+| 12 | Attendance | Leave history (student) | [DONE] | View all past requests |
+| 13 | Attendance | Admin login | [DONE] | Separate auth flow |
+| 14 | Attendance | Admin dashboard | [DONE] | Stats + live activity feed |
+| 15 | Attendance | Admin student management | [DONE] | Add/edit/toggle active students |
+| 16 | Attendance | Admin attendance records | [DONE] | View/filter all logs |
+| 17 | Attendance | Admin leave approval | [DONE] | Approve/reject leave requests |
+| 18 | Attendance | Admin settings | [DONE] | Office location, geofence config |
+| 19 | Attendance | Remote/outside detection | [DONE] | Flags `isClockInOutside` / `isClockOutOutside` |
+| 20 | Attendance | Missed clock-out detection | [DONE] | Stale session warning shown on dashboard |
+| 21 | Birthday | Create birthday page (wizard) | [DONE] | 4-step flow with templates, media, customization |
+| 22 | Birthday | Public birthday view | [DONE] | `/b/:slug` with animations, music |
+| 23 | Birthday | Submit wishes (public) | [DONE] | `/b/:slug/wish` |
+| 24 | Birthday | Manage wishes (owner) | [DONE] | `/birthday/manage/:id?token=...` |
+| 25 | Birthday | Template selection (6 themes) | [DONE] | Rose, Party, Minimal, Ocean, Sunset, Galaxy |
+| 26 | Birthday | Custom effects (stars, hearts, etc.) | [DONE] | 6 effect options |
+| 27 | Birthday | Memories video support | [DONE] | YouTube embed with audio choice |
+| 28 | Birthday | Admin overview | [DONE] | `/birthday/admin` |
+| 29 | Org Chart | Create org chart | [DONE] | Form with employee data |
+| 30 | Org Chart | View org chart (public) | [DONE] | D3-based interactive rendering |
+| 31 | Org Chart | Edit org chart (owner) | [DONE] | Token-based access |
+| 32 | Org Chart | Demo org chart | [DONE] | Pre-seeded via SQL |
+| 33 | Photo Collection | Browse by country | [DONE] | `/photocollection` |
+| 34 | Photo Collection | Browse by location | [DONE] | `/country/:name/location/:location` |
+| 35 | Photo Collection | Upload photo | [DONE] | File upload with progress via custom storage API |
+| 36 | Photo Collection | Add country/location | [DONE] | Inline creation on upload page |
+| 37 | Photo Collection | Delete photos | [PENDING] | Storage service has `deleteFile()` but no UI |
+| 38 | E-Claim | Submit claim | [DONE] | Client-side only (demo) |
+| 39 | E-Claim | View claims list | [DONE] | With filter by status |
+| 40 | E-Claim | Approval workflow | [DONE] | Role-based (HOD/Finance/HR) |
+| 41 | E-Claim | Reports & analytics | [DONE] | Category breakdown, totals |
+| 42 | E-Claim | Backend persistence | [PENDING] | No database — runs on mock data |
+| 43 | WiFi QR | Generate QR from SSID/password | [DONE] | Real-time QR generation |
+| 44 | WiFi QR | Theme selection | [DONE] | Swiss Modern, Warm, Minimal |
+| 45 | WiFi QR | Download PNG | [DONE] | Canvas-based export |
+| 46 | WiFi QR | Print card | [DONE] | Themed A4 print layout |
+| 47 | Family | View family members | [DONE] | Grid + table views |
+| 48 | Family | Add/edit/delete members | [DONE] | Full CRUD with Firestore |
+| 49 | Family | Filter & sort | [DONE] | By age, gender, name, family order |
+| 50 | Family | Copy to clipboard | [DONE] | WhatsApp-friendly formatted text |
+| 51 | Office | View shirt size list | [DONE] | Table format with size summary |
+| 52 | Office | Add/edit/delete entries | [DONE] | Full CRUD with Firestore |
+| 53 | Office | Copy to clipboard | [DONE] | Formatted list output |
+| 54 | Converter | Unit converter tool | [DONE] | Standalone view |
+| 55 | Todo List | Local todo management | [DONE] | Add/toggle/remove tasks |
+| 56 | Security | Environment variable management | [PENDING] | All secrets hardcoded |
+| 57 | Security | Password hashing | [PENDING] | Plain text passwords |
+| 58 | Security | Proper auth system | [PENDING] | Using localStorage flags |
+| 59 | Testing | Unit tests | [PENDING] | No test framework configured |
+| 60 | CI/CD | Deployment pipeline | [PENDING] | Manual builds only |
+
+---
+
+## Completion Summary
+
+| Status | Count | Percentage |
+|--------|-------|-----------|
+| [DONE] | 53 | 88% |
+| [PARTIAL] | 0 | 0% |
+| [PENDING] | 7 | 12% |
+| **Total** | **60** | **100%** |
+
+---
+
+## Priority Gaps
+
+1. **🔴 Critical:** Hardcoded API keys and plain-text passwords — must be addressed before any public deployment
+2. **🔴 Critical:** No proper authentication — localStorage-based auth guards can be bypassed
+3. **🟡 Medium:** E-Claim has no backend — currently a front-end demo only
+4. **🟡 Medium:** Photo collection has no delete UI despite the API being ready
+5. **🟢 Low:** No unit tests or CI/CD pipeline configured
+6. **🟢 Low:** Weather module is minimal/incomplete

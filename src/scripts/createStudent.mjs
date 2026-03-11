@@ -10,6 +10,7 @@ import {
   query,
   where,
 } from "firebase/firestore";
+import bcrypt from "bcryptjs";
 
 const firebaseConfig = {
   apiKey: "AIzaSyD1u9jVuJ2B9IAyZCvPvi2VFvEUXEL8EMw",
@@ -24,6 +25,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+const SALT_ROUNDS = 10;
+
 async function createStudent() {
   try {
     const studentsRef = collection(db, "attendance_students");
@@ -34,13 +37,13 @@ async function createStudent() {
 
     if (!existing.empty) {
       console.log('Student "hazman" already exists.');
-      // Optional: Update password if needed, but for now just exit if exists to avoid dupes
-      // passing true to update logic could be added here
     } else {
+      const hashedPassword = bcrypt.hashSync("man123", SALT_ROUNDS);
+
       const studentData = {
         name: "Hazman",
         username: "hazman",
-        password: "man123", // Plain text as per previous change
+        password: hashedPassword,
         department: "IT",
         isActive: true,
         createdAt: new Date(),
@@ -48,6 +51,7 @@ async function createStudent() {
 
       await addDoc(studentsRef, studentData);
       console.log('✅ Student account "hazman" created successfully!');
+      console.log("   Password is hashed with bcrypt (10 salt rounds)");
     }
 
     process.exit(0);

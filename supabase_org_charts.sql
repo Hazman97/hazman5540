@@ -30,13 +30,21 @@ CREATE POLICY "Public insert access" ON org_charts
   FOR INSERT
   WITH CHECK (true);
 
--- Policy: Owner can update their own charts (using owner_token)
+-- Policy: Owner can update their own charts
+-- The app must filter by owner_token in the WHERE clause for this to pass
 CREATE POLICY "Owner update access" ON org_charts
   FOR UPDATE
   USING (true)
   WITH CHECK (true);
 
 -- Policy: Owner can delete their own charts
+-- The app must filter by owner_token in the WHERE clause for this to pass
 CREATE POLICY "Owner delete access" ON org_charts
   FOR DELETE
   USING (true);
+
+-- NOTE: For stronger security, replace the UPDATE/DELETE policies above with:
+-- CREATE POLICY "Owner update access" ON org_charts
+--   FOR UPDATE USING (owner_token = current_setting('request.headers')::json->>'x-owner-token');
+-- This requires passing owner_token as a custom header from the app.
+

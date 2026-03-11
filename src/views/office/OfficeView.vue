@@ -449,6 +449,17 @@ const cancelEdit = () => {
   editingId.value = null;
 };
 
+const deleteMember = async (id) => {
+  if (!confirm("Adakah anda pasti ingin membuang item ini?")) return;
+  try {
+    await deleteDoc(doc(db, "office_baju", id));
+    members.value = members.value.filter((m) => m.id !== id);
+  } catch (error) {
+    console.error("Error deleting member: ", error);
+    alert("Gagal membuang.");
+  }
+};
+
 onMounted(() => {
   fetchMembers();
 });

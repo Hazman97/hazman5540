@@ -11,6 +11,7 @@ import {
   where,
   deleteDoc,
 } from "firebase/firestore";
+import bcrypt from "bcryptjs";
 
 const firebaseConfig = {
   apiKey: "AIzaSyD1u9jVuJ2B9IAyZCvPvi2VFvEUXEL8EMw",
@@ -25,6 +26,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+const SALT_ROUNDS = 10;
+
 async function setupAdmin() {
   try {
     const adminsRef = collection(db, "attendance_admins");
@@ -36,10 +39,12 @@ async function setupAdmin() {
       console.log("Deleted old admin:", doc.data().username);
     }
 
-    // Create admin account with plain text password
+    // Create admin account with hashed password
+    const hashedPassword = bcrypt.hashSync("admin123", SALT_ROUNDS);
+
     const adminData = {
       username: "admin",
-      password: "admin123", // Plain text password
+      password: hashedPassword,
       name: "Admin",
       createdAt: new Date(),
     };
@@ -47,7 +52,7 @@ async function setupAdmin() {
     await addDoc(adminsRef, adminData);
     console.log("✅ Admin account created successfully!");
     console.log("   Username: admin");
-    console.log("   Password: admin123");
+    console.log("   Password: admin123 (stored as bcrypt hash)");
     process.exit(0);
   } catch (error) {
     console.error("Error:", error);
