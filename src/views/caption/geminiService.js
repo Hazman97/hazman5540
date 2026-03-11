@@ -1,10 +1,18 @@
 /**
  * Gemini AI Service for Caption Generator
  * Uses the Gemini API to generate AI-powered captions
+ * Supports auto-retry and model fallback for rate limits
  */
 
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+const GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
 const STORAGE_KEY = 'gemini_api_key';
+
+// Models to try in order (fallback chain)
+const MODELS = [
+  'gemini-2.0-flash',
+  'gemini-2.0-flash-lite',
+  'gemini-1.5-flash-latest',
+];
 
 /**
  * Get stored API key from localStorage
@@ -76,19 +84,19 @@ function buildPrompt({ category, platform, tone, nama, tarikh, lokasi, butiran }
 }
 
 /**
- * Generate caption using Gemini API
- * @param {Object} params - Same params as template generator
- * @returns {Promise<Object>} { caption, charCount }
+ * Sleep helper for retry delay
  */
-export async function generateWithAI(params) {
-  const apiKey = getApiKey();
-  if (!apiKey) {
-    throw new Error('API key belum ditetapkan. Sila masukkan Gemini API key anda.');
-  }
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
-  const prompt = buildPrompt(params);
+/**
+ * Call Gemini API with a specific model
+ */
+async function callGemini(model, prompt, apiKey) {
+  const url = `${GEMINI_BASE_URL}/${model}:generateContent?key=${apiKey}`;
 
-  const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+  const response = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -103,25 +111,76 @@ export async function generateWithAI(params) {
 
   if (!response.ok) {
     const err = await response.json().catch(() => ({}));
+    const errMsg = err.error?.message || '';
+
+    // Auth errors — no point retrying
     if (response.status === 400 || response.status === 403) {
-      throw new Error('API key tidak sah. Sila semak API key anda.');
+      if (errMsg.includes('API_KEY_INVALID') || errMsg.includes('API key not valid')) {
+        throw { fatal: true, message: 'API key tidak sah. Sila semak API key anda.' };
+      }
     }
-    throw new Error(err.error?.message || `Gemini API error (${response.status})`);
+
+    // Rate limit / quota exceeded — can retry with different model
+    if (response.status === 429 || errMsg.includes('quota') || errMsg.includes('RATE_LIMIT')) {
+      throw { fatal: false, status: 429, model, message: errMsg };
+    }
+
+    throw { fatal: true, message: errMsg || `Gemini API error (${response.status})` };
   }
 
   const data = await response.json();
-  const caption = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+  return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+}
 
-  if (!caption) {
-    throw new Error('AI tidak berjaya menjana caption. Sila cuba lagi.');
+/**
+ * Generate caption using Gemini API with auto-retry and model fallback
+ * @param {Object} params - Same params as template generator
+ * @returns {Promise<Object>} { caption, charCount }
+ */
+export async function generateWithAI(params) {
+  const apiKey = getApiKey();
+  if (!apiKey) {
+    throw new Error('API key belum ditetapkan. Sila masukkan Gemini API key anda.');
   }
 
-  return {
-    caption,
-    charCount: caption.length,
-    maxChars: null,
-    templateIndex: 0,
-    totalVariations: '∞',
-    isAI: true,
-  };
+  const prompt = buildPrompt(params);
+  let lastError = null;
+
+  // Try each model in the fallback chain
+  for (const model of MODELS) {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        // Wait before retry (not on first attempt of first model)
+        if (attempt > 0) {
+          await sleep(3000);
+        }
+
+        const caption = await callGemini(model, prompt, apiKey);
+
+        if (!caption) {
+          throw { fatal: true, message: 'AI tidak berjaya menjana caption.' };
+        }
+
+        return {
+          caption,
+          charCount: caption.length,
+          maxChars: null,
+          templateIndex: 0,
+          totalVariations: '∞',
+          isAI: true,
+          model,
+        };
+      } catch (err) {
+        if (err.fatal) throw new Error(err.message);
+        lastError = err;
+        // Rate limited — try next model
+        if (attempt === 0 && err.status === 429) break;
+      }
+    }
+  }
+
+  // All models exhausted
+  throw new Error(
+    'Kuota API telah habis untuk semua model. Sila tunggu beberapa minit dan cuba lagi, atau semak kuota anda di https://ai.dev/rate-limit'
+  );
 }
