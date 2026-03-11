@@ -166,6 +166,13 @@ const routes = [
     component: () => import("@/views/wifi-qr/WifiQrGenerator.vue"),
     meta: { title: "WiFi QR Generator", description: "Generate QR codes for WiFi access" },
   },
+  // === Caption Generator ===
+  {
+    path: "/caption",
+    name: "CaptionGenerator",
+    component: () => import("@/views/caption/CaptionGenerator.vue"),
+    meta: { title: "Penjana Copywriting", description: "Caption generator tool for social media" },
+  },
   // === Attendance — Student ===
   {
     path: "/attendance",
