@@ -1,6 +1,6 @@
 # Project Documentation — hazman5540
 
-> **Last updated:** 2026-03-11 10:55 MYT
+> **Last updated:** 2026-05-08 11:10 MYT
 
 ---
 
@@ -231,6 +231,7 @@ This project uses **hardcoded configuration** (no `.env` file detected):
 
 | Date | Module | Change |
 |------|--------|--------|
+| 2026-05-08 | Portfolio | Completely redesigned E-Resume timeline with real experience, added MindGPS Tracker project, upgraded Tech Stack (PostgreSQL, ESP32, Teltonika, Rajant Mesh, Cloudflare Tunnels), and refined UI with premium glassmorphic effects. |
 | 2026-03-11 | Security | Password hashing with bcryptjs (10 salt rounds), auth guard 24h TTL, Firestore security rules |
 | 2026-03-11 | Caption Generator | New module — template-based + Gemini AI copywriting tool with 6 categories, 5 platforms, 4 tones |
 | 2026-03-11 | Router | Lazy-loaded ~25 routes (only portfolio eager), SEO meta titles on all routes |
