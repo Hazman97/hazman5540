@@ -182,6 +182,7 @@ export default {
       navItems: [
         { name: "Home", to: { name: "portfolio" } },
         { name: "About", to: "/portfolio#about" },
+        { name: "Experience", to: "/portfolio#experience" },
         { name: "Projects", to: "/portfolio#projects" },
         { name: "Contact", to: "/portfolio#contact" },
       ],

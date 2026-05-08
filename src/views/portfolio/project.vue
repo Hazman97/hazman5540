@@ -353,6 +353,15 @@ export default {
           tech: ["Vue.js", "Leaflet", "ROS"],
         },
         {
+          image: "/img/mindgps_tracker.png",
+          title: "MindGPS Tracker",
+          description:
+            "Engineered a fleet management system using Node.js, integrating Teltonika FMC920 devices for real-time telemetry and optimizing a PostgreSQL database for high-frequency GPS data ingestion.",
+          url: "https://gps.mindnrobotics.com/",
+          tag: "Fleet Management",
+          tech: ["Node.js", "Teltonika", "PostgreSQL", "Cloudflare Tunnels"],
+        },
+        {
           image: "/img/medisaas_clinic.png",
           title: "MediSaaS Clinic",
           description:

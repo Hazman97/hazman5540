@@ -1,0 +1,99 @@
+Software Engineer with a passion for bridging software and hardware. My professional experience at
+Mindnrobotic involves full-stack development, embedded programming, and complex network implementation.
+I am a proactive learner with a bachelor of Computer Science with Maritime informatics, committed to solving
+challenging problems and contributing to innovative projects.
+PKT Logistics 
+IT Security Intern →  Programmer
+Began as an intern and was offered a full-time Programmer role upon successful completion of my
+internship. My responsibilities expanded from IT security to front-end development for internal systems.
+As Programmer (Dec 2023 - Mar 2024):
+Focused on developing internal systems as the primary front-end developer.
+Developed a security portal and an e-claim platform.
+Collaborated with cross-functional teams to enhance system efficiency.
+Partnered with a vendor on the development of a warehouse management system (WMS), focusing
+on the front-end components.August 2023 - March 2025ABOUT ME
+0169333092 | hazman5001@gmail.com | Shah Alam, Selangor
+linkedin : hazman-adanan
+MUHAMMAD HAZMAN BIN MOHD ADANAN
+ EXPERIENCE
+Majlis Agama Islam (Maik)
+Part-Time Administrative AssistantNOV 2017 -  APRIL  2018
+Supported the Unit Agihan with data entry, phone call responses, and customer service at the counter.
+Supported the Unit Agihan by performing data entry tasks and maintaining accurate records.
+Handled and responded to phone calls from the public, providing information and assistance.
+Assisted customers at the counter, addressing inquiries and guiding them through necessary
+processes.
+Managed and organized administrative documents, ensuring smooth daily operations.
+Collaborated with teams to ensure efficient handling of administrative tasks.Mindnrobotics
+Kyouth Programme →  Software Engineer
+Offered a full-time Software Engineer position after successfully completing a 4-month K-Youth
+training program with the company.
+Accomplishments:
+Engineered a full-stack shooting range control system, building the html platform and programming
+the ESP32/Node.js embedded targets..
+Expanded network coverage using MP2P links, Rajant mesh nodes, and Starlink connectivity.May 2025 - Present
+Marz Computer Trading
+IT Technician (Part-Time)
+Performed basic laptop preventive maintenance for various clients.
+Tasks included running Windows Updates, defragmentation, scan disk, and disk cleanup..
+As IT Security Intern (Aug 2023 - Dec 2023):
+Gained hands-on experience managing CCTV systems and access controls.
+Monitored CCTV cameras and worked with a team to review security footage.
+Began learning and applying Vue.js and Tailwind CSS to build simple web tools.Bachelor of Computer Sciene And Maritime Informatic 
+Diploma Electric & Electronic UNIVERSITI MALAYSIA TERENGGANU | 2019- 2024 
+POLITEKNIK IBRAHIM SULTAN | 2015-2018 
+ Dr. Rozniza Binti Ali 
+Final Year Supervisor
+Universiti Malaysia Terengganu
+Phone No : 09-6683237 
+Email: rozniza@umt.edu.myEDUCATION
+REFERENCE
+KAVITHA SENGODAN
+MANAGER, R&D
+PKT Logistics Group Sdn Bhd
+Email: kavitha.sengodan@pktgroup.com
+Phone: 03-51618111Achievement : Dean List in sem 2 , 3 and 4.
+Course:  Object-Oriented Programming, Cyber Security , Networking, Database, System Analysis
+And Design, Iot Computing, Web-Based Application Development, Intelligence System, Software
+Project Management.
+Final Year Project: Misz Home Appointment System.
+Course: Cmos Integrated Circuit Design, Circuit Analysis, Electrical Machine, Power Electronics,
+Computer Networking Fundamentals, Embedded System Application, Interactive Multimedia
+Applications, Plc And Automation, Electronic Circuits, Electronic Equipment Repair, Electronic
+Computer Aided Design, Power System, Fundamental Programming, Semiconductor, Digital
+Electronics, Electrical Circuits, Electrical Technology, Electrical Wiring.
+HTML  CSS
+Tailwind
+Vue JS
+PHP
+Java
+Microsoft Word
+Adobe Photoshop
+Adove Premier Pro
+CanvaSKILLS
+PROGRAMMING LANGUAGE
+Phpmyadmin
+Phyton
+C++
+C
+Node JS
+COMPUTER SKILLS
+Backup / Install OS
+Computer & laptop
+Troubleshooting
+Computer Maintenance
+Computer Assembly
+Network FundamentalCisco Packet Tracer
+GithubSOFT SKILL
+TeamWork
+Time Management
+Critical Thinking
+Problem Solving LANGUAGE
+Malay (Native)
+English (Basic)Majlis Daerah Tumpat
+Practical Students2017 -  2018
+Assisted the OSC department with data entry, document filing, and gained exposure to local
+government operations.
+Assisted in the OSC one-stop center departments within local government.
+Performed clerical duties such as data entry and document filing.
+Gained hands-on experience by following outside work related to the course.

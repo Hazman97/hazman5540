@@ -205,9 +205,10 @@
             </h4>
             <div class="flex flex-wrap gap-2">
               <span class="skill-pill">Node.js</span>
+              <span class="skill-pill">PostgreSQL</span>
               <span class="skill-pill">Firebase</span>
               <span class="skill-pill">Supabase</span>
-              <span class="skill-pill">MySQL</span>
+              <span class="skill-pill">Cloudflare</span>
             </div>
           </div>
 
@@ -234,7 +235,9 @@
               // Hardware
             </h4>
             <div class="flex flex-wrap gap-2">
-              <span class="skill-pill">PC Repair</span>
+              <span class="skill-pill">ESP32</span>
+              <span class="skill-pill">Teltonika</span>
+              <span class="skill-pill">Rajant Mesh</span>
               <span class="skill-pill">Networking</span>
               <span class="skill-pill">IT Support</span>
             </div>
@@ -265,19 +268,37 @@ export default {
 
 /* Stat Card */
 .stat-card {
-  @apply bg-white/60 dark:bg-white/5 border border-white/40 dark:border-white/5 p-6 rounded-3xl transition-all duration-300 backdrop-blur-sm;
+  @apply bg-white/60 dark:bg-slate-800/40 border border-slate-200/50 dark:border-slate-700/50 p-6 rounded-3xl transition-all duration-500 backdrop-blur-md relative overflow-hidden z-10;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 1.5rem;
+  background: radial-gradient(circle at center, rgba(16,185,129,0.1) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  z-index: -1;
 }
 
 .stat-card:hover {
-  @apply bg-white/80 dark:bg-white/10 dark:border-emerald-500/20 shadow-lg transform -translate-y-1;
+  @apply shadow-xl shadow-emerald-500/10 transform -translate-y-2 dark:border-emerald-500/30;
+}
+
+.stat-card:hover::before {
+  opacity: 1;
 }
 
 /* Skill Pill */
 .skill-pill {
-  @apply px-4 py-2 text-sm rounded-full transition-all duration-200 cursor-default bg-white/60 dark:bg-white/5 border border-white/40 dark:border-white/5 text-slate-600 dark:text-slate-400 backdrop-blur-sm;
+  @apply px-4 py-2 text-sm rounded-xl transition-all duration-300 cursor-default bg-white/60 dark:bg-slate-800/40 border border-slate-200/50 dark:border-slate-700/50 text-slate-600 dark:text-slate-300 backdrop-blur-sm shadow-sm;
 }
 
 .skill-pill:hover {
-  @apply bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20;
+  @apply bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/30 transform scale-105 shadow-md shadow-emerald-500/10;
 }
 </style>

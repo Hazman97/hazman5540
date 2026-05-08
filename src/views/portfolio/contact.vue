@@ -255,7 +255,7 @@
                   <p class="text-xs text-slate-400 dark:text-text/50 font-mono">
                     Location
                   </p>
-                  <span class="font-mono text-sm">Shah Alam, Selangor</span>
+                  <span class="font-mono text-sm">Putrajaya</span>
                 </div>
               </div>
             </div>

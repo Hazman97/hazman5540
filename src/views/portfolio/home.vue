@@ -4,13 +4,13 @@
   >
     <!-- Animated Gradient Background -->
     <div
-      class="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-primary dark:via-[#0d1f3c] dark:to-primary"
+      class="absolute inset-0 bg-gradient-to-br from-slate-50 via-teal-50/30 to-slate-100 dark:from-primary dark:via-[#0a1526] dark:to-primary"
     ></div>
 
     <!-- Animated Grid Pattern -->
-    <div class="absolute inset-0 opacity-30 dark:opacity-20">
+    <div class="absolute inset-0 opacity-40 dark:opacity-20">
       <div
-        class="absolute inset-0 bg-[linear-gradient(rgba(20,184,166,0.1)_2px,transparent_2px),linear-gradient(90deg,rgba(20,184,166,0.1)_2px,transparent_2px)] bg-[size:60px_60px] animate-grid-move"
+        class="absolute inset-0 bg-[linear-gradient(rgba(20,184,166,0.15)_2px,transparent_2px),linear-gradient(90deg,rgba(20,184,166,0.15)_2px,transparent_2px)] bg-[size:60px_60px] animate-grid-move"
       ></div>
     </div>
 
@@ -140,13 +140,13 @@
 
       <!-- Enhanced Buttons -->
       <div class="flex flex-wrap gap-6 animate-fade-in-up delay-400">
-        <router-link to="/portfolio#contact">
+        <router-link to="/portfolio#experience">
           <button
             class="group relative px-8 py-4 border-2 border-teal-500 dark:border-accent rounded-xl overflow-hidden transition-all duration-500 font-mono text-sm hover:shadow-lg hover:shadow-teal-500/25"
           >
             <span
               class="relative z-10 text-teal-500 dark:text-accent group-hover:text-white dark:group-hover:text-primary transition-colors duration-500 font-semibold"
-              >Contact Me</span
+              >View Experience</span
             >
             <span
               class="absolute inset-0 bg-gradient-to-r from-teal-500 to-cyan-500 dark:from-accent dark:to-cyan-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"

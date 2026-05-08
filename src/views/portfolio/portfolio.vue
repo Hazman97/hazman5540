@@ -16,6 +16,11 @@
       <about />
     </section>
 
+    <!-- Experience Section -->
+    <section id="experience" class="parallax-section">
+      <resume />
+    </section>
+
     <!-- Projects Section -->
     <section id="projects" class="parallax-section">
       <project />
@@ -100,6 +105,7 @@ import project from "./project.vue";
 import navpage from "./header.vue";
 import contact from "./contact.vue";
 import about from "./about.vue";
+import resume from "./resume.vue";
 import home from "./home.vue";
 import { db } from "@/firebase";
 import { collection, doc, setDoc, getDoc, getDocs } from "firebase/firestore";
@@ -111,6 +117,7 @@ export default {
     contact,
     project,
     about,
+    resume,
     home,
   },
   data() {
