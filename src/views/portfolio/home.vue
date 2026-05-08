@@ -251,8 +251,9 @@ export default {
         "TypeScript",
         "Tailwind",
         "Node.js",
-        "PHP",
-        "MySQL",
+        "PostgreSQL",
+        "ESP32",
+        "Cloudflare",
       ],
     };
   },
