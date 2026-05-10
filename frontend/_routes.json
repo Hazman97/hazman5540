@@ -1,0 +1,11 @@
+# hazman5540 Cloudflare Pages Config
+# Project: hazman5540
+# Build from: frontend/ directory
+
+[build]
+command = "npm run build"
+destination = "dist"
+
+[build.environment]
+NODE_VERSION = "20"
+VITE_API_URL = "https://hazman5540.hazman5001.workers.dev"

@@ -1,0 +1,19 @@
+name = "hazman5540"
+main = "src/index.ts"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "hazman5540db"
+database_id = "fdae8e3e-4eb6-4a0b-8d24-2e72b2d72133"
+
+[vars]
+ENVIRONMENT = "production"
+STORAGE_API_URL = "https://storage.bijokdev.com"
+
+# Secrets (set via wrangler secret put):
+# JWT_SECRET
+# GOOGLE_CLIENT_ID
+
+# Routes are auto-assigned by Cloudflare Workers
