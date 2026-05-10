@@ -1,6 +1,7 @@
 # Project Documentation — hazman5540
 
-> **Last updated:** 2026-05-08 11:10 MYT
+> **Last updated:** 2026-05-10
+> 📌 **Deployment & Infrastructure Details:** See the [Deployment Guide](./DEPLOYMENT.md) for live URLs, D1 database details, and Cloudflare Pages/Workers instructions.
 
 ---
 
@@ -10,18 +11,16 @@
 
 ---
 
-## 2. Tech Stack
+## 2. Tech Stack (Cloudflare Native)
 
 | Layer | Technology |
 |-------|-----------|
+| Frontend Host | Cloudflare Pages |
+| Backend API | Cloudflare Workers (Hono v4) |
 | Framework | Vue 3 (Composition API + Options API) |
 | Build Tool | Vite 5 |
-| Language | TypeScript / JavaScript |
 | Styling | TailwindCSS 3 (dark mode via `class`) |
-| State Management | Vuex 4 |
-| Routing | Vue Router 4 (history mode) |
-| Database (NoSQL) | Firebase Firestore |
-| Database (SQL) | Supabase (PostgreSQL) |
+| Database | Cloudflare D1 (SQLite) |
 | File Storage | Custom API at `storage.bijokdev.com` |
 | QR Code | `qrcode` library |
 | Charts | D3.js + `d3-org-chart` |
