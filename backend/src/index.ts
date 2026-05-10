@@ -8,6 +8,8 @@ import orgchartRouter from './routes/orgchart'
 import photocollectionRouter from './routes/photocollection'
 import familyRouter from './routes/family'
 import officeRouter from './routes/office'
+import { portfolioRoutes } from './routes/portfolio'
+import { financeRoutes } from './routes/finance'
 
 const app = new Hono<{ Bindings: Env }>()
 
@@ -31,6 +33,8 @@ app.route('/api/orgchart', orgchartRouter)
 app.route('/api/photos', photocollectionRouter)
 app.route('/api/family', familyRouter)
 app.route('/api/office', officeRouter)
+app.route('/api/portfolio', portfolioRoutes)
+app.route('/api/finance', financeRoutes)
 
 // ── 404 Fallback ───────────────────────────────────────────
 app.notFound((c) => c.json({ error: 'Route not found', path: c.req.path }, 404))

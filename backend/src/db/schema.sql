@@ -175,3 +175,44 @@ CREATE TABLE IF NOT EXISTS office_baju (
   size       TEXT NOT NULL,
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
+
+-- ============================================================
+-- PORTFOLIO VISITORS
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS portfolio_visitors (
+  ip_hash    TEXT PRIMARY KEY,
+  last_visit TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- ============================================================
+-- FINANCIAL TRACKER (3-BUCKET SYSTEM)
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS finance_wallets (
+  id             INTEGER PRIMARY KEY AUTOINCREMENT,
+  name           TEXT NOT NULL,
+  target_amount  REAL,
+  balance        REAL NOT NULL DEFAULT 0.0,
+  created_at     TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS finance_categories (
+  id             INTEGER PRIMARY KEY AUTOINCREMENT,
+  name           TEXT NOT NULL,
+  bucket_type    TEXT NOT NULL, -- 'Grab', 'Personal', 'Shared'
+  created_at     TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS finance_transactions (
+  id               INTEGER PRIMARY KEY AUTOINCREMENT,
+  amount           REAL NOT NULL,
+  transaction_type TEXT NOT NULL, -- 'income' | 'expense'
+  category_id      INTEGER NOT NULL,
+  wallet_id        INTEGER,       -- Optional, if allocating to a specific wallet
+  date             TEXT NOT NULL, -- ISO Date String
+  notes            TEXT,
+  created_at       TEXT NOT NULL DEFAULT (datetime('now')),
+  FOREIGN KEY (category_id) REFERENCES finance_categories(id) ON DELETE RESTRICT,
+  FOREIGN KEY (wallet_id) REFERENCES finance_wallets(id) ON DELETE SET NULL
+);

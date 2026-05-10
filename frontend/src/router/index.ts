@@ -277,6 +277,13 @@ const routes = [
     component: () => import("@/views/office/OfficeView.vue"),
     meta: { title: "Senarai Pejabat", description: "Office shirt size list" },
   },
+  // === Financial Tracker ===
+  {
+    path: "/finance",
+    name: "FinanceDashboard",
+    component: () => import("@/views/finance/FinanceDashboard.vue"),
+    meta: { title: "Finance Tracker", requiresAdmin: true },
+  },
   // === 404 ===
   {
     path: "/:pathMatch(.*)*",

@@ -1,0 +1,1 @@
+import{createClient as s}from"@supabase/supabase-js";const I="https://ossqkmzqwztkalvfeocm.supabase.co",a="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9zc3FrbXpxd3p0a2FsdmZlb2NtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ5MjU1ODksImV4cCI6MjA4MDUwMTU4OX0.n-9DxIc46JMvDU8raSE-TuXQ5qu6zEzeQS-yLnyC5kg",e=s(I,a);export{e as s};

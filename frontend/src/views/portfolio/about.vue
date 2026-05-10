@@ -53,7 +53,7 @@
                 class="relative w-72 h-80 md:w-80 md:h-96 rounded-[2.2rem] overflow-hidden bg-slate-200 border-4 border-white transform rotate-2"
               >
                 <img
-                  src="/test.png"
+                  src="@/assets/logo.png"
                   alt="Hazman Profile"
                   class="w-full h-full object-cover"
                 />
