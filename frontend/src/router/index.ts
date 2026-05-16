@@ -312,44 +312,48 @@ const router = createRouter({
 
 export default router;
 
-// Session validation helper
-const SESSION_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
-
-function getValidSession(key: string): Record<string, any> | null {
+// Helper to check the unified Google session
+function getUnifiedSession(): Record<string, any> | null {
   try {
-    const raw = localStorage.getItem(key);
-    if (!raw) return null;
-
-    const session = JSON.parse(raw);
-
-    // Validate required fields
-    if (!session || !session.id || !session.name) {
-      localStorage.removeItem(key);
-      return null;
-    }
-
-    // Check session expiry (24h TTL)
-    if (session.loginAt) {
-      const elapsed = Date.now() - session.loginAt;
-      if (elapsed > SESSION_TTL_MS) {
-        localStorage.removeItem(key);
-        return null;
-      }
-    }
-
-    return session;
+    const raw = localStorage.getItem('hazman_user');
+    const token = localStorage.getItem('hazman_token');
+    if (!raw || !token) return null;
+    return JSON.parse(raw);
   } catch {
-    localStorage.removeItem(key);
     return null;
   }
 }
 
+// Global RBAC Guard
 router.beforeEach((to, from, next) => {
-  const adminSession = getValidSession("attendance_admin");
-  const studentSession = getValidSession("attendance_student");
+  // Legacy Student Auth (Keeping this separate for interns as requested previously, or if it breaks we can migrate it later)
+  const studentSession = localStorage.getItem("attendance_student");
+  
+  // The new unified session
+  const session = getUnifiedSession();
 
-  if (to.meta.requiresAdmin && !adminSession) {
-    next("/attendance/admin/login");
+  if (to.meta.requiresSuperadmin) {
+    if (!session || !session.is_superadmin) {
+      next(`/admin/login?redirect=${to.fullPath}`);
+    } else {
+      next();
+    }
+  } else if (to.meta.requiresAdmin) {
+    // Determine which project they are trying to access
+    let requiredProject = '';
+    if (to.path.startsWith('/finance')) requiredProject = 'finance';
+    else if (to.path.startsWith('/attendance/admin')) requiredProject = 'attendance_admin';
+    else if (to.path.startsWith('/birthday/admin')) requiredProject = 'birthday_admin';
+
+    if (!session) {
+      next(`/admin/login?redirect=${to.fullPath}`);
+    } else if (session.is_superadmin || (session.permissions && session.permissions.includes(requiredProject))) {
+      next(); // Superadmin can access everything, or user has specific permission
+    } else {
+      // User is logged in but doesn't have permission for this specific project
+      alert("You do not have permission to access this project.");
+      next(false);
+    }
   } else if (to.meta.requiresAuth && !studentSession) {
     next("/attendance");
   } else {

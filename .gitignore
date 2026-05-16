@@ -1,9 +1,24 @@
+# OS files
 .DS_Store
+Thumbs.db
+
+# Dependencies
 node_modules
-/dist
+/node_modules
+*/node_modules/
 
+# Build outputs
+dist
+dist-ssr
+*.local
 
-# local env files
+# Cloudflare Wrangler & D1
+.wrangler
+.wrangler/
+.dev.vars
+
+# Local env files
+.env
 .env.local
 .env.*.local
 

@@ -5,25 +5,62 @@ import { hashPassword, verifyPassword } from '../utils/crypto'
 
 const auth = new Hono<{ Bindings: Env }>()
 
-// ── Google OAuth Login ──────────────────────────────────────
+// ── Centralized Google OAuth & RBAC ──────────────────────
 auth.post('/google', async (c) => {
-  const { idToken, role } = await c.req.json<{ idToken: string; role?: 'student' | 'admin' }>()
+  const { idToken } = await c.req.json<{ idToken: string }>()
   if (!idToken) return c.json({ error: 'idToken required' }, 400)
 
   const googleUser = await verifyGoogleToken(idToken, c.env.GOOGLE_CLIENT_ID)
   if (!googleUser) return c.json({ error: 'Invalid Google token' }, 401)
 
-  const payload: AuthPayload = {
-    sub: googleUser.sub,
-    role: role || 'admin',
-    name: googleUser.name,
-    email: googleUser.email,
+  const db = c.env.DB
+
+  // 1. Check if the database has ANY system_users. If 0, this first login becomes the superadmin!
+  const userCountRes = await db.prepare('SELECT COUNT(*) as c FROM system_users').first<{ c: number }>()
+  const isFirstUser = userCountRes && userCountRes.c === 0
+
+  let sysUser = await db.prepare('SELECT * FROM system_users WHERE email = ?').bind(googleUser.email).first<{ id: string, email: string, name: string, is_superadmin: number }>()
+
+  if (isFirstUser) {
+    // Auto-create the superadmin
+    await db.prepare('INSERT INTO system_users (email, name, picture, is_superadmin) VALUES (?, ?, ?, 1)')
+      .bind(googleUser.email, googleUser.name, googleUser.picture).run()
+    sysUser = await db.prepare('SELECT * FROM system_users WHERE email = ?').bind(googleUser.email).first<{ id: string, email: string, name: string, is_superadmin: number }>()
+  } else if (!sysUser) {
+    // Not the first user, and not explicitly added by superadmin -> REJECT
+    return c.json({ error: 'Unauthorized email. Please contact the administrator to grant access.' }, 403)
+  } else {
+    // User exists. Update their name/picture in case it changed on Google's end
+    await db.prepare('UPDATE system_users SET name = ?, picture = ? WHERE email = ?')
+      .bind(googleUser.name, googleUser.picture, googleUser.email).run()
+  }
+
+  // Fetch their allowed projects
+  const permsRes = await db.prepare('SELECT project FROM user_permissions WHERE user_id = ?').bind(sysUser!.id).all<{ project: string }>()
+  const allowedProjects = permsRes.results.map(p => p.project)
+
+  // Add the superadmin flag to the payload so the frontend can render the Management Dashboard link
+  const payload: AuthPayload & { permissions: string[], is_superadmin: boolean } = {
+    sub: sysUser!.id,
+    role: 'admin', // Deprecated concept, replaced by permissions, but kept for legacy fallback
+    name: sysUser!.name,
+    email: sysUser!.email,
+    permissions: allowedProjects,
+    is_superadmin: sysUser!.is_superadmin === 1
   }
 
   const token = await signToken(payload, c.env.JWT_SECRET)
+  
   return c.json({
     token,
-    user: { name: googleUser.name, email: googleUser.email, picture: googleUser.picture, role: payload.role }
+    user: { 
+      id: sysUser!.id,
+      name: sysUser!.name, 
+      email: sysUser!.email, 
+      picture: googleUser.picture, 
+      is_superadmin: sysUser!.is_superadmin === 1,
+      permissions: allowedProjects 
+    }
   })
 })
 

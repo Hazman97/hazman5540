@@ -216,3 +216,26 @@ CREATE TABLE IF NOT EXISTS finance_transactions (
   FOREIGN KEY (category_id) REFERENCES finance_categories(id) ON DELETE RESTRICT,
   FOREIGN KEY (wallet_id) REFERENCES finance_wallets(id) ON DELETE SET NULL
 );
+
+-- ============================================================
+-- CENTRALIZED SYSTEM AUTHENTICATION & RBAC
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS system_users (
+  id            TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+  email         TEXT UNIQUE NOT NULL,
+  name          TEXT,
+  picture       TEXT,
+  is_superadmin INTEGER NOT NULL DEFAULT 0,
+  created_at    TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS user_permissions (
+  id            TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+  user_id       TEXT NOT NULL,
+  project       TEXT NOT NULL, -- 'finance', 'attendance_admin', 'birthday_admin', 'org_admin'
+  created_at    TEXT NOT NULL DEFAULT (datetime('now')),
+  FOREIGN KEY (user_id) REFERENCES system_users(id) ON DELETE CASCADE
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_user_project ON user_permissions(user_id, project);
