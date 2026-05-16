@@ -1,6 +1,37 @@
 # CRUD Status — hazman5540
 
-> **Last updated:** 2026-03-11 10:55 MYT
+> **Last updated:** 2026-05-16
+
+---
+
+## Cloudflare D1 (SQLite) Tables
+
+### `finance_wallets`, `finance_categories`, `finance_transactions`
+
+| Operation | Implemented | Endpoint / Page |
+|-----------|------------|-----------------|
+| **Create** | ✅ | `FinanceDashboard.vue` (add transaction, system auto-creates 10% sinking fund for Grab) |
+| **Read** | ✅ | `FinanceDashboard.vue` (view balances, transaction history) |
+| **Update** | ❌ | Not explicitly implemented yet (transactions usually immutable or edited via admin) |
+| **Delete** | ❌ | Not explicitly implemented yet |
+
+### `system_users`, `user_permissions` (RBAC)
+
+| Operation | Implemented | Endpoint / Page |
+|-----------|------------|-----------------|
+| **Create** | ✅ | `AccessManagement.vue` (Superadmin adds user & assigns project permission) |
+| **Read** | ✅ | Google OAuth Gateway (backend validation), `AccessManagement.vue` |
+| **Update** | ✅ | `AccessManagement.vue` (change permissions) |
+| **Delete** | ✅ | `AccessManagement.vue` (revoke access) |
+
+### `portfolio_visitors`
+
+| Operation | Implemented | Endpoint / Page |
+|-----------|------------|-----------------|
+| **Create** | ✅ | Cloudflare Worker (logs visitor IP, country, user_agent) |
+| **Read** | ✅ | System Admin Analytics (if implemented) |
+| **Update** | ❌ | N/A (Append-only log) |
+| **Delete** | ❌ | N/A |
 
 ---
 
@@ -14,15 +45,6 @@
 | **Read** | ✅ | `StudentLogin.vue` (login query), `StudentManagement.vue` (list all), `AdminDashboard.vue` (count) |
 | **Update** | ✅ | `StudentManagement.vue` (edit name, department, toggle active) |
 | **Delete** | ✅ | `StudentManagement.vue` (delete student) |
-
-### `attendance_admins`
-
-| Operation | Implemented | Endpoint / Page |
-|-----------|------------|-----------------|
-| **Create** | ✅ | `scripts/setupAdmin.mjs` |
-| **Read** | ✅ | `AdminLogin.vue` (login query) |
-| **Update** | ❌ | Not implemented |
-| **Delete** | ✅ | `scripts/setupAdmin.mjs` (clears all before re-creating) |
 
 ### `attendance_logs`
 
@@ -155,6 +177,7 @@
 
 | Database | Tables | Full CRUD | Partial CRUD |
 |----------|--------|-----------|--------------|
-| Firebase Firestore | 7 | 4 (`family_members`, `office_baju`, `attendance_students`, `countries`) | 3 (missing delete on logs/leaves, missing update on admins) |
+| Cloudflare D1 | 6 | 1 (`system_users`) | 2 (`finance_wallets`, `portfolio_visitors`) |
+| Firebase Firestore | 6 | 4 (`family_members`, `office_baju`, `attendance_students`, `countries`) | 2 (missing delete on logs/leaves) |
 | Supabase | 3 | 3 (`org_charts`, `birthday_pages`, `birthday_wishes`) | 0 |
 | Client-side | 4 | 2 (Todo, Caption Generator) | 2 (E-Claim, WiFi QR) |

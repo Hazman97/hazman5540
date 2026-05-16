@@ -1,36 +1,16 @@
 # TODO List — hazman5540
 
-> **Last updated:** 2026-03-11 10:55 MYT
-
----
-
-## Recent Updates Log
-
-| Date | Update |
-|------|--------|
-| 2026-03-11 | Security: password hashing (bcryptjs), auth guard 24h TTL, Firestore rules, Supabase RLS docs |
-| 2026-03-11 | New: Caption Generator page (`/caption`) with template engine + Gemini AI integration |
-| 2026-03-11 | Router: lazy-loaded ~25 routes, SEO meta titles, dynamic document.title |
-| 2026-03-11 | Photo collection: delete UI (trash icon + storage API + Firestore) |
-| 2026-03-11 | Office: added missing `deleteMember` with confirmation dialog |
-| 2026-03-11 | New: `ErrorBoundary.vue` reusable component |
-| 2026-03-11 | Generated comprehensive project documentation (`docs/` folder) |
-| 2026-03 | Added leave management features (apply leave, leave history, admin leave requests) |
-| 2026-03 | Multi-user birthday system with 6 templates, custom effects, memories video |
-| 2026-03 | Photo collection — file upload via custom storage API with progress tracking |
-| 2026-03 | Admin layout with sidebar navigation for attendance system |
-| 2026-03 | Family database with grid/table views, filtering, edit mode |
-| 2026-03 | Office shirt list with Firestore CRUD |
-| 2026-03 | WiFi QR generator with themed print cards |
+> **Last updated:** 2026-05-16
+> 📌 **Note:** For the changelog and recent updates, please refer to the "Recent Update Log" section in [`PROJECT_DOCUMENTATION.md`](./PROJECT_DOCUMENTATION.md).
 
 ---
 
 ## Phase 1 — Must-Fix Before Production
 
 - [ ] **Security: Move hardcoded API keys to environment variables** — Firebase config, Supabase key, and storage API key are all hardcoded in source files
-- [x] **Security: Hash passwords** — Implemented with bcryptjs (10 salt rounds) + legacy plain-text fallback
+- [x] **Security: Hash passwords** — Implemented with bcryptjs (10 salt rounds) for students. Admin auth migrated to Google OAuth.
 - [ ] **Security: Storage API key exposure** — `my-secret-key-123` is visible in client-side code
-- [x] **Auth: Improved authentication guards** — Session JSON validation, required fields check, 24-hour TTL
+- [x] **Auth: Improved authentication guards** — System migrated to Centralized Google OAuth and Router Guards with RBAC
 - [ ] **E-Claim: No backend persistence** — Runs entirely on client-side mock data; no database
 - [x] **Attendance: Firestore security rules** — Explicit rules in `firestore.rules`, unknown collections denied
 - [x] **Birthday/OrgChart RLS: Owner validation documented** — SQL files updated with stricter policy examples
@@ -43,7 +23,7 @@
 - [ ] Add proper `.env` file for all environment variables
 - [ ] Add loading states and error boundaries to all views
 - [ ] Add form validation with proper error messages across all forms
-- [ ] Implement logout for attendance student (currently clears localStorage only)
+- [ ] Implement robust logout for attendance student (Currently clears localStorage only). Admin logout via Google OAuth is already implemented.
 - [ ] Add responsive design fixes for E-Claim (desktop-only layout)
 - [ ] Add pagination for attendance records and leave history
 - [ ] Birthday page: handle image upload failures gracefully
@@ -74,5 +54,7 @@
 - [ ] Portfolio: add blog/articles section
 - [ ] Add i18n support (Malay/English)
 - [ ] Add unit tests (currently no test setup)
-- [ ] Add CI/CD pipeline
+- [x] Add CI/CD pipeline — Deployed natively via Cloudflare Pages CI/CD
 - [x] Caption Generator — Template + Gemini AI copywriting tool at `/caption`
+- [x] Built System Management Dashboard with RBAC
+- [x] Finance Tracker (3-Bucket System) with automated Grab sinking fund

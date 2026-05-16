@@ -158,12 +158,23 @@ hazman5540/
 ### Attendance System — Admin
 | Path | Component | Auth |
 |------|-----------|------|
-| `/attendance/admin/login` | `AdminLogin.vue` | — |
+| `/attendance/admin` | `AdminLayout.vue` | requiresAdmin |
 | `/attendance/admin/dashboard` | `AdminDashboard.vue` | requiresAdmin |
 | `/attendance/admin/students` | `StudentManagement.vue` | requiresAdmin |
 | `/attendance/admin/records` | `AttendanceRecords.vue` | requiresAdmin |
 | `/attendance/admin/settings` | `AdminSettings.vue` | requiresAdmin |
 | `/attendance/admin/leaves` | `LeaveRequests.vue` | requiresAdmin |
+
+### Finance Tracker
+| Path | Component | Auth |
+|------|-----------|------|
+| `/finance` | `FinanceDashboard.vue` | requiresAdmin (finance perm) |
+
+### System & Authentication (RBAC)
+| Path | Component | Auth |
+|------|-----------|------|
+| `/admin/login` | `GoogleLogin.vue` | — |
+| `/system-admin` | `AccessManagement.vue` | requiresSuperadmin |
 
 ### Misc
 | Path | Component | Auth |
@@ -193,6 +204,17 @@ hazman5540/
 
 **Firestore Index** (from `firestore.indexes.json`):
 - `attendance_logs`: composite index on `studentId` (ASC) + `clockInTime` (DESC)
+
+### Cloudflare D1 (SQLite) Tables
+
+| Table | Key Fields | Used By |
+|-------|------------|---------|
+| `portfolio_visitors` | `id`, `ip_hash`, `country`, `visited_at`, `user_agent` | Visitor Analytics |
+| `finance_wallets` | `id`, `name`, `type`, `target_amount`, `current_amount` | Finance Module |
+| `finance_categories` | `id`, `name`, `type`, `bucket_type` | Finance Module |
+| `finance_transactions` | `id`, `amount`, `transaction_type`, `category_id`, `wallet_id` | Finance Module |
+| `system_users` | `id`, `email`, `name`, `picture`, `is_superadmin` | RBAC Google Auth |
+| `user_permissions` | `id`, `user_id`, `project` | RBAC Google Auth |
 
 ### Supabase (PostgreSQL) Tables
 
@@ -230,6 +252,8 @@ This project uses **hardcoded configuration** (no `.env` file detected):
 
 | Date | Module | Change |
 |------|--------|--------|
+| 2026-05-10 | Auth | Replaced custom username/password admin login with Centralized Google OAuth and Role-Based Access Control (RBAC). Built System Management Dashboard. |
+| 2026-05-10 | Finance | Created the native 3-Bucket Financial Tracker utilizing Cloudflare D1 and Hono. Implemented automated 10% maintenance sinking fund for Grab business logic. |
 | 2026-05-08 | Portfolio | Completely redesigned E-Resume timeline with real experience, added MindGPS Tracker project, upgraded Tech Stack (PostgreSQL, ESP32, Teltonika, Rajant Mesh, Cloudflare Tunnels), and refined UI with premium glassmorphic effects. |
 | 2026-03-11 | Security | Password hashing with bcryptjs (10 salt rounds), auth guard 24h TTL, Firestore security rules |
 | 2026-03-11 | Caption Generator | New module — template-based + Gemini AI copywriting tool with 6 categories, 5 platforms, 4 tones |

@@ -1,6 +1,6 @@
 # Requirement Table Status — hazman5540
 
-> **Last updated:** 2026-03-11 10:55 MYT
+> **Last updated:** 2026-05-16
 
 ---
 
@@ -20,7 +20,7 @@
 | 10 | Attendance | Attendance history (student) | [DONE] | `/attendance/logs` with calendar view |
 | 11 | Attendance | Apply leave (MC/Annual) | [DONE] | Upload attachment, submit to Firestore |
 | 12 | Attendance | Leave history (student) | [DONE] | View all past requests |
-| 13 | Attendance | Admin login | [DONE] | Separate auth flow |
+| 13 | Attendance | Admin login | [DONE] | Migrated to Centralized Google OAuth + RBAC |
 | 14 | Attendance | Admin dashboard | [DONE] | Stats + live activity feed |
 | 15 | Attendance | Admin student management | [DONE] | Add/edit/toggle active students |
 | 16 | Attendance | Admin attendance records | [DONE] | View/filter all logs |
@@ -65,7 +65,7 @@
 | 55 | Todo List | Local todo management | [DONE] | Add/toggle/remove tasks |
 | 56 | Security | Environment variable management | [PENDING] | All secrets hardcoded (user chose to skip) |
 | 57 | Security | Password hashing | [DONE] | bcryptjs with 10 salt rounds + legacy fallback |
-| 58 | Security | Improved auth guards | [DONE] | JSON validation, required fields, 24h TTL |
+| 58 | Security | Improved auth guards | [DONE] | Google OAuth / JSON validation / Router Guards |
 | 59 | Security | Firestore security rules | [DONE] | Explicit rules in `firestore.rules` |
 | 60 | Caption Generator | Template-based caption generation | [DONE] | 6 categories × 4 tones × 5 platforms |
 | 61 | Caption Generator | AI-powered generation (Gemini) | [DONE] | Gemini 2.0 Flash with model fallback |
@@ -73,7 +73,13 @@
 | 63 | Router | SEO meta tags | [DONE] | Dynamic document.title via afterEach |
 | 64 | Components | Error boundary | [DONE] | Reusable `ErrorBoundary.vue` |
 | 65 | Testing | Unit tests | [PENDING] | No test framework configured |
-| 66 | CI/CD | Deployment pipeline | [PENDING] | Manual builds only |
+| 66 | CI/CD | Deployment pipeline | [DONE] | Deployed natively via Cloudflare Pages |
+| 67 | System & Auth | Centralized Google OAuth | [DONE] | Secure application stack |
+| 68 | System & Auth | RBAC Gateway & Middleware | [DONE] | Router-level guard & Hono Middleware |
+| 69 | System Admin | User Permissions Dashboard | [DONE] | Superadmin-only UI for access control |
+| 70 | Finance | 3-Bucket Finance Tracker | [DONE] | Native tracker utilizing Cloudflare D1 |
+| 71 | Finance | Sinking Fund Automation | [DONE] | Automated 10% Grab maintenance logic |
+| 72 | Portfolio | E-Resume Timeline | [DONE] | Upgraded UI with MindGPS Tracker |
 
 ---
 
@@ -81,10 +87,10 @@
 
 | Status | Count | Percentage |
 |--------|-------|-----------|
-| [DONE] | 62 | 94% |
+| [DONE] | 69 | 96% |
 | [PARTIAL] | 0 | 0% |
-| [PENDING] | 4 | 6% |
-| **Total** | **66** | **100%** |
+| [PENDING] | 3 | 4% |
+| **Total** | **72** | **100%** |
 
 ---
 
@@ -92,5 +98,5 @@
 
 1. **🟡 Medium:** Hardcoded API keys in source files (user chose to skip `.env` migration)
 2. **🟡 Medium:** E-Claim has no backend — currently a front-end demo only
-3. **🟢 Low:** No unit tests or CI/CD pipeline configured
+3. **🟢 Low:** No unit tests configured
 4. **🟢 Low:** Weather module is minimal/incomplete
