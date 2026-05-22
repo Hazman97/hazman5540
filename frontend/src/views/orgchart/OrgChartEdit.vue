@@ -1,439 +1,961 @@
 <template>
-  <div class="org-edit-page">
-    <div class="page-bg"></div>
+  <div class="org-demo-page" :class="'theme-' + selectedTheme">
+    <div class="page-background"></div>
 
-    <!-- Loading/Error States -->
-    <div v-if="loading" class="loading-screen">
-      <div class="loader"></div>
-      <p>Loading chart...</p>
-    </div>
-
-    <div v-else-if="error" class="error-screen">
-      <div class="error-content">
-        <div class="error-icon">🔒</div>
-        <h2>Access Denied</h2>
-        <p>{{ error }}</p>
-        <router-link to="/org-demo" class="go-demo-btn">Try Demo</router-link>
+    <!-- Orphan Alert Banner -->
+    <div v-if="orphanNodes.length > 0" class="orphan-alert">
+      <div class="orphan-alert-content">
+        <span class="orphan-icon">⚠️</span>
+        <div class="orphan-text">
+          <strong>Tree Structure Issue Detected!</strong>
+          <span
+            >{{ orphanNodes.length }} person(s) have missing parent
+            connections.</span
+          >
+        </div>
+        <button class="fix-btn" @click="showOrphanFixer = true">
+          🔧 Fix Now
+        </button>
       </div>
     </div>
 
-    <!-- Edit Mode -->
-    <div v-else class="edit-layout">
-      <!-- Navbar -->
-      <header class="edit-navbar">
-        <div class="nav-left">
-          <router-link :to="'/org/' + slug" class="back-link">
-            <span>←</span> View Chart
-          </router-link>
+    <!-- Header -->
+    <header class="demo-header create-header">
+      <router-link :to="'/org/' + slug" class="back-link">← View Chart</router-link>
+      <div class="header-center create-inputs">
+        <input v-model="companyName" class="title-input" placeholder="Company Name..." />
+        <div class="slug-wrapper">
+          <span class="slug-prefix">/org/</span>
+          <input v-model="slug" class="slug-input" readonly title="Slug cannot be changed after creation" />
         </div>
-        <div class="nav-center">
-          <h1 class="chart-title">{{ chart.title }}</h1>
-        </div>
-        <div class="nav-right">
-          <div class="save-status" v-if="lastSaved || hasChanges">
-            <span v-if="hasChanges" class="status-unsaved"
-              >Unsaved changes</span
-            >
-            <span v-else class="status-saved"
-              >Saved {{ formatTime(lastSaved) }}</span
-            >
-          </div>
+      </div>
+      <div class="edit-actions">
+        <button @click="deleteChart" class="cta-btn delete-btn">
+          🗑️ Delete
+        </button>
+        <button @click="saveChart" class="cta-btn create-btn" :disabled="isSubmitting">
+          {{ isSubmitting ? "Saving..." : "💾 Save Changes" }}
+        </button>
+      </div>
+    </header>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="toolbar-section">
+        <button class="tool-btn primary" @click="addRootNode">
+          👤 Add Person
+        </button>
+        <div class="divider"></div>
+        <button class="tool-btn" @click="fitChart">⊡ Fit</button>
+        <button class="tool-btn" @click="expandAll">↓ Expand</button>
+        <button class="tool-btn" @click="collapseAll">→ Collapse</button>
+      </div>
+
+      <div class="toolbar-section">
+        <span class="label">Theme:</span>
+        <div class="picker">
           <button
-            @click="saveChanges"
-            :disabled="saving"
-            class="primary-btn save-btn"
-          >
-            {{ saving ? "Saving..." : "Save Changes" }}
-          </button>
+            v-for="t in themes"
+            :key="t.id"
+            class="swatch"
+            :class="{ active: selectedTheme === t.id }"
+            :style="{ background: t.color }"
+            @click="applyTheme(t.id)"
+            :title="t.name"
+          ></button>
         </div>
-      </header>
+      </div>
 
-      <div class="main-content">
-        <!-- Left Sidebar: Settings -->
-        <aside class="sidebar settings-sidebar">
-          <div class="sidebar-header">
-            <h3>⚙️ Settings</h3>
-          </div>
-          <div class="sidebar-content">
-            <div class="form-group">
-              <label>Company Name</label>
-              <input v-model="chart.title" type="text" class="form-input" />
-            </div>
+      <div class="toolbar-section">
+        <span class="label">Style:</span>
+        <select
+          v-model="selectedStyle"
+          @change="renderChart"
+          class="style-select"
+        >
+          <option v-for="s in cardStyles" :key="s.id" :value="s.id">
+            {{ s.name }}
+          </option>
+        </select>
+      </div>
 
-            <div class="form-group">
-              <label>Description</label>
-              <textarea
-                v-model="chart.description"
-                rows="3"
-                class="form-textarea"
-              ></textarea>
-            </div>
-
-            <div class="form-group">
-              <label>Theme</label>
-              <div class="theme-grid">
-                <button
-                  v-for="t in themes"
-                  :key="t.id"
-                  class="theme-card"
-                  :class="{ active: theme === t.id }"
-                  :style="{ background: t.gradient }"
-                  @click="theme = t.id"
-                  :title="t.name"
-                >
-                  <span v-if="theme === t.id" class="check-icon">✓</span>
-                </button>
-              </div>
-            </div>
-
-            <div class="form-group checkbox-group">
-              <label class="checkbox-label">
-                <input type="checkbox" v-model="allowExport" />
-                <span class="checkbox-custom"></span>
-                <span>Allow viewers to export</span>
-              </label>
-            </div>
-
-            <div class="sharing-section">
-              <h4>📤 Sharing</h4>
-              <div class="share-box">
-                <input
-                  type="text"
-                  :value="publicUrl"
-                  readonly
-                  class="share-input"
-                />
-                <button
-                  @click="copyPublicUrl"
-                  class="icon-btn"
-                  title="Copy Link"
-                >
-                  {{ copied ? "✓" : "📋" }}
-                </button>
-              </div>
-              <a :href="publicUrl" target="_blank" class="view-external-link">
-                Open public link ↗
-              </a>
-            </div>
-
-            <div class="danger-zone">
-              <button @click="deleteChart" class="delete-chart-btn">
-                Delete Chart
-              </button>
+      <div class="toolbar-section search-section">
+        <div class="search-box">
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="Search by name or ID..."
+            @input="onSearch"
+          />
+          <span class="search-icon">🔍</span>
+        </div>
+        <div v-if="searchResults.length && searchQuery" class="search-results">
+          <div
+            v-for="r in searchResults"
+            :key="r.id"
+            class="search-item"
+            @click="focusNode(r.id)"
+          >
+            <span
+              class="result-avatar"
+              :style="{ background: getColorValue(r.color) }"
+              >{{ getInitials(r.name) }}</span
+            >
+            <div class="result-info">
+              <strong>{{ r.name }}</strong>
+              <small>{{ r.workerId }} • {{ r.position }}</small>
             </div>
           </div>
-        </aside>
+        </div>
+      </div>
 
-        <!-- Center: Tree Editor -->
-        <main class="editor-canvas">
-          <div class="canvas-header">
-            <h2>Structure</h2>
-            <div class="canvas-actions">
-              <button @click="addRootNode" class="secondary-btn small">
-                <span>➕</span> Add Root Person
-              </button>
-            </div>
+      <div class="toolbar-section">
+        <button class="tool-btn export-btn" @click="exportChart">
+          📥 Export PNG
+        </button>
+      </div>
+    </div>
+
+    <!-- Department Legend -->
+    <div class="department-legend" :class="{ minimized: isLegendMinimized }">
+      <div class="legend-header" @click="toggleLegend">
+        <span class="legend-label">Departments</span>
+        <button class="minimize-btn">
+          {{ isLegendMinimized ? "+" : "−" }}
+        </button>
+      </div>
+
+      <div v-show="!isLegendMinimized" class="legend-content-wrapper">
+        <template v-if="departments && departments.length > 0">
+          <div
+            v-for="dept in departments"
+            :key="dept.name"
+            class="dept-tag"
+            :style="{
+              background: dept.color + '20',
+              borderColor: dept.color,
+              color: dept.color,
+            }"
+          >
+            <span class="dept-dot" :style="{ background: dept.color }"></span>
+            {{ dept.name }} ({{ dept.count }})
           </div>
+        </template>
+        <div v-else class="no-depts">No departments defined</div>
+        <div class="legend-stats">
+          <span class="stat">👥 {{ nodes.length }} employees</span>
+          <span v-if="orphanNodes && orphanNodes.length" class="stat warning"
+            >⚠️ {{ orphanNodes.length }} orphan(s)</span
+          >
+        </div>
+      </div>
+    </div>
 
-          <div class="nodes-container" v-if="nodes.length">
-            <div class="nodes-list">
+    <!-- Chart Container -->
+    <div class="chart-area" ref="chartArea">
+      <div ref="chartContainer" class="chart-canvas"></div>
+    </div>
+
+
+
+    <!-- Node Editor Modal -->
+    <div v-if="showEditor" class="modal-backdrop" @click.self="closeEditor">
+      <div class="modal">
+        <div class="modal-header">
+          <h3>{{ modalTitle }}</h3>
+          <button class="close-btn" @click="closeEditor">×</button>
+        </div>
+        <form @submit.prevent="saveNode" class="modal-body">
+          <div class="field">
+            <label>Name *</label>
+            <input
+              v-model="nodeForm.name"
+              type="text"
+              placeholder="John Doe"
+              required
+            />
+          </div>
+          <div class="field">
+            <label>Position *</label>
+            <input
+              v-model="nodeForm.position"
+              type="text"
+              placeholder="CEO, Manager..."
+              required
+            />
+          </div>
+          <div class="field">
+            <label>Department</label>
+            <input
+              v-model="nodeForm.department"
+              type="text"
+              placeholder="Engineering, Sales..."
+              list="dept-list"
+            />
+            <datalist id="dept-list">
+              <option v-for="d in uniqueDepartments" :key="d" :value="d" />
+            </datalist>
+          </div>
+          <div class="field">
+            <label>Email</label>
+            <input
+              v-model="nodeForm.email"
+              type="email"
+              placeholder="john@company.com"
+            />
+          </div>
+          <div class="field">
+            <label>Photo URL (Optional)</label>
+            <input
+              v-model="nodeForm.imageUrl"
+              type="url"
+              placeholder="https://i.imgur.com/example.jpg"
+            />
+            <small class="form-hint"
+              >💡 Upload your photo to
+              <a href="https://imgur.com/upload" target="_blank">imgur.com</a>
+              and paste the URL here</small
+            >
+          </div>
+          <div class="field">
+            <label>Reports To (Parent)</label>
+            <div class="custom-select" v-click-outside="closeParentDropdown">
               <div
-                v-for="node in flatNodes"
-                :key="node.id"
-                class="node-row"
-                :style="{ paddingLeft: node.level * 24 + 'px' }"
+                class="selected-option"
+                :class="{ active: showParentDropdown }"
+                @click="toggleParentDropdown"
               >
-                <div class="node-connector" v-if="node.level > 0"></div>
-                <div class="node-card">
-                  <span class="node-avatar" v-html="getAvatarIcon(node)"></span>
-                  <div class="node-info">
-                    <span class="node-name">{{ node.name }}</span>
-                    <span class="node-role">{{ node.position }}</span>
+                <div v-if="selectedParentNode" class="selected-content">
+                  <span class="selected-avatar">{{
+                    getInitials(selectedParentNode.name)
+                  }}</span>
+                  <div class="selected-info">
+                    <strong>{{ selectedParentNode.name }}</strong>
+                    <small>{{ selectedParentNode.position }}</small>
                   </div>
-                  <div class="node-controls">
-                    <button
-                      @click="addChild(node.id)"
-                      class="control-btn"
-                      title="Add Report"
+                </div>
+                <div v-else class="placeholder">
+                  -- No Manager (Root Level) --
+                </div>
+                <span class="chevron">▼</span>
+              </div>
+
+              <div v-if="showParentDropdown" class="dropdown-options">
+                <div class="dropdown-search">
+                  <input
+                    ref="parentSearchInput"
+                    v-model="parentSearchQuery"
+                    type="text"
+                    placeholder="Search people..."
+                    @click.stop
+                  />
+                </div>
+                <div class="options-list">
+                  <div
+                    class="option-item root-option"
+                    :class="{ selected: selectedParentId === null }"
+                    @click="selectParent(null)"
+                  >
+                    <div class="option-avatar">🚫</div>
+                    <div class="option-info">
+                      <strong>No Manager</strong>
+                      <small>Set as Root Level Node</small>
+                    </div>
+                  </div>
+                  <div
+                    v-for="parent in filteredParents"
+                    :key="parent.id"
+                    class="option-item"
+                    :class="{ selected: selectedParentId === parent.id }"
+                    @click="selectParent(parent.id)"
+                  >
+                    <div
+                      class="option-avatar"
+                      :style="{ background: getColorValue(parent.color) }"
                     >
-                      ➕
-                    </button>
-                    <button
-                      @click="editNode(node.id)"
-                      class="control-btn"
-                      title="Edit"
-                    >
-                      ✏️
-                    </button>
-                    <button
-                      @click="deleteNode(node.id)"
-                      class="control-btn delete"
-                      title="Delete"
-                    >
-                      🗑️
-                    </button>
+                      {{ getInitials(parent.name) }}
+                    </div>
+                    <div class="option-info">
+                      <strong>{{ parent.name }}</strong>
+                      <small>{{ parent.position }}</small>
+                    </div>
+                  </div>
+                  <div v-if="filteredParents.length === 0" class="no-results">
+                    No matching people found
                   </div>
                 </div>
               </div>
             </div>
+            <small class="form-hint"
+              >Select who this person reports to in the hierarchy</small
+            >
           </div>
-
-          <div v-else class="empty-state">
-            <div class="empty-icon">👥</div>
-            <h3>Start building your chart</h3>
-            <p>Add people to create your organization structure</p>
-            <button @click="addRootNode" class="primary-btn">
-              Add First Person
+          <div class="modal-footer">
+            <button type="button" class="btn-secondary" @click="closeEditor">
+              Cancel
+            </button>
+            <button type="submit" class="btn-primary">
+              {{
+                isReplacing
+                  ? "Replace Person"
+                  : editingNode
+                  ? "Save Changes"
+                  : "Add Person"
+              }}
             </button>
           </div>
-        </main>
-
-        <!-- Right Sidebar: Preview -->
-        <aside class="sidebar preview-sidebar">
-          <div class="sidebar-header">
-            <h3>📱 Preview</h3>
-          </div>
-          <div class="sidebar-content preview-bg">
-            <div class="preview-chart" :class="'theme-' + theme">
-              <div class="preview-mini-tree" v-if="rootNodes.length">
-                <div
-                  v-for="node in rootNodes"
-                  :key="node.id"
-                  class="mini-node-wrapper"
-                >
-                  <div class="mini-card" :class="'color-' + node.color">
-                    <span
-                      class="mini-avatar"
-                      v-html="getAvatarIcon(node)"
-                    ></span>
-                    <div class="mini-info">
-                      <strong>{{ node.name }}</strong>
-                      <small>{{ node.position }}</small>
-                    </div>
-                  </div>
-                  <!-- First level children preview only -->
-                  <div class="mini-children" v-if="getChildren(node.id).length">
-                    <div
-                      v-for="child in getChildren(node.id)"
-                      :key="child.id"
-                      class="mini-child"
-                    >
-                      <span
-                        class="tiny-avatar"
-                        v-html="getAvatarIcon(child)"
-                      ></span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <p v-else class="preview-empty">Add people to see preview</p>
-            </div>
-          </div>
-        </aside>
+        </form>
       </div>
     </div>
 
-    <!-- Editor Modal -->
-    <transition name="fade">
-      <div v-if="showEditor" class="modal-overlay" @click.self="closeEditor">
-        <div class="editor-modal">
-          <div class="modal-header">
-            <h3>{{ editingNode ? "Edit Person" : "Add Person" }}</h3>
-            <button class="close-btn" @click="closeEditor">×</button>
-          </div>
-          <form @submit.prevent="saveNode" class="node-form">
-            <div class="form-grid">
-              <div class="form-group">
-                <label>Name *</label>
-                <input
-                  v-model="nodeForm.name"
-                  type="text"
-                  class="form-input"
-                  required
-                  placeholder="Jane Doe"
-                />
-              </div>
-              <div class="form-group">
-                <label>Position *</label>
-                <input
-                  v-model="nodeForm.position"
-                  type="text"
-                  class="form-input"
-                  required
-                  placeholder="Software Engineer"
-                />
-              </div>
-              <div class="form-group">
-                <label>Department</label>
-                <input
-                  v-model="nodeForm.department"
-                  type="text"
-                  class="form-input"
-                  placeholder="Engineering"
-                />
-              </div>
-              <div class="form-group">
-                <label>Email</label>
-                <input
-                  v-model="nodeForm.email"
-                  type="email"
-                  class="form-input"
-                  placeholder="jane@example.com"
-                />
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label>Photo URL (Optional)</label>
-              <input
-                v-model="nodeForm.imageUrl"
-                type="url"
-                class="form-input"
-                placeholder="https://example.com/photo.jpg"
-              />
-              <small class="form-hint"
-                >Paste a link to an image (e.g. from Imgur or LinkedIn)</small
+    <!-- Action Menu Modal -->
+    <div
+      v-if="showActionMenu"
+      class="modal-backdrop"
+      @click.self="closeActionMenu"
+    >
+      <div class="action-menu-modal">
+        <div class="action-menu-header">
+          <div class="selected-person">
+            <span
+              class="person-avatar"
+              :style="{ background: getColorValue(selectedNode?.color) }"
+              >{{ getInitials(selectedNode?.name || "") }}</span
+            >
+            <div class="person-details">
+              <strong>{{ selectedNode?.name }}</strong>
+              <small
+                >{{ selectedNode?.workerId }} •
+                {{ selectedNode?.position }}</small
               >
             </div>
+          </div>
+          <button class="close-btn" @click="closeActionMenu">×</button>
+        </div>
+        <div class="action-menu-body">
+          <button class="action-item" @click="handleAddSubordinate">
+            <span class="action-icon">➕</span>
+            <div class="action-text">
+              <strong>Add Subordinate</strong
+              ><small>Add someone reporting to this person</small>
+            </div>
+          </button>
+          <button class="action-item" @click="handleEditPerson">
+            <span class="action-icon">✏️</span>
+            <div class="action-text">
+              <strong>Edit Details</strong
+              ><small>Update name, position, photo, etc.</small>
+            </div>
+          </button>
+          <button class="action-item replace" @click="handleReplacePerson">
+            <span class="action-icon">🔄</span>
+            <div class="action-text">
+              <strong>Replace Person</strong
+              ><small
+                >New person takes this position (keeps subordinates)</small
+              >
+            </div>
+          </button>
+          <button class="action-item danger" @click="handleDeletePerson">
+            <span class="action-icon">🗑️</span>
+            <div class="action-text">
+              <strong>Remove from Chart</strong>
+              <small v-if="getSubordinateCount(selectedNode?.id) > 0"
+                >⚠️ {{ getSubordinateCount(selectedNode?.id) }} subordinate(s)
+                will need reassignment</small
+              >
+              <small v-else>Remove this person from org chart</small>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
 
-            <div class="form-group">
-              <label>Card Color</label>
-              <div class="color-grid">
-                <button
-                  v-for="color in cardColors"
-                  :key="color.id"
-                  type="button"
-                  class="color-select-btn"
-                  :class="{ selected: nodeForm.color === color.id }"
-                  :style="{ background: color.value }"
-                  @click="nodeForm.color = color.id"
-                ></button>
+    <!-- Orphan Fixer Modal -->
+    <div
+      v-if="showOrphanFixer"
+      class="modal-backdrop"
+      @click.self="showOrphanFixer = false"
+    >
+      <div class="orphan-modal">
+        <div class="modal-header">
+          <h3>⚠️ Fix Broken Tree Structure</h3>
+          <button class="close-btn" @click="showOrphanFixer = false">×</button>
+        </div>
+        <div class="orphan-modal-body">
+          <p class="orphan-intro">
+            The following people have missing parent connections. Their
+            manager/supervisor no longer exists in the chart. Please assign them
+            to a new parent or make them a root node.
+          </p>
+
+          <div
+            v-for="orphan in orphanNodes"
+            :key="orphan.id"
+            class="orphan-item"
+          >
+            <div class="orphan-person">
+              <span
+                class="orphan-avatar"
+                :style="{ background: getColorValue(orphan.color) }"
+                >{{ getInitials(orphan.name) }}</span
+              >
+              <div class="orphan-info">
+                <strong>{{ orphan.name }}</strong>
+                <small>{{ orphan.workerId }} • {{ orphan.position }}</small>
+                <div class="orphan-error">
+                  ❌ Parent ID "{{ orphan.parentId }}" not found
+                </div>
               </div>
             </div>
-
-            <div class="form-group">
-              <label>Reports To</label>
-              <select v-model="selectedParentId" class="form-select">
-                <option :value="null">-- No Manager (Root Level) --</option>
+            <div class="orphan-fix">
+              <label>Assign new parent:</label>
+              <select v-model="orphanFixes[orphan.id]" class="orphan-select">
+                <option value="">-- Make Root (No Parent) --</option>
                 <option
-                  v-for="node in availableParents"
-                  :key="node.id"
-                  :value="node.id"
+                  v-for="p in getValidParents(orphan.id)"
+                  :key="p.id"
+                  :value="p.id"
                 >
-                  {{ node.name }} - {{ node.position }}
+                  {{ p.name }} ({{ p.workerId }})
                 </option>
               </select>
             </div>
+          </div>
 
-            <div class="modal-actions">
-              <button type="button" class="secondary-btn" @click="closeEditor">
-                Cancel
-              </button>
-              <button type="submit" class="primary-btn">
-                {{ editingNode ? "Save Update" : "Add Person" }}
-              </button>
-            </div>
-          </form>
+          <div class="orphan-actions">
+            <button class="btn-secondary" @click="showOrphanFixer = false">
+              Cancel
+            </button>
+            <button class="btn-primary" @click="applyOrphanFixes">
+              ✅ Apply Fixes
+            </button>
+          </div>
         </div>
       </div>
-    </transition>
+    </div>
   </div>
 </template>
 
 <script>
+import { OrgChart } from "d3-org-chart";
+import * as d3 from "d3";
 import { orgchartApi } from "@/api/orgchart";
+import { 
+  orgChartThemes, 
+  orgChartStyles, 
+  orgChartColors, 
+  orgChartDepartmentColors,
+  getTheme,
+  getColorValue,
+  getDepartmentColor,
+  getInitials,
+  getCardStyle
+} from "@/utils/orgChartStyles";
 
 export default {
+  directives: {
+    clickOutside: {
+      mounted(el, binding) {
+        el.clickOutsideEvent = function (event) {
+          if (!(el === event.target || el.contains(event.target))) {
+            binding.value(event);
+          }
+        };
+        document.body.addEventListener("click", el.clickOutsideEvent);
+      },
+      unmounted(el) {
+        document.body.removeEventListener("click", el.clickOutsideEvent);
+      },
+    },
+  },
   name: "OrgChartEdit",
   data() {
     return {
-      loading: true,
-      error: null,
-      chart: { title: "", description: "" },
-      nodes: [],
-      theme: "corporate",
-      allowExport: true,
-      saving: false,
-      hasChanges: false,
-      lastSaved: null,
-      slug: "",
-      token: "",
-      copied: false,
-
+      chart: null,
+      selectedTheme: "light",
+      selectedStyle: "modern",
+      searchQuery: "",
+      searchResults: [],
+      photoMode: "upload",
       showEditor: false,
+      showActionMenu: false,
+      showOrphanFixer: false,
       editingNode: null,
+      selectedNode: null,
       parentForNewNode: null,
       selectedParentId: null,
+      parentSearchQuery: "",
+      showParentDropdown: false,
+      isReplacing: false,
+      isLegendMinimized: false,
+      workerIdError: "",
+      nextIdNumber: 9,
+      orphanFixes: {},
       nodeForm: {
         name: "",
         position: "",
         department: "",
         email: "",
         imageUrl: "",
+        avatar: "person",
         color: "blue",
       },
-
-      themes: [
-        {
-          id: "light",
-          name: "Light",
-          gradient: "linear-gradient(135deg, #f0f4f8, #d9e2ec)",
-        },
-        {
-          id: "dark",
-          name: "Dark",
-          gradient: "linear-gradient(135deg, #0f172a, #1e293b)",
-        },
-        {
-          id: "blue",
-          name: "Ocean",
-          gradient: "linear-gradient(135deg, #0c1929, #1e3a5f)",
-        },
-        {
-          id: "purple",
-          name: "Violet",
-          gradient: "linear-gradient(135deg, #1e1033, #4c1d95)",
-        },
-        {
-          id: "green",
-          name: "Forest",
-          gradient: "linear-gradient(135deg, #022c22, #064e3b)",
-        },
-        {
-          id: "warm",
-          name: "Sunset",
-          gradient: "linear-gradient(135deg, #1c1210, #7c2d12)",
-        },
-      ],
-      cardColors: [
-        { id: "blue", value: "#3b82f6" },
-        { id: "teal", value: "#14b8a6" },
-        { id: "purple", value: "#8b5cf6" },
-        { id: "pink", value: "#ec4899" },
-        { id: "orange", value: "#f97316" },
-        { id: "green", value: "#22c55e" },
-      ],
+      companyName: "",
+      slug: "",
+      description: "",
+      token: "",
+      isSubmitting: false,
+      themes: orgChartThemes,
+      cardStyles: orgChartStyles,
+      colors: orgChartColors,
+      departmentColors: orgChartDepartmentColors,
+      nodes: [],
+      loading: true,
+      error: null,
     };
   },
   computed: {
-    rootNodes() {
-      return this.nodes.filter((n) => !n.parentId);
+    modalTitle() {
+      if (this.isReplacing) return "Replace Person";
+      if (this.editingNode) return "Edit Person";
+      return "Add Person";
     },
-    flatNodes() {
-      const result = [];
-      const addWithLevel = (nodes, level) => {
-        nodes.forEach((node) => {
-          result.push({ ...node, level });
-          const children = this.nodes.filter((n) => n.parentId === node.id);
-          addWithLevel(children, level + 1);
-        });
-      };
-      addWithLevel(this.rootNodes, 0);
+    departments() {
+      console.log(
+        "departments computed called, nodes:",
+        this.nodes?.length,
+        "first node dept:",
+        this.nodes?.[0]?.department
+      );
+
+      if (
+        !this.nodes ||
+        !Array.isArray(this.nodes) ||
+        this.nodes.length === 0
+      ) {
+        console.log("departments: returning empty - nodes check failed");
+        return [];
+      }
+
+      const depts = {};
+      this.nodes.forEach((n) => {
+        const deptName = n.department || "";
+        console.log("Node:", n.name, "Department:", deptName);
+        if (deptName && deptName.trim()) {
+          const key = deptName.trim();
+          if (!depts[key]) {
+            depts[key] = {
+              name: key,
+              count: 0,
+              color:
+                this.departmentColors[key] ||
+                this.getColorValue(n.color) ||
+                "#3b82f6",
+            };
+          }
+          depts[key].count++;
+        }
+      });
+
+      const result = Object.values(depts).sort((a, b) => b.count - a.count);
+      console.log("Departments FINAL result:", result);
       return result;
     },
+    uniqueDepartments() {
+      return [...new Set(this.nodes.map((n) => n.department).filter(Boolean))];
+    },
+    orphanNodes() {
+      const nodeIds = new Set(this.nodes.map((n) => n.id));
+      return this.nodes.filter((n) => n.parentId && !nodeIds.has(n.parentId));
+    },
+    validNodes() {
+      const nodeIds = new Set(this.nodes.map((n) => n.id));
+      return this.nodes.filter((n) => !n.parentId || nodeIds.has(n.parentId));
+    },
+  },
+  watch: {
+    orphanNodes: {
+      immediate: true,
+      handler(newVal) {
+        // Initialize orphan fixes with empty values
+        if (newVal && Array.isArray(newVal)) {
+          newVal.forEach((orphan) => {
+            if (!(orphan.id in this.orphanFixes)) {
+              this.orphanFixes[orphan.id] = "";
+            }
+          });
+        }
+      },
+    },
+  },
+  async mounted() {
+    this.slug = this.$route.params.slug;
+    this.token = this.$route.query.token;
+    await this.loadChart();
+    if (!this.error) {
+      this.$nextTick(() => {
+        this.renderChart();
+      });
+    }
+    window.addEventListener("resize", this.handleResize);
+    window.addEventListener("orgNodeClick", (e) =>
+      this.openActionMenu(e.detail)
+    );
+  },
+  beforeUnmount() {
+    window.removeEventListener("resize", this.handleResize);
+  },
+  methods: {
+    toggleLegend() {
+      this.isLegendMinimized = !this.isLegendMinimized;
+    },
+    getDepartmentColor,
+    getTheme,
+    getColorValue,
+    getInitials,
+    formatSlug() {
+      this.slug = this.slug
+        .toLowerCase()
+        .replace(/[^a-z0-9-]/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "");
+    },
+    async loadChart() {
+      try {
+        const data = await orgchartApi.get(this.slug);
+        if (!data) throw new Error("Chart not found");
+
+        let userEmail = null;
+        try {
+          const userRaw = localStorage.getItem('hazman_user');
+          if (userRaw) userEmail = JSON.parse(userRaw)?.email;
+        } catch (e) {}
+
+        const isAuthenticated = (this.token && this.token === data.owner_token) || (userEmail && userEmail === data.owner_token);
+
+        if (!isAuthenticated) {
+          throw new Error("Invalid access token or not authorized");
+        }
+
+        if (!this.token) this.token = data.owner_token;
+
+        const chartData = typeof data.chart_data === 'string' ? JSON.parse(data.chart_data) : (data.chart_data || []);
+        const customSettings = typeof data.custom_settings === 'string' ? JSON.parse(data.custom_settings) : (data.custom_settings || {});
+
+        this.companyName = data.title || "";
+        this.description = data.description || "";
+        this.selectedTheme = data.theme || "corporate";
+        this.selectedStyle = customSettings.style || "modern";
+        this.nodes = chartData;
+
+      } catch (err) {
+        this.error = err.message || "Unable to access this chart for editing.";
+        alert(this.error);
+        this.$router.push('/org-demo');
+      } finally {
+        this.loading = false;
+      }
+    },
+    async saveChart() {
+      this.isSubmitting = true;
+      try {
+        await orgchartApi.update(this.slug, {
+          title: this.companyName,
+          description: this.description,
+          theme: this.selectedTheme,
+          chart_data: this.nodes,
+          custom_settings: { style: this.selectedStyle, allowExport: true },
+          owner_token: this.token,
+        });
+        alert("Chart saved successfully!");
+      } catch (err) {
+        alert("Error saving chart: " + err.message);
+      } finally {
+        this.isSubmitting = false;
+      }
+    },
+    async deleteChart() {
+      if (!confirm("Are you sure you want to delete this chart? This cannot be undone.")) return;
+      try {
+        await orgchartApi.delete(this.slug, this.token);
+        this.$router.push("/org-demo");
+      } catch (err) {
+        alert("Failed to delete: " + err.message);
+      }
+    },
+    toggleParentDropdown() {
+      this.showParentDropdown = !this.showParentDropdown;
+      if (this.showParentDropdown) {
+        this.$nextTick(() => {
+          this.$refs.parentSearchInput?.focus();
+        });
+      }
+    },
+    selectParent(nodeId) {
+      if (this.selectedParentId === nodeId) {
+        this.selectedParentId = null; // Toggle off if already selected
+      } else {
+        this.selectedParentId = nodeId;
+      }
+      this.showParentDropdown = false;
+      this.parentSearchQuery = "";
+    },
+    closeParentDropdown() {
+      this.showParentDropdown = false;
+    },
+    getCardStyle(data, theme) {
+      return getCardStyle(data, this.selectedTheme, this.selectedStyle, this.getSubordinateCount);
+    },
+    renderChart() {
+      const container = this.$refs.chartContainer;
+      if (!container) return;
+      const theme = this.getTheme();
+
+      // Only render valid nodes (exclude orphans)
+      const chartData = this.validNodes.map((n) => ({
+        ...n,
+        parentId: n.parentId || null,
+      }));
+
+      this.chart = new OrgChart()
+        .container(container)
+        .data(chartData)
+        .nodeWidth((d) => 250)
+        .nodeHeight((d) =>
+          this.selectedStyle === "minimal" || this.selectedStyle === "modern"
+            ? 120
+            : 280
+        )
+        .childrenMargin((d) => 50)
+        .compactMarginBetween((d) => 35)
+        .siblingsMargin((d) => 35)
+        .neighbourMargin((d) => 50)
+        .buttonContent(
+          ({ node }) =>
+            `<div style="width:18px;height:18px;border-radius:50%;background:${
+              theme.link
+            };color:white;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;box-shadow:0 2px 4px rgba(0,0,0,0.2);">${
+              node.children ? "−" : "+"
+            }</div>`
+        )
+        .nodeContent((d) => this.getCardStyle(d.data, theme))
+        .onNodeClick((d) => {
+          this.openActionMenu(d.data.id);
+        })
+        .linkUpdate(function (d) {
+          d3.select(this).attr("stroke", theme.link).attr("stroke-width", 2);
+        })
+        .render();
+
+      setTimeout(() => this.chart?.fit(), 100);
+    },
+    applyTheme(id) {
+      this.selectedTheme = id;
+      this.renderChart();
+    },
+    handleResize() {
+      this.chart?.render();
+      setTimeout(() => this.chart?.fit(), 100);
+    },
+    fitChart() {
+      this.chart?.fit();
+    },
+    expandAll() {
+      this.chart?.expandAll();
+    },
+    collapseAll() {
+      this.chart?.collapseAll();
+    },
+    openActionMenu(nodeId) {
+      // When a node is clicked, open the editor to edit it
+      this.editNode(nodeId);
+    },
+    addRootNode() {
+      this.editingNode = null;
+      this.parentForNewNode = null;
+      this.isReplacing = false;
+      this.nodeForm = {
+        workerId: "",
+        name: "",
+        position: "",
+        department: "",
+        email: "",
+        phone: "",
+        imageUrl: "",
+        color: "blue",
+      };
+      this.generateWorkerId();
+      this.selectedParentId = null;
+      this.photoMode = "upload";
+      this.showEditor = true;
+    },
+    addChild(parentId) {
+      this.editingNode = null;
+      this.parentForNewNode = parentId;
+      this.isReplacing = false;
+      this.nodeForm = {
+        workerId: "",
+        name: "",
+        position: "",
+        department: "",
+        email: "",
+        phone: "",
+        imageUrl: "",
+        color: "blue",
+      };
+      this.generateWorkerId();
+      this.selectedParentId = parentId;
+      this.photoMode = "upload";
+      this.showEditor = true;
+    },
+    editNode(nodeId) {
+      const node = this.nodes.find((n) => n.id === nodeId);
+      if (node) {
+        this.editingNode = node;
+        this.isReplacing = false;
+        this.nodeForm = { ...node };
+        this.selectedParentId = node.parentId || null;
+        this.photoMode = node.imageUrl?.startsWith("data:") ? "upload" : "url";
+        this.showEditor = true;
+      }
+    },
+    replaceNode(nodeId) {
+      const node = this.nodes.find((n) => n.id === nodeId);
+      if (node) {
+        this.editingNode = node;
+        this.isReplacing = true;
+        this.nodeForm = {
+          workerId: node.workerId,
+          name: "",
+          position: node.position,
+          department: node.department,
+          email: "",
+          phone: "",
+          imageUrl: "",
+          color: node.color,
+        };
+        this.photoMode = "upload";
+        this.showEditor = true;
+      }
+    },
+    deleteNode(nodeId) {
+      const subCount = this.getSubordinateCount(nodeId);
+      const node = this.nodes.find((n) => n.id === nodeId);
+      const msg =
+        subCount > 0
+          ? `Remove ${node?.name}?\n\n⚠️ ${subCount} subordinate(s) will be disconnected and need to be reassigned to a new manager.`
+          : `Remove ${node?.name}? This cannot be undone.`;
+
+      if (confirm(msg)) {
+        // Only delete this person, NOT their subordinates
+        // Subordinates become orphans and will show in the fix modal
+        this.nodes = this.nodes.filter((n) => n.id !== nodeId);
+        this.renderChart();
+
+        // If orphans were created, show the fixer modal automatically
+        if (this.orphanNodes.length > 0) {
+          setTimeout(() => {
+            this.showOrphanFixer = true;
+          }, 300);
+        }
+      }
+    },
+    closeEditor() {
+      this.showEditor = false;
+      this.editingNode = null;
+      this.isReplacing = false;
+      this.workerIdError = "";
+    },
+    generateWorkerId() {
+      const existingIds = this.nodes.map((n) => n.workerId);
+      let newId;
+      do {
+        newId = `EMP${String(this.nextIdNumber++).padStart(3, "0")}`;
+      } while (existingIds.includes(newId));
+      this.nodeForm.workerId = newId;
+      this.workerIdError = "";
+    },
+    validateWorkerId() {
+      const id = (this.nodeForm.workerId || "").trim();
+      if (!id) {
+        this.workerIdError = "Worker ID is required";
+        return false;
+      }
+      const existing = this.nodes.find(
+        (n) => n.workerId === id && n.id !== this.editingNode?.id
+      );
+      if (existing) {
+        this.workerIdError = `ID "${id}" already used by ${existing.name}`;
+        return false;
+      }
+      this.workerIdError = "";
+      return true;
+    },
+    saveNode() {
+      this.nodeForm.parentId = this.selectedParentId || "";
+      if (!this.validateWorkerId()) return;
+
+      if (this.editingNode) {
+        const idx = this.nodes.findIndex((n) => n.id === this.editingNode.id);
+        if (idx !== -1)
+          this.nodes[idx] = { ...this.nodes[idx], ...this.nodeForm };
+      } else {
+        this.nodes.push({
+          id: Date.now().toString(),
+          ...this.nodeForm,
+          parentId: this.parentForNewNode || "",
+        });
+      }
+      this.closeEditor();
+      this.renderChart();
+    },
+    async exportChart() {
+      const container = this.$refs.chartContainer;
+      if (!container) {
+        alert("No chart container found");
+        return;
+      }
+
+      // 1. Force re-render and fit
+      if (this.chart) {
+        this.chart.render();
+        this.chart.fit();
+      }
+
+      // 2. Wait for animation
+      await new Promise((resolve) => setTimeout(resolve, 800));
+
+      // 3. Apply background
+      const originalBackground = container.style.background;
+      const theme = this.getTheme();
+      // Apply theme background explicitly for the screenshot
+      container.style.background = theme.bg;
+
+      try {
+        const canvas = await html2canvas(container, {
+          backgroundColor: null,
+          scale: 2,
+          useCORS: true,
+          logging: false,
+        });
+        const link = document.createElement("a");
+        link.download = `org-chart-${Date.now()}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      } catch (err) {
+        console.error("Export failed:", err);
+        alert("Export failed");
+      } finally {
+        // Restore background
+        container.style.background = originalBackground;
+      }
+    },
+  },
+  computed: {
     availableParents() {
       if (this.editingNode) {
-        // Exclude the node being edited and its descendants to prevent cycles
+        // Exclude the node being edited and its descendants
         const descendants = new Set();
         const addDescendants = (nodeId) => {
           this.nodes
@@ -449,889 +971,1677 @@ export default {
       }
       return this.nodes;
     },
-    publicUrl() {
-      return `${window.location.origin}/org/${this.slug}`;
+    filteredParents() {
+      const query = this.parentSearchQuery.toLowerCase();
+      return this.availableParents.filter(
+        (p) =>
+          p.name.toLowerCase().includes(query) ||
+          p.position.toLowerCase().includes(query)
+      );
     },
-  },
-  watch: {
-    nodes: {
-      deep: true,
-      handler() {
-        this.hasChanges = true;
-      },
+    selectedParentNode() {
+      return this.nodes.find((n) => n.id === this.selectedParentId);
     },
-    theme() {
-      this.hasChanges = true;
+    orphanNodes() {
+      if (!this.nodes || this.nodes.length === 0) return [];
+      const validIds = new Set(this.nodes.map((n) => n.id));
+      return this.nodes.filter(
+        (n) => n.parentId && n.parentId !== "" && !validIds.has(n.parentId)
+      );
     },
-    allowExport() {
-      this.hasChanges = true;
+    validNodes() {
+      if (!this.nodes || this.nodes.length === 0) return [];
+      const orphanIds = new Set(this.orphanNodes.map((n) => n.id));
+      return this.nodes.filter((n) => !orphanIds.has(n.id));
     },
-    "chart.title"() {
-      this.hasChanges = true;
+    rootNodes() {
+      return this.validNodes.filter((n) => !n.parentId || n.parentId === "");
     },
-    "chart.description"() {
-      this.hasChanges = true;
+    uniqueDepartments() {
+      if (!this.nodes || this.nodes.length === 0) return [];
+      return [...new Set(this.nodes.map((n) => n.department).filter(Boolean))];
     },
-  },
-  async mounted() {
-    this.slug = this.$route.params.slug;
-    this.token = this.$route.query.token;
-    await this.loadChart();
-  },
-  methods: {
-    async loadChart() {
-      try {
-        const data = await orgchartApi.get(this.slug);
-
-        if (!data) throw new Error("Chart not found");
-
-        // Auth logic: Check URL token OR logged in user email
-        let userEmail = null;
-        try {
-          const userRaw = localStorage.getItem('hazman_user');
-          if (userRaw) {
-            userEmail = JSON.parse(userRaw)?.email;
-          }
-        } catch (e) {}
-
-        const isAuthenticated = (this.token && this.token === data.owner_token) || (userEmail && userEmail === data.owner_token);
-
-        if (!isAuthenticated) {
-          throw new Error("Invalid access token or not authorized");
-        }
-
-        // If authenticated via email and no token in URL, set the token so saving works
-        if (!this.token) {
-          this.token = data.owner_token;
-        }
-
-        const chartData = typeof data.chart_data === 'string' ? JSON.parse(data.chart_data) : (data.chart_data || []);
-        const customSettings = typeof data.custom_settings === 'string' ? JSON.parse(data.custom_settings) : (data.custom_settings || {});
-
-        this.chart = data;
-        this.nodes = chartData;
-        this.theme = data.theme || "corporate";
-        this.allowExport = customSettings.allowExport !== false;
-        this.lastSaved = new Date(data.updated_at);
-        this.hasChanges = false;
-      } catch (err) {
-        this.error = err.message || "Unable to access this chart for editing.";
-      } finally {
-        this.loading = false;
-      }
-    },
-    async saveChanges() {
-      this.saving = true;
-      try {
-        await orgchartApi.update(this.slug, {
-          title: this.chart.title,
-          description: this.chart.description,
-          theme: this.theme,
-          chart_data: this.nodes,
-          custom_settings: {
-            allowExport: this.allowExport,
-          },
-          owner_token: this.token,
-        });
-
-        this.lastSaved = new Date();
-        this.hasChanges = false;
-      } catch (err) {
-        alert("Failed to save: " + err.message);
-      } finally {
-        this.saving = false;
-      }
-    },
-    async deleteChart() {
+    departments() {
+      console.log("departments computed called (second block)");
       if (
-        !confirm(
-          "Are you sure you want to delete this chart? This cannot be undone."
-        )
-      )
-        return;
-
-      try {
-        await orgchartApi.delete(this.slug, this.token);
-        this.$router.push("/org-demo");
-      } catch (err) {
-        alert("Failed to delete: " + err.message);
+        !this.nodes ||
+        !Array.isArray(this.nodes) ||
+        this.nodes.length === 0
+      ) {
+        return [];
       }
-    },
-    getAvatarIcon(node) {
-      if (node.imageUrl) {
-        return `<img src="${node.imageUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`;
-      }
-      return node.name ? node.name.charAt(0).toUpperCase() : "👤";
-    },
-    formatTime(date) {
-      return new Date(date).toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    },
-    getChildren(parentId) {
-      return this.nodes.filter((n) => n.parentId === parentId);
-    },
-    copyPublicUrl() {
-      navigator.clipboard.writeText(this.publicUrl);
-      this.copied = true;
-      setTimeout(() => (this.copied = false), 2000);
-    },
-    addRootNode() {
-      this.editingNode = null;
-      this.parentForNewNode = null;
-      this.selectedParentId = null;
-      this.resetForm();
-      this.showEditor = true;
-    },
-    addChild(parentId) {
-      this.editingNode = null;
-      this.parentForNewNode = parentId;
-      this.selectedParentId = parentId;
-      this.resetForm();
-      this.showEditor = true;
-    },
-    editNode(nodeId) {
-      const node = this.nodes.find((n) => n.id === nodeId);
-      if (node) {
-        this.editingNode = node;
-        this.parentForNewNode = node.parentId || null;
-        this.selectedParentId = node.parentId || null;
-        this.nodeForm = { ...node };
-        this.showEditor = true;
-      }
-    },
-    async deleteNode(nodeId) {
-      if (!confirm("Delete this person and all subordinates?")) return;
 
-      const idsToDelete = new Set();
-      const collectIds = (id) => {
-        idsToDelete.add(id);
-        this.nodes
-          .filter((n) => n.parentId === id)
-          .forEach((c) => collectIds(c.id));
-      };
-      collectIds(nodeId);
-
-      this.nodes = this.nodes.filter((n) => !idsToDelete.has(n.id));
-      await this.saveChanges();
-    },
-    resetForm() {
-      this.nodeForm = {
-        name: "",
-        position: "",
-        department: "",
-        email: "",
-        avatar: "person",
-        color: "blue",
-      };
-    },
-    closeEditor() {
-      this.showEditor = false;
-      this.editingNode = null;
-      this.parentForNewNode = null;
-    },
-    async saveNode() {
-      if (this.editingNode) {
-        const idx = this.nodes.findIndex((n) => n.id === this.editingNode.id);
-        if (idx !== -1) {
-          const updatedNode = {
-            ...this.nodes[idx],
-            ...this.nodeForm,
-            parentId: this.selectedParentId || null,
-          };
-          this.nodes.splice(idx, 1, updatedNode);
+      const depts = {};
+      this.nodes.forEach((n) => {
+        const deptName = n.department || "";
+        if (deptName && deptName.trim()) {
+          const key = deptName.trim();
+          if (!depts[key]) {
+            const colorMap = {
+              Executive: "#3b82f6",
+              Technology: "#06b6d4",
+              Finance: "#10b981",
+              Operations: "#f97316",
+              Design: "#ec4899",
+              HR: "#8b5cf6",
+              Marketing: "#f59e0b",
+              Sales: "#ef4444",
+              "Human Resources": "#8b5cf6",
+            };
+            depts[key] = {
+              name: key,
+              count: 0,
+              color: colorMap[key] || "#3b82f6",
+            };
+          }
+          depts[key].count++;
         }
-      } else {
-        const newNode = {
-          id: Date.now().toString(),
-          ...this.nodeForm,
-          parentId: this.selectedParentId || null,
-        };
-        this.nodes.push(newNode);
-      }
-      this.closeEditor();
-      await this.saveChanges();
+      });
+
+      const result = Object.values(depts).sort((a, b) => b.count - a.count);
+      console.log("Departments result:", result);
+      return result;
+    },
+    modalTitle() {
+      if (this.isReplacing) return "Replace Person";
+      if (this.editingNode) return "Edit Person";
+      return "Add Person";
     },
   },
 };
 </script>
 
 <style scoped>
-/* Base Layout */
-.org-edit-page {
+.org-demo-page {
   min-height: 100vh;
-  background: #f8fafc;
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
   font-family: "Inter", system-ui, sans-serif;
+}
+.theme-light {
+  background: #f8fafc;
   color: #1e293b;
 }
+.theme-dark {
+  background: #0f172a;
+  color: #f1f5f9;
+}
+.theme-blue {
+  background: #0c1929;
+  color: #e0f2fe;
+}
+.theme-purple {
+  background: #1e1033;
+  color: #f3e8ff;
+}
+.theme-green {
+  background: #022c22;
+  color: #d1fae5;
+}
+.theme-warm {
+  background: #1c1210;
+  color: #fef3c7;
+}
+.page-background {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: inherit;
+}
 
-.loading-screen,
-.error-screen {
+/* Orphan Alert Banner */
+.orphan-alert {
+  background: linear-gradient(90deg, #fef3c7, #fde68a);
+  border-bottom: 2px solid #f59e0b;
+  padding: 0.6rem 1.5rem;
+}
+.orphan-alert-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.orphan-icon {
+  font-size: 1.3rem;
+}
+.orphan-text {
   flex: 1;
+}
+.orphan-text strong {
+  display: block;
+  color: #92400e;
+  font-size: 0.85rem;
+}
+.orphan-text span {
+  color: #a16207;
+  font-size: 0.75rem;
+}
+.fix-btn {
+  padding: 0.4rem 0.8rem;
+  background: #f59e0b;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-weight: 600;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+.fix-btn:hover {
+  background: #d97706;
+}
+
+/* Modern Floating Header */
+.demo-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  z-index: 20;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  pointer-events: none;
+}
+.demo-header > * {
+  pointer-events: auto;
+}
+
+.back-link {
+  color: #475569;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 8px 16px;
+  border-radius: 30px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s;
+}
+.back-link:hover {
+  background: white;
+  color: #0f172a;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.header-center {
+  text-align: center;
+  pointer-events: none;
+}
+.demo-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin: 0;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  text-shadow: 0 2px 10px rgba(255, 255, 255, 0.5);
+}
+.demo-subtitle {
+  display: none;
+}
+
+.cta-btn {
+  padding: 0.6rem 1.2rem;
+  background: #0f172a;
+  color: white;
+  text-decoration: none;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+  transition: all 0.2s;
+}
+.cta-btn:hover {
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.25);
+  transform: translateY(-1px);
+}
+
+/* Floating Toolbar Island */
+.toolbar {
+  position: absolute;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 6px 8px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 16px;
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.1),
+    0 2px 10px -2px rgba(0, 0, 0, 0.05);
+  z-index: 20;
+  flex-wrap: nowrap;
+}
+
+.toolbar-section {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.tool-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: none;
+}
+.tool-btn:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+  transform: none;
+  box-shadow: none;
+}
+.tool-btn.primary {
+  background: #eff6ff;
+  color: #2563eb;
+  box-shadow: none;
+}
+.tool-btn.primary:hover {
+  background: #dbeafe;
+}
+.export-btn {
+  background: #fdf4ff !important;
+  color: #9333ea !important;
+}
+.export-btn:hover {
+  background: #fae8ff !important;
+}
+
+.divider {
+  width: 1px;
+  height: 24px;
+  background: #e2e8f0;
+  margin: 0 6px;
+}
+
+.label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-right: 6px;
+}
+.picker {
+  display: flex;
+  gap: 4px;
+}
+.swatch {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+.swatch:hover {
+  transform: scale(1.1);
+  z-index: 2;
+}
+.swatch.active {
+  border-color: #0f172a;
+  transform: scale(1.1);
+  z-index: 2;
+}
+
+.style-select {
+  padding: 6px 10px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: #1e293b;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+  box-shadow: none;
+}
+.style-select:hover {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+/* Expanding Search */
+.search-section {
+  position: relative;
+}
+.search-box input {
+  padding: 8px 12px 8px 36px;
+  width: 40px;
+  height: 36px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 20px;
+  color: transparent;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: none;
+}
+.search-box input:focus,
+.search-box input:not(:placeholder-shown) {
+  width: 240px;
+  background: white;
+  border-color: #e2e8f0;
+  color: #1e293b;
+  cursor: text;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+.search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1rem;
+  opacity: 0.5;
+  pointer-events: none;
+  transition: 0.2s;
+}
+.search-box input:focus + .search-icon,
+.search-box input:not(:placeholder-shown) + .search-icon {
+  opacity: 1;
+  color: #2563eb;
+}
+
+.search-results {
+  position: absolute;
+  top: 120%;
+  right: 0;
+  left: auto;
+  width: 280px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(0, 0, 0, 0.03);
+  padding: 6px;
+  margin: 0;
+  border: none;
+}
+.search-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  color: #1e293b;
+  transition: 0.1s;
+}
+.search-item:hover {
+  background: #f1f5f9;
+}
+.result-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+}
+.result-info strong {
+  display: block;
+  font-size: 0.8rem;
+}
+.result-info small {
+  color: #64748b;
+  font-size: 0.7rem;
+}
+
+/* Floating Legend Widget */
+/* Floating Legend Widget */
+.department-legend {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  display: flex;
   flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 16px;
+  box-shadow: 0 10px 40px -5px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  min-width: 200px;
+  max-width: 280px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.department-legend.minimized {
+  min-width: auto;
+  width: auto;
+  padding: 0.75rem 1rem;
+}
+.legend-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  margin-bottom: 2px;
+}
+.minimize-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  line-height: 1;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.minimize-btn:hover {
+  color: #1e293b;
+}
+.legend-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  animation: slideDown 0.3s ease;
+}
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.loader {
-  border: 3px solid #e2e8f0;
-  border-top: 3px solid #0f172a;
+.legend-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.dept-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: white;
+  border: 1px solid transparent;
+  transition: 0.2s;
+}
+.dept-tag:hover {
+  transform: translateX(2px);
+}
+
+.no-depts {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-style: italic;
+  padding: 0.5rem 0;
+}
+.dept-dot {
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1s linear infinite;
-  margin-bottom: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.legend-stats {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+.legend-stats .warning {
+  color: #d97706;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
+/* Dark Theme: Department Legend */
+.theme-dark .department-legend,
+.theme-blue .department-legend,
+.theme-purple .department-legend,
+.theme-green .department-legend,
+.theme-warm .department-legend {
+  background: rgba(30, 41, 59, 0.95);
+  border-color: rgba(71, 85, 105, 0.5);
+}
+.theme-dark .legend-label,
+.theme-blue .legend-label,
+.theme-purple .legend-label,
+.theme-green .legend-label,
+.theme-warm .legend-label {
+  color: #94a3b8;
+}
+.theme-dark .dept-tag,
+.theme-blue .dept-tag,
+.theme-purple .dept-tag,
+.theme-green .dept-tag,
+.theme-warm .dept-tag {
+  background: rgba(30, 41, 59, 0.8) !important;
+}
+.theme-dark .legend-stats,
+.theme-blue .legend-stats,
+.theme-purple .legend-stats,
+.theme-green .legend-stats,
+.theme-warm .legend-stats {
+  border-top-color: #475569;
+  color: #94a3b8;
+}
+.theme-dark .no-depts,
+.theme-blue .no-depts,
+.theme-purple .no-depts,
+.theme-green .no-depts,
+.theme-warm .no-depts {
+  color: #64748b;
+}
+
+/* Dark Theme: Toolbar */
+.theme-dark .toolbar,
+.theme-blue .toolbar,
+.theme-purple .toolbar,
+.theme-green .toolbar,
+.theme-warm .toolbar {
+  background: rgba(30, 41, 59, 0.95);
+  border-color: rgba(71, 85, 105, 0.5);
+}
+.theme-dark .tool-btn,
+.theme-blue .tool-btn,
+.theme-purple .tool-btn,
+.theme-green .tool-btn,
+.theme-warm .tool-btn {
+  color: #94a3b8;
+}
+.theme-dark .tool-btn:hover,
+.theme-blue .tool-btn:hover,
+.theme-purple .tool-btn:hover,
+.theme-green .tool-btn:hover,
+.theme-warm .tool-btn:hover {
+  background: rgba(71, 85, 105, 0.5);
+  color: #f1f5f9;
+}
+.theme-dark .tool-btn.primary,
+.theme-blue .tool-btn.primary,
+.theme-purple .tool-btn.primary,
+.theme-green .tool-btn.primary,
+.theme-warm .tool-btn.primary {
+  background: rgba(37, 99, 235, 0.3);
+  color: #93c5fd;
+}
+.theme-dark .divider,
+.theme-blue .divider,
+.theme-purple .divider,
+.theme-green .divider,
+.theme-warm .divider {
+  background: #475569;
+}
+.theme-dark .label,
+.theme-blue .label,
+.theme-purple .label,
+.theme-green .label,
+.theme-warm .label {
+  color: #64748b;
+}
+.theme-dark .style-select,
+.theme-blue .style-select,
+.theme-purple .style-select,
+.theme-green .style-select,
+.theme-warm .style-select {
+  color: #f1f5f9;
+  background: transparent;
+}
+.theme-dark .search-box input,
+.theme-blue .search-box input,
+.theme-purple .search-box input,
+.theme-green .search-box input,
+.theme-warm .search-box input {
+  color: #f1f5f9;
+}
+.theme-dark .search-box input:focus,
+.theme-blue .search-box input:focus,
+.theme-purple .search-box input:focus,
+.theme-green .search-box input:focus,
+.theme-warm .search-box input:focus {
+  background: rgba(30, 41, 59, 0.95);
+  border-color: #475569;
+  color: #f1f5f9;
+}
+.theme-dark .search-results,
+.theme-blue .search-results,
+.theme-purple .search-results,
+.theme-green .search-results,
+.theme-warm .search-results {
+  background: #1e293b;
+}
+.theme-dark .search-item,
+.theme-blue .search-item,
+.theme-purple .search-item,
+.theme-green .search-item,
+.theme-warm .search-item {
+  color: #f1f5f9;
+}
+.theme-dark .search-item:hover,
+.theme-blue .search-item:hover,
+.theme-purple .search-item:hover,
+.theme-green .search-item:hover,
+.theme-warm .search-item:hover {
+  background: #334155;
+}
+
+/* Dark Theme: Header */
+.theme-dark .demo-header,
+.theme-blue .demo-header,
+.theme-purple .demo-header,
+.theme-green .demo-header,
+.theme-warm .demo-header {
+  background: linear-gradient(
+    180deg,
+    rgba(15, 23, 42, 0.9) 0%,
+    rgba(15, 23, 42, 0) 100%
+  );
+}
+.theme-dark .back-link,
+.theme-blue .back-link,
+.theme-purple .back-link,
+.theme-green .back-link,
+.theme-warm .back-link {
+  background: rgba(30, 41, 59, 0.8);
+  color: #94a3b8;
+}
+.theme-dark .back-link:hover,
+.theme-blue .back-link:hover,
+.theme-purple .back-link:hover,
+.theme-green .back-link:hover,
+.theme-warm .back-link:hover {
+  background: #1e293b;
+  color: #f1f5f9;
+}
+.theme-dark .demo-title,
+.theme-blue .demo-title,
+.theme-purple .demo-title,
+.theme-green .demo-title,
+.theme-warm .demo-title {
+  color: #f1f5f9;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Theme-Specific Accent Colors */
+.theme-blue .department-legend {
+  background: rgba(12, 25, 41, 0.95);
+  border-color: rgba(37, 99, 235, 0.4);
+}
+.theme-blue .toolbar {
+  background: rgba(12, 25, 41, 0.95);
+  border-color: rgba(37, 99, 235, 0.4);
+}
+.theme-blue .tool-btn.primary {
+  background: rgba(37, 99, 235, 0.3);
+  color: #60a5fa;
+}
+.theme-blue .demo-header {
+  background: linear-gradient(
+    180deg,
+    rgba(12, 25, 41, 0.95) 0%,
+    transparent 100%
+  );
+}
+
+.theme-purple .department-legend {
+  background: rgba(30, 16, 51, 0.95);
+  border-color: rgba(124, 58, 237, 0.4);
+}
+.theme-purple .toolbar {
+  background: rgba(30, 16, 51, 0.95);
+  border-color: rgba(124, 58, 237, 0.4);
+}
+.theme-purple .tool-btn.primary {
+  background: rgba(124, 58, 237, 0.3);
+  color: #a78bfa;
+}
+.theme-purple .demo-header {
+  background: linear-gradient(
+    180deg,
+    rgba(30, 16, 51, 0.95) 0%,
+    transparent 100%
+  );
+}
+
+.theme-green .department-legend {
+  background: rgba(2, 44, 34, 0.95);
+  border-color: rgba(5, 150, 105, 0.4);
+}
+.theme-green .toolbar {
+  background: rgba(2, 44, 34, 0.95);
+  border-color: rgba(5, 150, 105, 0.4);
+}
+.theme-green .tool-btn.primary {
+  background: rgba(5, 150, 105, 0.3);
+  color: #34d399;
+}
+.theme-green .demo-header {
+  background: linear-gradient(
+    180deg,
+    rgba(2, 44, 34, 0.95) 0%,
+    transparent 100%
+  );
+}
+
+.theme-warm .department-legend {
+  background: rgba(28, 18, 16, 0.95);
+  border-color: rgba(234, 88, 12, 0.4);
+}
+.theme-warm .toolbar {
+  background: rgba(28, 18, 16, 0.95);
+  border-color: rgba(234, 88, 12, 0.4);
+}
+.theme-warm .tool-btn.primary {
+  background: rgba(234, 88, 12, 0.3);
+  color: #fb923c;
+}
+.theme-warm .demo-header {
+  background: linear-gradient(
+    180deg,
+    rgba(28, 18, 16, 0.95) 0%,
+    transparent 100%
+  );
+}
+
+.chart-area {
+  flex: 1;
+  overflow: hidden;
+  padding: 0.5rem;
+}
+.chart-canvas {
+  width: 100%;
+  height: 100%;
+  min-height: 350px;
+}
+
+.demo-badge {
+  position: fixed;
+  bottom: 0.6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.3rem 0.8rem;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  border-radius: 50px;
+  font-size: 0.7rem;
+  z-index: 50;
+}
+.demo-badge a {
+  color: #60a5fa;
+  text-decoration: none;
+}
+
+/* UI Updates */
 @keyframes spin {
-  0% {
+  from {
     transform: rotate(0deg);
   }
-  100% {
+  to {
     transform: rotate(360deg);
   }
 }
 
-/* Navbar */
-.edit-navbar {
-  height: 60px;
+.tool-btn {
   background: white;
-  border-bottom: 1px solid #e2e8f0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 1.5rem;
-  z-index: 10;
-  flex-shrink: 0;
-}
-
-.back-link {
-  text-decoration: none;
-  font-weight: 600;
-  color: #64748b;
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.back-link:hover {
-  color: #0f172a;
-}
-
-.chart-title {
-  font-size: 1.1rem;
-  font-weight: 700;
-  margin: 0;
-  color: #0f172a;
-}
-
-.nav-right {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-}
-
-.save-status {
-  font-size: 0.85rem;
-  color: #64748b;
-}
-
-.status-unsaved {
-  color: #f59e0b;
-  font-weight: 600;
-}
-
-/* Layout Grid */
-.edit-layout {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-.main-content {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-}
-
-.sidebar {
-  width: 300px;
-  background: white;
-  border-right: 1px solid #e2e8f0;
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-}
-
-.preview-sidebar {
-  border-right: none;
-  border-left: 1px solid #e2e8f0;
-  width: 320px;
-}
-
-.sidebar-header {
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid #f1f5f9;
-}
-
-.sidebar-header h3 {
-  margin: 0;
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #334155;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.sidebar-content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 1.5rem;
-}
-
-.preview-bg {
-  background: #f8fafc;
-  padding: 0;
-}
-
-/* Canvas / Editor */
-.editor-canvas {
-  flex: 1;
-  background: #f1f5f9;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.canvas-header {
-  padding: 1.5rem 2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.canvas-header h2 {
-  margin: 0;
-  font-size: 1.5rem;
-  color: #1e293b;
-}
-
-.nodes-container {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0 2rem 2rem;
-}
-
-.nodes-list {
-  background: white;
-  border-radius: 12px;
   border: 1px solid #e2e8f0;
-  overflow: hidden;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-}
-
-.node-row {
-  display: flex;
-  align-items: stretch;
-  border-bottom: 1px solid #f1f5f9;
-  transition: background 0.1s;
-}
-
-.node-row:last-child {
-  border-bottom: none;
-}
-
-.node-row:hover {
-  background: #f8fafc;
-}
-
-.node-connector {
-  width: 20px;
-  border-left: 1px solid #cbd5e1;
-  position: relative;
-}
-
-.node-connector::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 0;
-  width: 10px;
-  height: 1px;
-  background: #cbd5e1;
-}
-
-.node-card {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  padding: 0.75rem 1rem;
-  gap: 1rem;
-}
-
-.node-avatar {
-  width: 36px;
-  height: 36px;
-  background: #e2e8f0;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-}
-
-.node-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.node-name {
-  font-weight: 600;
-  color: #1e293b;
-  font-size: 0.95rem;
-}
-
-.node-role {
-  color: #64748b;
-  font-size: 0.85rem;
-}
-
-.node-controls {
-  display: flex;
-  gap: 0.5rem;
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-
-.node-row:hover .node-controls {
-  opacity: 1;
-}
-
-.control-btn {
-  width: 32px;
-  height: 32px;
-  border: 1px solid transparent;
-  background: transparent;
-  border-radius: 6px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  font-weight: 500;
+  color: #475569;
   transition: all 0.2s;
 }
-
-.control-btn:hover {
-  background: #f1f5f9;
-  border-color: #cbd5e1;
+.tool-btn:hover {
+  background: #f8fafc;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
-
-.control-btn.delete:hover {
-  background: #fef2f2;
-  border-color: #fee2e2;
+.tool-btn.primary {
+  background: #0ea5e9;
+  color: white;
+  border: none;
+  box-shadow: 0 4px 6px -1px rgba(14, 165, 233, 0.3);
 }
-
-/* Forms & Inputs */
-.form-group {
-  margin-bottom: 1.5rem;
+.tool-btn.primary:hover {
+  background: #0284c7;
+  box-shadow: 0 6px 12px -2px rgba(14, 165, 233, 0.4);
 }
-
-.form-group label {
-  display: block;
-  font-size: 0.85rem;
-  font-weight: 600;
+.style-select {
+  background: white;
+  border: 1px solid #e2e8f0;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-weight: 500;
   color: #334155;
-  margin-bottom: 0.5rem;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
-
-.form-input,
-.form-textarea,
-.form-select {
-  width: 100%;
-  padding: 0.6rem 0.8rem;
+.search-box input {
+  padding: 0.4rem 0.8rem 0.4rem 2rem;
+  width: 200px;
+  background: white;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
-  font-size: 0.9rem;
-  color: #1e293b;
-  background: white;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   transition: all 0.2s;
 }
-
-.form-input:focus,
-.form-textarea:focus,
-.form-select:focus {
-  outline: none;
+.search-box input:focus {
+  width: 240px;
   border-color: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  outline: none;
 }
-
-/* Theme Grid */
-.theme-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.5rem;
+.theme-dark .tool-btn,
+.theme-blue .tool-btn,
+.theme-purple .tool-btn,
+.theme-green .tool-btn,
+.theme-warm .tool-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.9);
 }
-
-.theme-card {
-  height: 40px;
-  border-radius: 8px;
-  border: 2px solid transparent;
-  cursor: pointer;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.theme-dark .tool-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
 }
-
-.theme-card.active {
-  border-color: #0f172a;
-}
-
-.check-icon {
+.theme-dark .search-box input {
+  background: rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 255, 255, 0.2);
   color: white;
-  font-size: 0.8rem;
-  font-weight: 800;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
-
-/* Buttons */
-.primary-btn {
-  background: #0f172a;
-  color: white;
-  padding: 0.6rem 1.25rem;
-  border-radius: 8px;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.primary-btn:hover {
+.theme-dark .modal,
+.theme-dark .action-menu-modal,
+.theme-dark .orphan-modal-body,
+.theme-dark .orphan-modal .modal-header {
   background: #1e293b;
+  color: #f1f5f9;
+  border-color: #334155;
 }
-
-.primary-btn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
+.theme-dark .modal-header,
+.theme-dark .action-menu-header,
+.theme-dark .field input,
+.theme-dark .photo-tabs button,
+.theme-dark .btn-secondary {
+  border-color: #334155;
+  color: #f1f5f9;
 }
-
-.secondary-btn {
-  background: white;
-  border: 1px solid #e2e8f0;
-  color: #334155;
-  padding: 0.6rem 1.25rem;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.secondary-btn.small {
-  padding: 0.5rem 1rem;
-  font-size: 0.9rem;
-}
-
-.icon-btn {
-  padding: 0.5rem;
-  border: 1px solid #e2e8f0;
-  background: white;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.delete-chart-btn {
-  width: 100%;
-  padding: 0.75rem;
-  color: #ef4444;
-  border: 1px solid #fee2e2;
-  background: #fef2f2;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.delete-chart-btn:hover {
-  background: #fee2e2;
-}
-
-/* Checkbox */
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  cursor: pointer;
-}
-
-.checkbox-label input {
-  display: none;
-}
-
-.checkbox-custom {
-  width: 20px;
-  height: 20px;
-  border: 2px solid #cbd5e1;
-  border-radius: 4px;
-  position: relative;
-}
-
-.checkbox-label input:checked + .checkbox-custom {
+.theme-dark .field input,
+.theme-dark .photo-tabs button,
+.theme-dark .btn-secondary,
+.theme-dark .generate-id-btn {
   background: #0f172a;
-  border-color: #0f172a;
 }
-
-.checkbox-label input:checked + .checkbox-custom::after {
-  content: "✓";
-  position: absolute;
+.theme-dark .field label {
+  color: #94a3b8;
+}
+.theme-dark .close-btn {
+  background: #334155;
+  color: #94a3b8;
+}
+.theme-dark .close-btn:hover {
+  background: #475569;
   color: white;
-  font-size: 0.8rem;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
 }
-
-/* Empty State */
-.empty-state {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: #64748b;
+.theme-dark .action-item:hover {
+  background: #334155;
 }
-
-.empty-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  background: white;
-  padding: 1rem;
-  border-radius: 50%;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+.theme-dark .action-text strong {
+  color: #f1f5f9;
 }
-
-/* Preview */
-.preview-chart {
-  padding: 2rem 1rem;
-  min-height: 100%;
+.theme-dark .action-text small {
+  color: #94a3b8;
 }
-
-.mini-node-wrapper {
-  margin-bottom: 2rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.theme-dark .upload-area {
+  border-color: #334155;
 }
-
-.mini-card {
-  width: 100%;
-  background: white;
-  padding: 0.75rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  border-left: 3px solid #3b82f6;
+.theme-dark .style-select {
+  background: rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
 }
-.mini-card.color-teal {
-  border-left-color: #14b8a6;
-}
-.mini-card.color-purple {
-  border-left-color: #8b5cf6;
-}
-.mini-card.color-pink {
-  border-left-color: #ec4899;
-}
-.mini-card.color-orange {
-  border-left-color: #f97316;
-}
-.mini-card.color-green {
-  border-left-color: #22c55e;
-}
-
-.mini-avatar {
-  font-size: 1.2rem;
-}
-.mini-info {
-  display: flex;
-  flex-direction: column;
-}
-.mini-info strong {
-  font-size: 0.85rem;
-  color: #1e293b;
-}
-.mini-info small {
-  font-size: 0.75rem;
-  color: #64748b;
-}
-
-.mini-children {
-  display: flex;
-  gap: 4px;
-  margin-top: 8px;
-  padding-left: 1rem;
-  border-left: 2px solid #e2e8f0;
-}
-
-.mini-child {
-  background: white;
-  padding: 4px;
-  border-radius: 50%;
-  border: 1px solid #e2e8f0;
-  font-size: 0.8rem;
-}
-
-/* Share Box */
-.share-box {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.share-input {
-  flex: 1;
-  border: 1px solid #e2e8f0;
-  background: #f1f5f9;
-  padding: 0.5rem;
-  border-radius: 6px;
-  font-size: 0.8rem;
-  color: #64748b;
-}
-
-.view-external-link {
-  font-size: 0.8rem;
-  color: #3b82f6;
-  text-decoration: none;
-}
-
-.view-external-link:hover {
-  text-decoration: underline;
+.theme-dark .style-select:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 /* Modal */
-.modal-overlay {
+.modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(2px);
-  z-index: 100;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 100;
+  padding: 1rem;
 }
-
-.editor-modal {
+.modal {
   background: white;
-  width: 90%;
-  max-width: 500px;
-  border-radius: 16px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
-    0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  overflow: hidden;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 420px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  color: #1e293b;
 }
-
 .modal-header {
-  padding: 1.25rem;
-  border-bottom: 1px solid #e2e8f0;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 0.9rem 1.1rem;
+  border-bottom: 1px solid #e2e8f0;
 }
-
 .modal-header h3 {
   margin: 0;
-  color: #0f172a;
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
-
 .close-btn {
-  background: #f1f5f9;
-  border: none;
-  width: 30px;
-  height: 30px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
+  border: none;
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 1rem;
   cursor: pointer;
+}
+.modal-body {
+  padding: 1rem;
+}
+.field {
+  margin-bottom: 0.9rem;
+}
+.field label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
   color: #64748b;
 }
-
-.node-form {
-  padding: 1.5rem;
+.field input {
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 5px;
+  font-size: 0.85rem;
 }
-
-.form-grid {
-  display: grid;
-  gap: 1rem;
+.field input:focus {
+  outline: none;
+  border-color: #3b82f6;
 }
-
-.avatar-grid {
+.error-text {
+  color: #ef4444;
+  font-size: 0.7rem;
+}
+.id-input-row {
+  display: flex;
+  gap: 0.4rem;
+}
+.id-input-row input {
+  flex: 1;
+}
+.generate-id-btn {
+  padding: 0.4rem 0.6rem;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 5px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.photo-tabs {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+}
+.photo-tabs button {
+  flex: 1;
+  padding: 0.35rem;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 5px;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+.photo-tabs button.active {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: white;
+}
+.upload-area {
+  display: block;
+  border: 2px dashed #e2e8f0;
+  border-radius: 8px;
+  padding: 0.8rem;
+  text-align: center;
+  cursor: pointer;
+}
+.upload-placeholder {
+  color: #94a3b8;
+}
+.upload-placeholder span {
+  font-size: 1.5rem;
+  display: block;
+  margin-bottom: 0.3rem;
+}
+.preview-img {
+  position: relative;
+  display: inline-block;
+}
+.preview-img img {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.remove-img {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: none;
+  background: #ef4444;
+  color: white;
+  cursor: pointer;
+  font-size: 12px;
+}
+.color-row {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+.color-swatch {
+  width: 26px;
+  height: 26px;
+  border-radius: 5px;
+  border: 2px solid transparent;
+  cursor: pointer;
+}
+.color-swatch.active {
+  border-color: #1e293b;
+}
+.modal-footer {
   display: flex;
   gap: 0.5rem;
+  margin-top: 0.9rem;
+}
+.btn-secondary,
+.btn-primary {
+  flex: 1;
+  padding: 0.55rem;
+  border-radius: 5px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-secondary {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+}
+.btn-primary {
+  background: #3b82f6;
+  border: none;
+  color: white;
 }
 
-.avatar-select-btn {
+/* Action Menu */
+.action-menu-modal {
+  background: white;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 360px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  color: #1e293b;
+}
+.action-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+.selected-person {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.person-avatar {
   width: 40px;
   height: 40px;
-  border: 1px solid #e2e8f0;
-  background: white;
-  border-radius: 8px;
-  font-size: 1.2rem;
-  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
 }
-
-.avatar-select-btn.selected {
-  border-color: #0f172a;
+.person-details strong {
+  display: block;
+  font-size: 0.9rem;
+}
+.person-details small {
+  color: #64748b;
+  font-size: 0.75rem;
+}
+.action-menu-body {
+  padding: 0.5rem;
+}
+.action-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+}
+.action-item:hover {
   background: #f1f5f9;
 }
+.action-item.replace:hover {
+  background: #fef3c7;
+}
+.action-item.danger:hover {
+  background: #fee2e2;
+}
+.action-icon {
+  font-size: 1.2rem;
+  width: 32px;
+  text-align: center;
+}
+.action-text strong {
+  display: block;
+  font-size: 0.85rem;
+  color: #1e293b;
+}
+.action-text small {
+  color: #64748b;
+  font-size: 0.7rem;
+}
+.action-item.danger .action-text small {
+  color: #ef4444;
+}
 
-.color-grid {
+/* Custom Searchable Select */
+.custom-select {
+  position: relative;
+  width: 100%;
+}
+.selected-option {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 5px;
+  background: white;
+  cursor: pointer;
+  min-height: 42px;
+}
+.selected-option.active {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+.selected-content {
+  display: flex;
+  align-items: center;
   gap: 0.5rem;
 }
-
-.color-select-btn {
-  width: 32px;
-  height: 32px;
-  border: 2px solid white;
-  border-radius: 8px;
-  cursor: pointer;
-  box-shadow: 0 0 0 1px #e2e8f0;
-}
-
-.color-select-btn.selected {
-  transform: scale(1.1);
-  box-shadow: 0 0 0 2px #0f172a;
-}
-
-.modal-actions {
-  margin-top: 1.5rem;
+.selected-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #3b82f6;
+  color: white;
   display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+.selected-info strong {
+  display: block;
+  font-size: 0.85rem;
+  line-height: 1.2;
+}
+.selected-info small {
+  display: block;
+  font-size: 0.7rem;
+  color: #64748b;
+  line-height: 1.2;
+}
+.placeholder {
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+.chevron {
+  font-size: 0.7rem;
+  color: #94a3b8;
+}
+.dropdown-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 4px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  z-index: 50;
+  max-height: 250px;
+  display: flex;
+  flex-direction: column;
+}
+.dropdown-search {
+  padding: 8px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.dropdown-search input {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+.dropdown-search input:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+.options-list {
+  overflow-y: auto;
+  max-height: 200px;
+}
+.option-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.option-item:hover {
+  background: #f1f5f9;
+}
+.option-item.selected {
+  background: #eff6ff;
+}
+.option-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #cbd5e1;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+.option-info strong {
+  display: block;
+  font-size: 0.85rem;
+  color: #1e293b;
+}
+.option-info small {
+  display: block;
+  font-size: 0.7rem;
+  color: #64748b;
+}
+.no-results {
+  padding: 1rem;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.8rem;
 }
 
-@media (max-width: 1024px) {
-  .preview-sidebar {
+/* Dark Mode Support for Select */
+.theme-dark .selected-option,
+.theme-dark .dropdown-options {
+  background: #1e293b;
+  border-color: #334155;
+}
+.theme-dark .selected-info strong,
+.theme-dark .option-info strong {
+  color: #f1f5f9;
+}
+.theme-dark .dropdown-search {
+  border-color: #334155;
+}
+.theme-dark .dropdown-search input {
+  background: #0f172a;
+  border-color: #334155;
+  color: white;
+}
+.theme-dark .option-item:hover {
+  background: #334155;
+}
+.theme-dark .option-item.selected {
+  background: #1e3a8a;
+}
+
+.orphan-modal {
+  background: white;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 500px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  color: #1e293b;
+}
+.orphan-modal-body {
+  padding: 1rem;
+}
+.orphan-intro {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin: 0 0 1rem;
+  line-height: 1.5;
+}
+.orphan-item {
+  background: #fef3c7;
+  border: 1px solid #fcd34d;
+  border-radius: 10px;
+  padding: 0.9rem;
+  margin-bottom: 0.75rem;
+}
+.orphan-person {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.75rem;
+}
+.orphan-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 12px;
+}
+.orphan-info strong {
+  display: block;
+  font-size: 0.85rem;
+}
+.orphan-info small {
+  color: #64748b;
+  font-size: 0.7rem;
+}
+.orphan-error {
+  margin-top: 0.3rem;
+  font-size: 0.7rem;
+  color: #dc2626;
+  font-weight: 500;
+}
+.orphan-fix {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.orphan-fix label {
+  font-size: 0.7rem;
+  color: #64748b;
+  font-weight: 500;
+}
+.orphan-select {
+  padding: 0.45rem 0.6rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 5px;
+  font-size: 0.8rem;
+  background: white;
+}
+.orphan-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+@media (max-width: 768px) {
+  .demo-header {
+    padding: 0 1rem;
+    height: 56px;
+    flex-direction: row; /* Keep row for back link and title */
+  }
+  .demo-title {
+    font-size: 0.95rem;
+  }
+  .back-link {
+    font-size: 0.75rem;
+    padding: 6px 12px;
+  }
+  .cta-btn {
+    display: none; /* Hide Create button on small mobile top bar to save space */
+  }
+
+  /* Full width scrollable toolbar */
+  .toolbar {
+    top: 60px;
+    width: 95%;
+    overflow-x: auto;
+    justify-content: flex-start;
+    padding: 6px 4px;
+    border-radius: 12px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .toolbar::-webkit-scrollbar {
     display: none;
   }
-  .sidebar {
+
+  .toolbar-section {
+    flex-shrink: 0;
+  }
+
+  .label {
+    display: none;
+  }
+
+  .tool-btn {
+    padding: 6px 10px;
+    font-size: 0.7rem;
+  }
+
+  .search-box input {
+    width: 120px;
+  }
+  .search-box input:focus {
+    width: 180px;
+  }
+
+  /* Bottom sheet style legend */
+  .department-legend {
+    bottom: 0;
+    right: 0;
+    left: 0;
     width: 100%;
-    border-right: none;
+    max-width: none;
+    border-radius: 16px 16px 0 0;
+    border-bottom: none;
   }
-  .main-content {
+  .department-legend.minimized {
+    width: auto;
+    left: auto;
+    right: 1rem;
+    bottom: 1rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    padding: 0.75rem 1rem;
+  }
+
+  .modal {
+    width: 95%;
+    max-height: 85vh;
+  }
+
+  .action-menu-modal {
+    width: 90%;
+    max-width: 320px;
+  }
+
+  .orphan-alert-content {
     flex-direction: column;
+    text-align: center;
   }
-  .editor-canvas {
-    flex: 1;
-  }
-  .settings-sidebar {
-    height: auto;
-    max-height: 200px;
-    border-bottom: 1px solid #e2e8f0;
-  }
+}
+
+/* Create Header Styles */
+.create-header {
+  padding: 0 2rem;
+  height: 70px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  z-index: 100;
+}
+
+.create-inputs {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex: 1;
+  max-width: 600px;
+  margin: 0 2rem;
+}
+
+.title-input {
+  flex: 1;
+  padding: 0.5rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: inherit;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(4px);
+  outline: none;
+  transition: all 0.2s;
+}
+
+.title-input:focus {
+  border-color: #3b82f6;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.slug-wrapper {
+  display: flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding-left: 0.75rem;
+  overflow: hidden;
+}
+
+.slug-prefix {
+  color: inherit;
+  opacity: 0.7;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.slug-input {
+  border: none;
+  background: transparent;
+  padding: 0.5rem 0.5rem 0.5rem 0;
+  font-size: 0.9rem;
+  color: #3b82f6;
+  font-weight: 600;
+  outline: none;
+  width: 150px;
+}
+
+.create-btn {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  border: none;
+  padding: 0.5rem 1.5rem;
+  border-radius: 30px;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+  cursor: pointer;
+  z-index: 100;
+}
+
+.create-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+}
+
+.create-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 10px;
+  z-index: 100;
+}
+
+.delete-btn {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  box-shadow: none;
+  padding: 0.5rem 1rem;
+  border-radius: 30px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.delete-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  transform: translateY(-2px);
 }
 </style>

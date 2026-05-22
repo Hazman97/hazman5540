@@ -35,6 +35,14 @@ export const authApi = {
     return res
   },
 
+  // Register new user
+  register: async (username: string, password: string, name?: string) => {
+    const res = await api.post<{ token: string; user: AuthUser }>('/auth/register', { username, password, name })
+    setAuthToken(res.token)
+    setStoredUser(res.user)
+    return res
+  },
+
   logout: () => {
     clearAuthToken()
   },

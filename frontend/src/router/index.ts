@@ -141,6 +141,12 @@ const routes = [
     meta: { title: "Create Org Chart" },
   },
   {
+    path: "/org/dashboard",
+    name: "OrgChartDashboard",
+    component: () => import("@/views/orgchart/OrgChartDashboard.vue"),
+    meta: { title: "My Org Charts" },
+  },
+  {
     path: "/org/:slug",
     name: "OrgChartView",
     component: () => import("@/views/orgchart/OrgChartView.vue"),

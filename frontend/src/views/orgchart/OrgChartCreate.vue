@@ -1,574 +1,976 @@
 <template>
-  <div class="create-page">
-    <!-- Modern Background -->
-    <div class="page-bg"></div>
+  <div class="org-demo-page" :class="'theme-' + selectedTheme">
+    <div class="page-background"></div>
 
-    <!-- Success Screen -->
-    <transition name="fade">
-      <div v-if="created" class="success-screen">
-        <div class="success-card">
-          <div class="success-icon">🎉</div>
-          <h2 class="success-title">Organization Chart Created!</h2>
-          <p class="success-message">
-            Your chart for <strong>{{ companyName }}</strong> is ready!
-          </p>
+    <!-- Orphan Alert Banner -->
+    <div v-if="orphanNodes.length > 0" class="orphan-alert">
+      <div class="orphan-alert-content">
+        <span class="orphan-icon">⚠️</span>
+        <div class="orphan-text">
+          <strong>Tree Structure Issue Detected!</strong>
+          <span
+            >{{ orphanNodes.length }} person(s) have missing parent
+            connections.</span
+          >
+        </div>
+        <button class="fix-btn" @click="showOrphanFixer = true">
+          🔧 Fix Now
+        </button>
+      </div>
+    </div>
 
-          <!-- Share Link -->
-          <div class="link-box">
-            <label>📤 Shareable Link:</label>
-            <div class="link-row">
-              <input type="text" :value="shareLink" readonly ref="shareInput" />
-              <button @click="copyShareLink" class="copy-btn">
-                {{ copied === "share" ? "✓" : "📋" }}
-              </button>
-            </div>
-          </div>
-
-          <!-- Management Link -->
-          <div class="link-box management">
-            <label>🔐 Edit Link (save this!):</label>
-            <div class="link-row">
-              <input type="text" :value="editLink" readonly ref="editInput" />
-              <button @click="copyEditLink" class="copy-btn">
-                {{ copied === "edit" ? "✓" : "📋" }}
-              </button>
-            </div>
-            <p class="warning-text">
-              ⚠️ Save this link to edit your chart later!
-            </p>
-          </div>
-
-          <div class="success-buttons">
-            <button @click="viewChart" class="primary-btn">
-              <span>View Chart</span>
-              <span>→</span>
-            </button>
-            <button @click="createAnother" class="secondary-btn">
-              Create Another
-            </button>
-          </div>
+    <!-- Header -->
+    <header class="demo-header create-header">
+      <router-link to="/portfolio" class="back-link">← Back</router-link>
+      <div class="header-center create-inputs">
+        <input v-model="companyName" class="title-input" placeholder="Company Name..." title="Edit Company Name" />
+        <div class="slug-wrapper" title="Edit URL Slug">
+          <span class="slug-prefix">/org/</span>
+          <input v-model="slug" class="slug-input" placeholder="url-slug" @input="formatSlug" />
         </div>
       </div>
-    </transition>
+      <div class="header-actions">
+        <button v-if="!userEmail" @click="showLoginModal = true" class="login-prompt-btn">
+          Sign In
+        </button>
+        <span v-else class="user-email-badge">👤 {{ userEmail }}</span>
+        
+        <button @click="createChart" class="cta-btn create-btn" :disabled="isSubmitting">
+          {{ isSubmitting ? "Creating..." : "✨ Create Chart" }}
+        </button>
+      </div>
+    </header>
 
-    <!-- Creation Form -->
-    <div v-if="!created" class="form-container">
-      <div class="form-card">
-        <!-- Progress Steps -->
-        <div class="progress-bar">
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="toolbar-section">
+        <button class="tool-btn primary" @click="addRootNode">
+          👤 Add Person
+        </button>
+        <div class="divider"></div>
+        <button class="tool-btn" @click="fitChart">⊡ Fit</button>
+        <button class="tool-btn" @click="expandAll">↓ Expand</button>
+        <button class="tool-btn" @click="collapseAll">→ Collapse</button>
+      </div>
+
+      <div class="toolbar-section">
+        <span class="label">Theme:</span>
+        <div class="picker">
+          <button
+            v-for="t in themes"
+            :key="t.id"
+            class="swatch"
+            :class="{ active: selectedTheme === t.id }"
+            :style="{ background: t.color }"
+            @click="applyTheme(t.id)"
+            :title="t.name"
+          ></button>
+        </div>
+      </div>
+
+      <div class="toolbar-section">
+        <span class="label">Style:</span>
+        <select
+          v-model="selectedStyle"
+          @change="renderChart"
+          class="style-select"
+        >
+          <option v-for="s in cardStyles" :key="s.id" :value="s.id">
+            {{ s.name }}
+          </option>
+        </select>
+      </div>
+
+      <div class="toolbar-section search-section">
+        <div class="search-box">
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="Search by name or ID..."
+            @input="onSearch"
+          />
+          <span class="search-icon">🔍</span>
+        </div>
+        <div v-if="searchResults.length && searchQuery" class="search-results">
           <div
-            v-for="s in 4"
-            :key="s"
-            class="progress-step"
-            :class="{ active: step >= s, current: step === s }"
+            v-for="r in searchResults"
+            :key="r.id"
+            class="search-item"
+            @click="focusNode(r.id)"
           >
-            <span class="step-number">{{ s }}</span>
-          </div>
-        </div>
-
-        <!-- Header -->
-        <div class="form-header">
-          <div class="header-icon">{{ stepIcons[step - 1] }}</div>
-          <h1 class="form-title">{{ stepTitles[step - 1] }}</h1>
-          <p class="form-subtitle">{{ stepDescriptions[step - 1] }}</p>
-        </div>
-
-        <!-- Step 1: Company Info -->
-        <div v-if="step === 1" class="step-content">
-          <div class="form-group">
-            <label class="form-label">
-              <span class="label-icon">🏢</span>
-              Company/Team Name
-            </label>
-            <input
-              v-model="companyName"
-              type="text"
-              class="form-input"
-              placeholder="e.g., Acme Corporation"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">
-              <span class="label-icon">🔗</span>
-              URL Slug
-            </label>
-            <div class="slug-input-wrapper">
-              <span class="slug-prefix">/org/</span>
-              <input
-                v-model="slug"
-                type="text"
-                class="form-input slug-input"
-                placeholder="acme-corp"
-                @input="formatSlug"
-              />
-            </div>
-            <p class="input-hint">
-              Your chart will be at: {{ baseUrl }}/org/{{ slug || "your-slug" }}
-            </p>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">
-              <span class="label-icon">📝</span>
-              Description (optional)
-            </label>
-            <textarea
-              v-model="description"
-              class="form-textarea"
-              placeholder="A brief description of your organization..."
-              rows="3"
-            ></textarea>
-          </div>
-        </div>
-
-        <!-- Step 2: Choose Theme -->
-        <div v-if="step === 2" class="step-content">
-          <div class="templates-grid">
-            <div
-              v-for="t in themes"
-              :key="t.id"
-              class="template-card"
-              :class="{ selected: selectedTheme === t.id }"
-              @click="selectedTheme = t.id"
+            <span
+              class="result-avatar"
+              :style="{ background: getColorValue(r.color) }"
+              >{{ getInitials(r.name) }}</span
             >
-              <div class="template-preview" :style="{ background: t.gradient }">
-                <span class="template-icon">{{ t.icon }}</span>
-              </div>
-              <h4 class="template-name">{{ t.name }}</h4>
-              <p class="template-desc">{{ t.description }}</p>
-              <div v-if="selectedTheme === t.id" class="selected-badge">✓</div>
+            <div class="result-info">
+              <strong>{{ r.name }}</strong>
+              <small>{{ r.workerId }} • {{ r.position }}</small>
             </div>
           </div>
         </div>
-
-        <!-- Step 3: Build Structure -->
-        <div v-if="step === 3" class="step-content build-step">
-          <div class="builder-area">
-            <div class="builder-toolbar">
-              <button @click="addRootNode" class="add-btn">
-                <span>➕</span> Add Person
-              </button>
-            </div>
-
-            <div class="nodes-list" v-if="nodes.length">
-              <div
-                v-for="node in nodes"
-                :key="node.id"
-                class="node-item"
-                :style="{ marginLeft: getNodeIndent(node) + 'px' }"
-              >
-                <span class="node-avatar">{{
-                  getAvatarIcon(node.avatar)
-                }}</span>
-                <div class="node-details">
-                  <strong>{{ node.name }}</strong>
-                  <small>{{ node.position }}</small>
-                </div>
-                <div class="node-actions">
-                  <button
-                    @click="addChildTo(node.id)"
-                    class="action-btn"
-                    title="Add subordinate"
-                  >
-                    ➕
-                  </button>
-                  <button
-                    @click="editNode(node.id)"
-                    class="action-btn"
-                    title="Edit"
-                  >
-                    ✏️
-                  </button>
-                  <button
-                    @click="deleteNode(node.id)"
-                    class="action-btn delete"
-                    title="Delete"
-                  >
-                    🗑️
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div v-else class="empty-builder">
-              <p>No members yet. Click "Add Person" to start.</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Step 4: Customize -->
-        <div v-if="step === 4" class="step-content">
-          <div class="customize-preview">
-            <div class="preview-label">📱 Preview</div>
-            <div class="preview-chart" :class="'theme-' + selectedTheme">
-              <div
-                v-for="node in rootNodes"
-                :key="node.id"
-                class="preview-node"
-              >
-                <div class="preview-card" :class="'color-' + node.color">
-                  <span class="preview-avatar">{{
-                    getAvatarIcon(node.avatar)
-                  }}</span>
-                  <strong>{{ node.name }}</strong>
-                  <small>{{ node.position }}</small>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="form-group checkbox-group">
-            <label class="checkbox-label">
-              <input type="checkbox" v-model="allowExport" />
-              <span class="checkbox-custom"></span>
-              <span>Allow viewers to export chart</span>
-            </label>
-          </div>
-        </div>
-
-        <!-- Navigation Buttons -->
-        <div class="nav-buttons">
-          <button
-            v-if="step > 1"
-            @click="step--"
-            class="back-btn"
-            type="button"
-          >
-            ← Back
-          </button>
-          <button
-            v-if="step < 4"
-            @click="nextStep"
-            class="next-btn"
-            :disabled="!canProceed"
-          >
-            Next →
-          </button>
-          <button
-            v-if="step === 4"
-            @click="createChart"
-            class="create-btn"
-            :disabled="isSubmitting"
-          >
-            <span v-if="!isSubmitting">🎉 Create Chart</span>
-            <span v-else class="loading">Creating...</span>
-          </button>
-        </div>
-
-        <!-- Error Message -->
-        <p v-if="errorMsg" class="error-message">{{ errorMsg }}</p>
       </div>
 
-      <router-link to="/org-demo" class="back-link"
-        >← Try Demo First</router-link
-      >
+      <div class="toolbar-section">
+        <button class="tool-btn export-btn" @click="exportChart">
+          📥 Export PNG
+        </button>
+      </div>
+    </div>
+
+    <!-- Department Legend -->
+    <div class="department-legend" :class="{ minimized: isLegendMinimized }">
+      <div class="legend-header" @click="toggleLegend">
+        <span class="legend-label">Departments</span>
+        <button class="minimize-btn">
+          {{ isLegendMinimized ? "+" : "−" }}
+        </button>
+      </div>
+
+      <div v-show="!isLegendMinimized" class="legend-content-wrapper">
+        <template v-if="departments && departments.length > 0">
+          <div
+            v-for="dept in departments"
+            :key="dept.name"
+            class="dept-tag"
+            :style="{
+              background: dept.color + '20',
+              borderColor: dept.color,
+              color: dept.color,
+            }"
+          >
+            <span class="dept-dot" :style="{ background: dept.color }"></span>
+            {{ dept.name }} ({{ dept.count }})
+          </div>
+        </template>
+        <div v-else class="no-depts">No departments defined</div>
+        <div class="legend-stats">
+          <span class="stat">👥 {{ nodes.length }} employees</span>
+          <span v-if="orphanNodes && orphanNodes.length" class="stat warning"
+            >⚠️ {{ orphanNodes.length }} orphan(s)</span
+          >
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart Container -->
+    <div class="chart-area" ref="chartArea">
+      <div ref="chartContainer" class="chart-canvas"></div>
+    </div>
+
+
+
+    <!-- Demo Badge -->
+    <div class="demo-badge" v-if="!userEmail">
+      🎯 Guest Mode — <a href="#" @click.prevent="showLoginModal = true">Sign in</a> to save charts permanently to your account.
+    </div>
+
+    <!-- Login / Register Modal -->
+    <div v-if="showLoginModal" class="modal-backdrop" @click.self="showLoginModal = false">
+      <div class="modal login-modal">
+        <div class="modal-header">
+          <h3>{{ isRegisterMode ? 'Create Account' : 'Sign In' }}</h3>
+          <button class="close-btn" @click="showLoginModal = false">×</button>
+        </div>
+        <form @submit.prevent="isRegisterMode ? handleRegister() : handleLogin()" class="modal-body">
+          <div v-if="loginError" class="error-banner">{{ loginError }}</div>
+          
+          <div class="field" v-if="isRegisterMode">
+            <label>Name (Optional)</label>
+            <input v-model="loginForm.name" type="text" placeholder="Your full name" />
+          </div>
+          
+          <div class="field">
+            <label>Username / Email</label>
+            <input v-model="loginForm.username" type="text" placeholder="Enter username" required />
+          </div>
+          <div class="field">
+            <label>Password</label>
+            <input v-model="loginForm.password" type="password" placeholder="Enter password" required />
+          </div>
+          <button type="submit" class="save-btn" style="width:100%;margin-top:10px;" :disabled="isLoggingIn">
+            {{ isLoggingIn ? 'Please wait...' : (isRegisterMode ? 'Sign Up' : 'Sign In') }}
+          </button>
+
+          <div style="text-align:center; margin-top:1rem; font-size:0.85rem; color:#64748b;">
+            <a href="#" @click.prevent="isRegisterMode = !isRegisterMode">
+              {{ isRegisterMode ? 'Already have an account? Sign In' : 'Need an account? Sign Up' }}
+            </a>
+          </div>
+        </form>
+      </div>
     </div>
 
     <!-- Node Editor Modal -->
-    <transition name="fade">
-      <div v-if="showEditor" class="modal-overlay" @click.self="closeEditor">
-        <div class="editor-modal">
-          <div class="modal-header">
-            <h3>{{ editingNode ? "Edit Person" : "Add Person" }}</h3>
-            <button class="close-btn" @click="closeEditor">×</button>
+    <div v-if="showEditor" class="modal-backdrop" @click.self="closeEditor">
+      <div class="modal">
+        <div class="modal-header">
+          <h3>{{ modalTitle }}</h3>
+          <button class="close-btn" @click="closeEditor">×</button>
+        </div>
+        <form @submit.prevent="saveNode" class="modal-body">
+          <div class="field">
+            <label>Name *</label>
+            <input
+              v-model="nodeForm.name"
+              type="text"
+              placeholder="John Doe"
+              required
+            />
           </div>
-          <form @submit.prevent="saveNode" class="node-form">
-            <div class="form-group">
-              <label>Name *</label>
-              <input
-                v-model="nodeForm.name"
-                type="text"
-                placeholder="John Doe"
-                required
-              />
-            </div>
-            <div class="form-group">
-              <label>Position *</label>
-              <input
-                v-model="nodeForm.position"
-                type="text"
-                placeholder="CEO, Manager..."
-                required
-              />
-            </div>
-            <div class="form-group">
-              <label>Department</label>
-              <input
-                v-model="nodeForm.department"
-                type="text"
-                placeholder="Engineering..."
-              />
-            </div>
-            <div class="form-group">
-              <label>Avatar</label>
-              <div class="avatar-options">
-                <button
-                  v-for="av in avatarStyles"
-                  :key="av.id"
-                  type="button"
-                  class="avatar-btn"
-                  :class="{ selected: nodeForm.avatar === av.id }"
-                  @click="nodeForm.avatar = av.id"
-                >
-                  {{ av.icon }}
-                </button>
+          <div class="field">
+            <label>Position *</label>
+            <input
+              v-model="nodeForm.position"
+              type="text"
+              placeholder="CEO, Manager..."
+              required
+            />
+          </div>
+          <div class="field">
+            <label>Department</label>
+            <input
+              v-model="nodeForm.department"
+              type="text"
+              placeholder="Engineering, Sales..."
+              list="dept-list"
+            />
+            <datalist id="dept-list">
+              <option v-for="d in uniqueDepartments" :key="d" :value="d" />
+            </datalist>
+          </div>
+          <div class="field">
+            <label>Email</label>
+            <input
+              v-model="nodeForm.email"
+              type="email"
+              placeholder="john@company.com"
+            />
+          </div>
+          <div class="field">
+            <label>Photo URL (Optional)</label>
+            <input
+              v-model="nodeForm.imageUrl"
+              type="url"
+              placeholder="https://i.imgur.com/example.jpg"
+            />
+            <small class="form-hint"
+              >💡 Upload your photo to
+              <a href="https://imgur.com/upload" target="_blank">imgur.com</a>
+              and paste the URL here</small
+            >
+          </div>
+          <div class="field">
+            <label>Reports To (Parent)</label>
+            <div class="custom-select" v-click-outside="closeParentDropdown">
+              <div
+                class="selected-option"
+                :class="{ active: showParentDropdown }"
+                @click="toggleParentDropdown"
+              >
+                <div v-if="selectedParentNode" class="selected-content">
+                  <span class="selected-avatar">{{
+                    getInitials(selectedParentNode.name)
+                  }}</span>
+                  <div class="selected-info">
+                    <strong>{{ selectedParentNode.name }}</strong>
+                    <small>{{ selectedParentNode.position }}</small>
+                  </div>
+                </div>
+                <div v-else class="placeholder">
+                  -- No Manager (Root Level) --
+                </div>
+                <span class="chevron">▼</span>
+              </div>
+
+              <div v-if="showParentDropdown" class="dropdown-options">
+                <div class="dropdown-search">
+                  <input
+                    ref="parentSearchInput"
+                    v-model="parentSearchQuery"
+                    type="text"
+                    placeholder="Search people..."
+                    @click.stop
+                  />
+                </div>
+                <div class="options-list">
+                  <div
+                    class="option-item root-option"
+                    :class="{ selected: selectedParentId === null }"
+                    @click="selectParent(null)"
+                  >
+                    <div class="option-avatar">🚫</div>
+                    <div class="option-info">
+                      <strong>No Manager</strong>
+                      <small>Set as Root Level Node</small>
+                    </div>
+                  </div>
+                  <div
+                    v-for="parent in filteredParents"
+                    :key="parent.id"
+                    class="option-item"
+                    :class="{ selected: selectedParentId === parent.id }"
+                    @click="selectParent(parent.id)"
+                  >
+                    <div
+                      class="option-avatar"
+                      :style="{ background: getColorValue(parent.color) }"
+                    >
+                      {{ getInitials(parent.name) }}
+                    </div>
+                    <div class="option-info">
+                      <strong>{{ parent.name }}</strong>
+                      <small>{{ parent.position }}</small>
+                    </div>
+                  </div>
+                  <div v-if="filteredParents.length === 0" class="no-results">
+                    No matching people found
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="form-group">
-              <label>Card Color</label>
-              <div class="color-options">
-                <button
-                  v-for="color in cardColors"
-                  :key="color.id"
-                  type="button"
-                  class="color-btn"
-                  :class="{ selected: nodeForm.color === color.id }"
-                  :style="{ background: color.value }"
-                  @click="nodeForm.color = color.id"
-                ></button>
-              </div>
+            <small class="form-hint"
+              >Select who this person reports to in the hierarchy</small
+            >
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn-secondary" @click="closeEditor">
+              Cancel
+            </button>
+            <button type="submit" class="btn-primary">
+              {{
+                isReplacing
+                  ? "Replace Person"
+                  : editingNode
+                  ? "Save Changes"
+                  : "Add Person"
+              }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Action Menu Modal -->
+    <div
+      v-if="showActionMenu"
+      class="modal-backdrop"
+      @click.self="closeActionMenu"
+    >
+      <div class="action-menu-modal">
+        <div class="action-menu-header">
+          <div class="selected-person">
+            <span
+              class="person-avatar"
+              :style="{ background: getColorValue(selectedNode?.color) }"
+              >{{ getInitials(selectedNode?.name || "") }}</span
+            >
+            <div class="person-details">
+              <strong>{{ selectedNode?.name }}</strong>
+              <small
+                >{{ selectedNode?.workerId }} •
+                {{ selectedNode?.position }}</small
+              >
             </div>
-            <div class="form-actions">
-              <button type="button" class="cancel-btn" @click="closeEditor">
-                Cancel
-              </button>
-              <button type="submit" class="save-btn">
-                {{ editingNode ? "Update" : "Add" }}
-              </button>
+          </div>
+          <button class="close-btn" @click="closeActionMenu">×</button>
+        </div>
+        <div class="action-menu-body">
+          <button class="action-item" @click="handleAddSubordinate">
+            <span class="action-icon">➕</span>
+            <div class="action-text">
+              <strong>Add Subordinate</strong
+              ><small>Add someone reporting to this person</small>
             </div>
-          </form>
+          </button>
+          <button class="action-item" @click="handleEditPerson">
+            <span class="action-icon">✏️</span>
+            <div class="action-text">
+              <strong>Edit Details</strong
+              ><small>Update name, position, photo, etc.</small>
+            </div>
+          </button>
+          <button class="action-item replace" @click="handleReplacePerson">
+            <span class="action-icon">🔄</span>
+            <div class="action-text">
+              <strong>Replace Person</strong
+              ><small
+                >New person takes this position (keeps subordinates)</small
+              >
+            </div>
+          </button>
+          <button class="action-item danger" @click="handleDeletePerson">
+            <span class="action-icon">🗑️</span>
+            <div class="action-text">
+              <strong>Remove from Chart</strong>
+              <small v-if="getSubordinateCount(selectedNode?.id) > 0"
+                >⚠️ {{ getSubordinateCount(selectedNode?.id) }} subordinate(s)
+                will need reassignment</small
+              >
+              <small v-else>Remove this person from org chart</small>
+            </div>
+          </button>
         </div>
       </div>
-    </transition>
+    </div>
+
+    <!-- Orphan Fixer Modal -->
+    <div
+      v-if="showOrphanFixer"
+      class="modal-backdrop"
+      @click.self="showOrphanFixer = false"
+    >
+      <div class="orphan-modal">
+        <div class="modal-header">
+          <h3>⚠️ Fix Broken Tree Structure</h3>
+          <button class="close-btn" @click="showOrphanFixer = false">×</button>
+        </div>
+        <div class="orphan-modal-body">
+          <p class="orphan-intro">
+            The following people have missing parent connections. Their
+            manager/supervisor no longer exists in the chart. Please assign them
+            to a new parent or make them a root node.
+          </p>
+
+          <div
+            v-for="orphan in orphanNodes"
+            :key="orphan.id"
+            class="orphan-item"
+          >
+            <div class="orphan-person">
+              <span
+                class="orphan-avatar"
+                :style="{ background: getColorValue(orphan.color) }"
+                >{{ getInitials(orphan.name) }}</span
+              >
+              <div class="orphan-info">
+                <strong>{{ orphan.name }}</strong>
+                <small>{{ orphan.workerId }} • {{ orphan.position }}</small>
+                <div class="orphan-error">
+                  ❌ Parent ID "{{ orphan.parentId }}" not found
+                </div>
+              </div>
+            </div>
+            <div class="orphan-fix">
+              <label>Assign new parent:</label>
+              <select v-model="orphanFixes[orphan.id]" class="orphan-select">
+                <option value="">-- Make Root (No Parent) --</option>
+                <option
+                  v-for="p in getValidParents(orphan.id)"
+                  :key="p.id"
+                  :value="p.id"
+                >
+                  {{ p.name }} ({{ p.workerId }})
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div class="orphan-actions">
+            <button class="btn-secondary" @click="showOrphanFixer = false">
+              Cancel
+            </button>
+            <button class="btn-primary" @click="applyOrphanFixes">
+              ✅ Apply Fixes
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
+import { OrgChart } from "d3-org-chart";
+import * as d3 from "d3";
 import { orgchartApi } from "@/api/orgchart";
+import { authApi } from "@/api/auth";
+import { 
+  orgChartThemes, 
+  orgChartStyles, 
+  orgChartColors, 
+  orgChartDepartmentColors,
+  getTheme,
+  getColorValue,
+  getDepartmentColor,
+  getInitials,
+  getCardStyle
+} from "@/utils/orgChartStyles";
 
 export default {
+  directives: {
+    clickOutside: {
+      mounted(el, binding) {
+        el.clickOutsideEvent = function (event) {
+          if (!(el === event.target || el.contains(event.target))) {
+            binding.value(event);
+          }
+        };
+        document.body.addEventListener("click", el.clickOutsideEvent);
+      },
+      unmounted(el) {
+        document.body.removeEventListener("click", el.clickOutsideEvent);
+      },
+    },
+  },
   name: "OrgChartCreate",
   data() {
     return {
-      step: 1,
-      companyName: "",
-      slug: "",
-      description: "",
-      selectedTheme: "corporate",
-      allowExport: true,
-      nodes: [],
-      isSubmitting: false,
-      errorMsg: "",
-      created: false,
-      createdSlug: null,
-      ownerToken: null,
-      copied: null,
-
-      // Editor state
+      chart: null,
+      selectedTheme: "light",
+      selectedStyle: "modern",
+      searchQuery: "",
+      searchResults: [],
+      photoMode: "upload",
       showEditor: false,
+      showActionMenu: false,
+      showOrphanFixer: false,
+      showLoginModal: false,
+      isRegisterMode: false,
+      isLoggingIn: false,
+      loginError: "",
+      loginForm: {
+        name: "",
+        username: "",
+        password: ""
+      },
       editingNode: null,
+      selectedNode: null,
       parentForNewNode: null,
+      selectedParentId: null,
+      parentSearchQuery: "",
+      showParentDropdown: false,
+      isReplacing: false,
+      isLegendMinimized: false,
+      workerIdError: "",
+      nextIdNumber: 9,
+      orphanFixes: {},
       nodeForm: {
         name: "",
         position: "",
         department: "",
+        email: "",
+        imageUrl: "",
         avatar: "person",
         color: "blue",
       },
-
-      stepTitles: [
-        "Company Info",
-        "Choose Theme",
-        "Build Structure",
-        "Finalize",
-      ],
-      stepDescriptions: [
-        "Enter your company or team details",
-        "Pick a beautiful theme for your chart",
-        "Add people to your organization",
-        "Review and create your chart",
-      ],
-      stepIcons: ["🏢", "🎨", "👥", "✨"],
-
-      themes: [
-        {
-          id: "corporate",
-          name: "Corporate",
-          description: "Professional navy theme",
-          icon: "🏢",
-          gradient: "linear-gradient(135deg, #1e3a5f, #2d5a87)",
-        },
-        {
-          id: "modern",
-          name: "Modern",
-          description: "Vibrant gradients",
-          icon: "✨",
-          gradient: "linear-gradient(135deg, #667eea, #764ba2)",
-        },
-        {
-          id: "creative",
-          name: "Creative",
-          description: "Bold & colorful",
-          icon: "🎨",
-          gradient: "linear-gradient(135deg, #f093fb, #f5576c)",
-        },
-        {
-          id: "minimal",
-          name: "Minimal",
-          description: "Clean grayscale",
-          icon: "⚪",
-          gradient: "linear-gradient(135deg, #434343, #000000)",
-        },
-        {
-          id: "dark",
-          name: "Dark",
-          description: "Sleek dark mode",
-          icon: "🌙",
-          gradient: "linear-gradient(135deg, #0f0f23, #1a1a2e)",
-        },
-        {
-          id: "nature",
-          name: "Nature",
-          description: "Fresh green tones",
-          icon: "🌿",
-          gradient: "linear-gradient(135deg, #134e5e, #71b280)",
-        },
-      ],
-
-      avatarStyles: [
-        { id: "person", icon: "🧑" },
-        { id: "male", icon: "👨" },
-        { id: "female", icon: "👩" },
-        { id: "business", icon: "👔" },
-        { id: "developer", icon: "👨‍💻" },
-        { id: "manager", icon: "👨‍💼" },
-      ],
-
-      cardColors: [
-        { id: "blue", value: "#3b82f6" },
-        { id: "teal", value: "#14b8a6" },
-        { id: "purple", value: "#8b5cf6" },
-        { id: "pink", value: "#ec4899" },
-        { id: "orange", value: "#f97316" },
-        { id: "green", value: "#22c55e" },
-      ],
+      companyName: "My Company",
+      slug: "my-company",
+      description: "",
+      isSubmitting: false,
+      themes: orgChartThemes,
+      cardStyles: orgChartStyles,
+      colors: orgChartColors,
+      departmentColors: orgChartDepartmentColors,
+      nodes: [],
+      loading: true,
+      userEmail: null,
     };
   },
   computed: {
-    baseUrl() {
-      return window.location.origin;
+    modalTitle() {
+      if (this.isReplacing) return "Replace Person";
+      if (this.editingNode) return "Edit Person";
+      return "Add Person";
     },
-    canProceed() {
-      if (this.step === 1) return this.companyName.trim() && this.slug.trim();
-      if (this.step === 3) return this.nodes.length > 0;
-      return true;
+    departments() {
+      console.log(
+        "departments computed called, nodes:",
+        this.nodes?.length,
+        "first node dept:",
+        this.nodes?.[0]?.department
+      );
+
+      if (
+        !this.nodes ||
+        !Array.isArray(this.nodes) ||
+        this.nodes.length === 0
+      ) {
+        console.log("departments: returning empty - nodes check failed");
+        return [];
+      }
+
+      const depts = {};
+      this.nodes.forEach((n) => {
+        const deptName = n.department || "";
+        console.log("Node:", n.name, "Department:", deptName);
+        if (deptName && deptName.trim()) {
+          const key = deptName.trim();
+          if (!depts[key]) {
+            depts[key] = {
+              name: key,
+              count: 0,
+              color:
+                this.departmentColors[key] ||
+                this.getColorValue(n.color) ||
+                "#3b82f6",
+            };
+          }
+          depts[key].count++;
+        }
+      });
+
+      const result = Object.values(depts).sort((a, b) => b.count - a.count);
+      console.log("Departments FINAL result:", result);
+      return result;
     },
-    shareLink() {
-      return `${this.baseUrl}/org/${this.createdSlug}`;
+    uniqueDepartments() {
+      return [...new Set(this.nodes.map((n) => n.department).filter(Boolean))];
     },
-    editLink() {
-      return `${this.baseUrl}/org/${this.createdSlug}/edit?token=${this.ownerToken}`;
+    orphanNodes() {
+      const nodeIds = new Set(this.nodes.map((n) => n.id));
+      return this.nodes.filter((n) => n.parentId && !nodeIds.has(n.parentId));
     },
-    rootNodes() {
-      return this.nodes.filter((n) => !n.parentId);
+    validNodes() {
+      const nodeIds = new Set(this.nodes.map((n) => n.id));
+      return this.nodes.filter((n) => !n.parentId || nodeIds.has(n.parentId));
     },
   },
   watch: {
-    companyName(val) {
-      if (
-        !this.slug ||
-        this.slug === this.generateSlug(this.companyName.slice(0, -1))
-      ) {
-        this.slug = this.generateSlug(val);
-      }
+    orphanNodes: {
+      immediate: true,
+      handler(newVal) {
+        // Initialize orphan fixes with empty values
+        if (newVal && Array.isArray(newVal)) {
+          newVal.forEach((orphan) => {
+            if (!(orphan.id in this.orphanFixes)) {
+              this.orphanFixes[orphan.id] = "";
+            }
+          });
+        }
+      },
     },
   },
+  async mounted() {
+    await this.loadChart();
+    this.$nextTick(() => {
+      this.renderChart();
+    });
+    window.addEventListener("resize", this.handleResize);
+    window.addEventListener("orgNodeClick", (e) =>
+      this.openActionMenu(e.detail)
+    );
+
+    // Check existing login session
+    try {
+      const userRaw = localStorage.getItem('hazman_user');
+      if (userRaw) {
+        this.userEmail = JSON.parse(userRaw)?.email || JSON.parse(userRaw)?.username || "User";
+      }
+    } catch (e) {}
+  },
+  beforeUnmount() {
+    window.removeEventListener("resize", this.handleResize);
+  },
   methods: {
-    generateSlug(text) {
-      return text
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-|-$/g, "")
-        .substring(0, 50);
+    toggleLegend() {
+      this.isLegendMinimized = !this.isLegendMinimized;
     },
+    getDepartmentColor,
+    getTheme,
+    getColorValue,
+    getInitials,
     formatSlug() {
       this.slug = this.slug
         .toLowerCase()
-        .replace(/[^a-z0-9-]+/g, "-")
+        .replace(/[^a-z0-9-]/g, "-")
+        .replace(/-+/g, "-")
         .replace(/^-|-$/g, "");
     },
-    nextStep() {
-      if (this.canProceed) this.step++;
+    async loadChart() {
+      // For create, we start fresh with a CEO node
+      this.nodes = [
+        {
+          id: "root-1",
+          name: "CEO Name",
+          position: "Chief Executive Officer",
+          department: "Executive",
+          workerId: "EMP001",
+          color: "blue",
+          parentId: "",
+        }
+      ];
+      this.loading = false;
     },
-    getNodeIndent(node) {
-      let indent = 0;
-      let current = node;
-      while (current.parentId) {
-        indent += 30;
-        current = this.nodes.find((n) => n.id === current.parentId) || {
-          parentId: null,
-        };
+    async handleLogin() {
+      this.isLoggingIn = true;
+      this.loginError = "";
+      try {
+        const res = await authApi.adminLogin(this.loginForm.username, this.loginForm.password);
+        this.userEmail = res.user.email || res.user.username || "User";
+        this.showLoginModal = false;
+      } catch (err) {
+        this.loginError = "Login failed. Please check credentials.";
+      } finally {
+        this.isLoggingIn = false;
       }
-      return indent;
     },
-    getAvatarIcon(avatarId) {
-      const icons = {
-        person: "🧑",
-        male: "👨",
-        female: "👩",
-        business: "👔",
-        developer: "👨‍💻",
-        manager: "👨‍💼",
-      };
-      return icons[avatarId] || "👤";
+    async handleRegister() {
+      this.isLoggingIn = true;
+      this.loginError = "";
+      try {
+        const res = await authApi.register(this.loginForm.username, this.loginForm.password, this.loginForm.name);
+        this.userEmail = res.user.email || res.user.username || "User";
+        this.showLoginModal = false;
+        alert("Account created successfully! You can now save your chart.");
+      } catch (err) {
+        this.loginError = "Registration failed. Username might be taken.";
+      } finally {
+        this.isLoggingIn = false;
+      }
+    },
+    async createChart() {
+      if (!this.companyName || !this.slug) {
+        alert("Please provide a Company Name and URL Slug.");
+        return;
+      }
+      
+      this.isSubmitting = true;
+      try {
+        let userEmail = null;
+        try {
+          const userRaw = localStorage.getItem('hazman_user');
+          if (userRaw) userEmail = JSON.parse(userRaw)?.email;
+        } catch (e) {}
+
+        const ownerToken = userEmail || (Math.random().toString(36).substring(2) + Date.now().toString(36));
+
+        const result = await orgchartApi.create({
+          slug: this.slug,
+          title: this.companyName,
+          description: this.description,
+          theme: this.selectedTheme,
+          owner_token: ownerToken,
+          chart_data: this.nodes,
+          custom_settings: { style: this.selectedStyle, allowExport: true },
+        });
+
+        if (!result || !result.slug) throw new Error("Failed to create chart");
+
+        // Redirect to edit page
+        if (userEmail) {
+          this.$router.push(`/org/${result.slug}/edit`);
+        } else {
+          this.$router.push(`/org/${result.slug}/edit?token=${ownerToken}`);
+        }
+      } catch (err) {
+        alert("Error creating chart: " + err.message);
+      } finally {
+        this.isSubmitting = false;
+      }
+    },
+    toggleParentDropdown() {
+      this.showParentDropdown = !this.showParentDropdown;
+      if (this.showParentDropdown) {
+        this.$nextTick(() => {
+          this.$refs.parentSearchInput?.focus();
+        });
+      }
+    },
+    selectParent(nodeId) {
+      if (this.selectedParentId === nodeId) {
+        this.selectedParentId = null; // Toggle off if already selected
+      } else {
+        this.selectedParentId = nodeId;
+      }
+      this.showParentDropdown = false;
+      this.parentSearchQuery = "";
+    },
+    closeParentDropdown() {
+      this.showParentDropdown = false;
+    },
+    getCardStyle(data, theme) {
+      return getCardStyle(data, this.selectedTheme, this.selectedStyle, this.getSubordinateCount);
+    },
+    renderChart() {
+      const container = this.$refs.chartContainer;
+      if (!container) return;
+      const theme = this.getTheme();
+
+      // Only render valid nodes (exclude orphans)
+      const chartData = this.validNodes.map((n) => ({
+        ...n,
+        parentId: n.parentId || null,
+      }));
+
+      this.chart = new OrgChart()
+        .container(container)
+        .data(chartData)
+        .nodeWidth((d) => 250)
+        .nodeHeight((d) =>
+          this.selectedStyle === "minimal" || this.selectedStyle === "modern"
+            ? 120
+            : 280
+        )
+        .childrenMargin((d) => 50)
+        .compactMarginBetween((d) => 35)
+        .siblingsMargin((d) => 35)
+        .neighbourMargin((d) => 50)
+        .buttonContent(
+          ({ node }) =>
+            `<div style="width:18px;height:18px;border-radius:50%;background:${
+              theme.link
+            };color:white;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;box-shadow:0 2px 4px rgba(0,0,0,0.2);">${
+              node.children ? "−" : "+"
+            }</div>`
+        )
+        .nodeContent((d) => this.getCardStyle(d.data, theme))
+        .onNodeClick((d) => {
+          this.openActionMenu(d.data.id);
+        })
+        .linkUpdate(function (d) {
+          d3.select(this).attr("stroke", theme.link).attr("stroke-width", 2);
+        })
+        .render();
+
+      setTimeout(() => this.chart?.fit(), 100);
+    },
+    applyTheme(id) {
+      this.selectedTheme = id;
+      this.renderChart();
+    },
+    handleResize() {
+      this.chart?.render();
+      setTimeout(() => this.chart?.fit(), 100);
+    },
+    fitChart() {
+      this.chart?.fit();
+    },
+    expandAll() {
+      this.chart?.expandAll();
+    },
+    collapseAll() {
+      this.chart?.collapseAll();
+    },
+    openActionMenu(nodeId) {
+      // When a node is clicked, open the editor to edit it
+      this.editNode(nodeId);
     },
     addRootNode() {
       this.editingNode = null;
       this.parentForNewNode = null;
-      this.resetForm();
+      this.isReplacing = false;
+      this.nodeForm = {
+        workerId: "",
+        name: "",
+        position: "",
+        department: "",
+        email: "",
+        phone: "",
+        imageUrl: "",
+        color: "blue",
+      };
+      this.generateWorkerId();
+      this.selectedParentId = null;
+      this.photoMode = "upload";
       this.showEditor = true;
     },
-    addChildTo(parentId) {
+    addChild(parentId) {
       this.editingNode = null;
       this.parentForNewNode = parentId;
-      this.resetForm();
+      this.isReplacing = false;
+      this.nodeForm = {
+        workerId: "",
+        name: "",
+        position: "",
+        department: "",
+        email: "",
+        phone: "",
+        imageUrl: "",
+        color: "blue",
+      };
+      this.generateWorkerId();
+      this.selectedParentId = parentId;
+      this.photoMode = "upload";
       this.showEditor = true;
     },
     editNode(nodeId) {
       const node = this.nodes.find((n) => n.id === nodeId);
       if (node) {
         this.editingNode = node;
+        this.isReplacing = false;
         this.nodeForm = { ...node };
+        this.selectedParentId = node.parentId || null;
+        this.photoMode = node.imageUrl?.startsWith("data:") ? "upload" : "url";
+        this.showEditor = true;
+      }
+    },
+    replaceNode(nodeId) {
+      const node = this.nodes.find((n) => n.id === nodeId);
+      if (node) {
+        this.editingNode = node;
+        this.isReplacing = true;
+        this.nodeForm = {
+          workerId: node.workerId,
+          name: "",
+          position: node.position,
+          department: node.department,
+          email: "",
+          phone: "",
+          imageUrl: "",
+          color: node.color,
+        };
+        this.photoMode = "upload";
         this.showEditor = true;
       }
     },
     deleteNode(nodeId) {
-      if (confirm("Delete this person?")) {
-        const deleteRecursive = (id) => {
-          const children = this.nodes.filter((n) => n.parentId === id);
-          children.forEach((c) => deleteRecursive(c.id));
-          this.nodes = this.nodes.filter((n) => n.id !== id);
-        };
-        deleteRecursive(nodeId);
+      const subCount = this.getSubordinateCount(nodeId);
+      const node = this.nodes.find((n) => n.id === nodeId);
+      const msg =
+        subCount > 0
+          ? `Remove ${node?.name}?\n\n⚠️ ${subCount} subordinate(s) will be disconnected and need to be reassigned to a new manager.`
+          : `Remove ${node?.name}? This cannot be undone.`;
+
+      if (confirm(msg)) {
+        // Only delete this person, NOT their subordinates
+        // Subordinates become orphans and will show in the fix modal
+        this.nodes = this.nodes.filter((n) => n.id !== nodeId);
+        this.renderChart();
+
+        // If orphans were created, show the fixer modal automatically
+        if (this.orphanNodes.length > 0) {
+          setTimeout(() => {
+            this.showOrphanFixer = true;
+          }, 300);
+        }
       }
-    },
-    resetForm() {
-      this.nodeForm = {
-        name: "",
-        position: "",
-        department: "",
-        avatar: "person",
-        color: "blue",
-      };
     },
     closeEditor() {
       this.showEditor = false;
       this.editingNode = null;
-      this.parentForNewNode = null;
+      this.isReplacing = false;
+      this.workerIdError = "";
+    },
+    generateWorkerId() {
+      const existingIds = this.nodes.map((n) => n.workerId);
+      let newId;
+      do {
+        newId = `EMP${String(this.nextIdNumber++).padStart(3, "0")}`;
+      } while (existingIds.includes(newId));
+      this.nodeForm.workerId = newId;
+      this.workerIdError = "";
+    },
+    validateWorkerId() {
+      const id = (this.nodeForm.workerId || "").trim();
+      if (!id) {
+        this.workerIdError = "Worker ID is required";
+        return false;
+      }
+      const existing = this.nodes.find(
+        (n) => n.workerId === id && n.id !== this.editingNode?.id
+      );
+      if (existing) {
+        this.workerIdError = `ID "${id}" already used by ${existing.name}`;
+        return false;
+      }
+      this.workerIdError = "";
+      return true;
     },
     saveNode() {
+      this.nodeForm.parentId = this.selectedParentId || "";
+      if (!this.validateWorkerId()) return;
+
       if (this.editingNode) {
         const idx = this.nodes.findIndex((n) => n.id === this.editingNode.id);
         if (idx !== -1)
@@ -577,825 +979,1768 @@ export default {
         this.nodes.push({
           id: Date.now().toString(),
           ...this.nodeForm,
-          parentId: this.parentForNewNode,
+          parentId: this.parentForNewNode || "",
         });
       }
       this.closeEditor();
+      this.renderChart();
     },
-    async createChart() {
-      this.isSubmitting = true;
-      this.errorMsg = "";
+    async exportChart() {
+      const container = this.$refs.chartContainer;
+      if (!container) {
+        alert("No chart container found");
+        return;
+      }
+
+      // 1. Force re-render and fit
+      if (this.chart) {
+        this.chart.render();
+        this.chart.fit();
+      }
+
+      // 2. Wait for animation
+      await new Promise((resolve) => setTimeout(resolve, 800));
+
+      // 3. Apply background
+      const originalBackground = container.style.background;
+      const theme = this.getTheme();
+      // Apply theme background explicitly for the screenshot
+      container.style.background = theme.bg;
 
       try {
-        // Tie ownership to logged in user if available
-        let userEmail = null;
-        try {
-          const userRaw = localStorage.getItem('hazman_user');
-          if (userRaw) {
-            const user = JSON.parse(userRaw);
-            userEmail = user?.email;
-          }
-        } catch (e) {}
-
-        this.ownerToken = userEmail || (Math.random().toString(36).substring(2) + Date.now().toString(36));
-
-        const result = await orgchartApi.create({
-          slug: this.slug,
-          title: this.companyName,
-          description: this.description,
-          theme: this.selectedTheme,
-          owner_token: this.ownerToken,
-          chart_data: this.nodes, // Backend will JSON.stringify this
-          custom_settings: { allowExport: this.allowExport },
+        const canvas = await html2canvas(container, {
+          backgroundColor: null,
+          scale: 2,
+          useCORS: true,
+          logging: false,
         });
-
-        if (!result || !result.slug) throw new Error("Failed to create chart");
-
-        this.createdSlug = result.slug;
-        this.created = true;
+        const link = document.createElement("a");
+        link.download = `org-chart-${Date.now()}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
       } catch (err) {
-        console.error("Error creating chart:", err);
-        this.errorMsg = err.message || "Failed to create chart. Please try again.";
+        console.error("Export failed:", err);
+        alert("Export failed");
       } finally {
-        this.isSubmitting = false;
+        // Restore background
+        container.style.background = originalBackground;
       }
     },
-    copyShareLink() {
-      navigator.clipboard.writeText(this.shareLink);
-      this.copied = "share";
-      setTimeout(() => (this.copied = null), 2000);
+  },
+  computed: {
+    availableParents() {
+      if (this.editingNode) {
+        // Exclude the node being edited and its descendants
+        const descendants = new Set();
+        const addDescendants = (nodeId) => {
+          this.nodes
+            .filter((n) => n.parentId === nodeId)
+            .forEach((child) => {
+              descendants.add(child.id);
+              addDescendants(child.id);
+            });
+        };
+        descendants.add(this.editingNode.id);
+        addDescendants(this.editingNode.id);
+        return this.nodes.filter((n) => !descendants.has(n.id));
+      }
+      return this.nodes;
     },
-    copyEditLink() {
-      navigator.clipboard.writeText(this.editLink);
-      this.copied = "edit";
-      setTimeout(() => (this.copied = null), 2000);
+    filteredParents() {
+      const query = this.parentSearchQuery.toLowerCase();
+      return this.availableParents.filter(
+        (p) =>
+          p.name.toLowerCase().includes(query) ||
+          p.position.toLowerCase().includes(query)
+      );
     },
-    viewChart() {
-      this.$router.push(`/org/${this.createdSlug}`);
+    selectedParentNode() {
+      return this.nodes.find((n) => n.id === this.selectedParentId);
     },
-    createAnother() {
-      this.created = false;
-      this.step = 1;
-      this.companyName = "";
-      this.slug = "";
-      this.description = "";
-      this.nodes = [];
-      this.selectedTheme = "corporate";
+    orphanNodes() {
+      if (!this.nodes || this.nodes.length === 0) return [];
+      const validIds = new Set(this.nodes.map((n) => n.id));
+      return this.nodes.filter(
+        (n) => n.parentId && n.parentId !== "" && !validIds.has(n.parentId)
+      );
+    },
+    validNodes() {
+      if (!this.nodes || this.nodes.length === 0) return [];
+      const orphanIds = new Set(this.orphanNodes.map((n) => n.id));
+      return this.nodes.filter((n) => !orphanIds.has(n.id));
+    },
+    rootNodes() {
+      return this.validNodes.filter((n) => !n.parentId || n.parentId === "");
+    },
+    uniqueDepartments() {
+      if (!this.nodes || this.nodes.length === 0) return [];
+      return [...new Set(this.nodes.map((n) => n.department).filter(Boolean))];
+    },
+    departments() {
+      console.log("departments computed called (second block)");
+      if (
+        !this.nodes ||
+        !Array.isArray(this.nodes) ||
+        this.nodes.length === 0
+      ) {
+        return [];
+      }
+
+      const depts = {};
+      this.nodes.forEach((n) => {
+        const deptName = n.department || "";
+        if (deptName && deptName.trim()) {
+          const key = deptName.trim();
+          if (!depts[key]) {
+            const colorMap = {
+              Executive: "#3b82f6",
+              Technology: "#06b6d4",
+              Finance: "#10b981",
+              Operations: "#f97316",
+              Design: "#ec4899",
+              HR: "#8b5cf6",
+              Marketing: "#f59e0b",
+              Sales: "#ef4444",
+              "Human Resources": "#8b5cf6",
+            };
+            depts[key] = {
+              name: key,
+              count: 0,
+              color: colorMap[key] || "#3b82f6",
+            };
+          }
+          depts[key].count++;
+        }
+      });
+
+      const result = Object.values(depts).sort((a, b) => b.count - a.count);
+      console.log("Departments result:", result);
+      return result;
+    },
+    modalTitle() {
+      if (this.isReplacing) return "Replace Person";
+      if (this.editingNode) return "Edit Person";
+      return "Add Person";
     },
   },
 };
 </script>
 
 <style scoped>
-/* Modern Theme matching OrgChartDemo */
-.create-page {
+.org-demo-page {
   min-height: 100vh;
-  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
   font-family: "Inter", system-ui, sans-serif;
-  color: #1e293b;
-  display: flex;
-  flex-direction: column;
 }
-
-/* Form Container */
-.form-container {
-  max-width: 800px;
-  margin: 3rem auto;
-  padding: 0 1.5rem;
-  width: 100%;
-}
-
-.form-card {
-  background: white;
-  border-radius: 20px;
-  box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.05),
-    0 8px 16px -4px rgba(0, 0, 0, 0.02);
-  padding: 2.5rem;
-  border: 1px solid #e2e8f0;
-}
-
-/* Progress Bar */
-.progress-bar {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 3rem;
-  position: relative;
-}
-
-.progress-step {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: white;
-  border: 2px solid #e2e8f0;
-  color: #64748b;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  font-size: 0.9rem;
-  position: relative;
-  z-index: 2;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.progress-step.active {
-  background: #f1f5f9;
-  border-color: #cbd5e1;
-  color: #334155;
-}
-
-.progress-step.current {
-  background: #0f172a;
-  border-color: #0f172a;
-  color: white;
-  transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
-}
-
-.progress-line {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 200px;
-  height: 2px;
-  background: #e2e8f0;
-  z-index: 1;
-}
-
-/* Header */
-.form-header {
-  text-align: center;
-  margin-bottom: 2.5rem;
-}
-
-.header-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
-  width: 80px;
-  height: 80px;
-  border-radius: 24px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
-  border: 1px solid #e2e8f0;
-}
-
-.form-title {
-  font-size: 1.8rem;
-  font-weight: 800;
-  color: #0f172a;
-  margin-bottom: 0.5rem;
-  letter-spacing: -0.025em;
-}
-
-.form-subtitle {
-  color: #64748b;
-  font-size: 1rem;
-}
-
-/* Form Groups */
-.form-group {
-  margin-bottom: 1.5rem;
-}
-
-.form-label {
-  display: block;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #334155;
-  margin-bottom: 0.5rem;
-}
-
-.label-icon {
-  margin-right: 0.4rem;
-}
-
-.form-input,
-.form-textarea {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  font-size: 0.95rem;
-  color: #1e293b;
-  transition: all 0.2s;
+.theme-light {
   background: #f8fafc;
-}
-
-.form-input:focus,
-.form-textarea:focus {
-  outline: none;
-  border-color: #3b82f6;
-  background: white;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.slug-input-wrapper {
-  display: flex;
-  align-items: center;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  background: #f8fafc;
-  overflow: hidden;
-  transition: all 0.2s;
-}
-
-.slug-input-wrapper:focus-within {
-  border-color: #3b82f6;
-  background: white;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.slug-prefix {
-  padding: 0 0.75rem;
-  color: #94a3b8;
-  font-weight: 500;
-  background: #f1f5f9;
-  height: 46px;
-  display: flex;
-  align-items: center;
-  border-right: 1px solid #e2e8f0;
-}
-
-.slug-input {
-  border: none !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  padding-left: 0.75rem;
-}
-
-.input-hint {
-  margin-top: 0.5rem;
-  font-size: 0.8rem;
-  color: #64748b;
-}
-
-/* Theme Grid */
-.templates-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1.5rem;
-}
-
-.template-card {
-  border: 2px solid #e2e8f0;
-  border-radius: 16px;
-  padding: 1.25rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  position: relative;
-  background: white;
-}
-
-.template-card:hover {
-  transform: translateY(-2px);
-  border-color: #cbd5e1;
-  box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.05);
-}
-
-.template-card.selected {
-  border-color: #0f172a;
-  background: #f8fafc;
-}
-
-.template-preview {
-  height: 80px;
-  border-radius: 10px;
-  margin-bottom: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2rem;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.template-name {
-  font-weight: 700;
   color: #1e293b;
-  margin: 0 0 0.25rem 0;
 }
-
-.template-desc {
-  font-size: 0.8rem;
-  color: #64748b;
-  margin: 0;
-  line-height: 1.4;
-}
-
-.selected-badge {
-  position: absolute;
-  top: -10px;
-  right: -10px;
-  width: 24px;
-  height: 24px;
+.theme-dark {
   background: #0f172a;
-  color: white;
-  border-radius: 50%;
+  color: #f1f5f9;
+}
+.theme-blue {
+  background: #0c1929;
+  color: #e0f2fe;
+}
+.theme-purple {
+  background: #1e1033;
+  color: #f3e8ff;
+}
+.theme-green {
+  background: #022c22;
+  color: #d1fae5;
+}
+.theme-warm {
+  background: #1c1210;
+  color: #fef3c7;
+}
+.page-background {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: inherit;
+}
+
+/* Orphan Alert Banner */
+.orphan-alert {
+  background: linear-gradient(90deg, #fef3c7, #fde68a);
+  border-bottom: 2px solid #f59e0b;
+  padding: 0.6rem 1.5rem;
+}
+.orphan-alert-content {
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 0.8rem;
-  border: 2px solid white;
-}
-
-/* Builder Step */
-.builder-toolbar {
-  margin-bottom: 1.5rem;
-  display: flex;
-  justify-content: space-between;
-}
-
-.add-btn {
-  background: #0f172a;
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 30px;
-  font-weight: 600;
-  font-size: 0.9rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: all 0.2s;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
-}
-
-.add-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.2);
-}
-
-.nodes-list {
-  display: flex;
-  flex-direction: column;
   gap: 0.75rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
-
-.node-item {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  background: white;
-  padding: 0.75rem 1rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  transition: all 0.2s;
-  position: relative;
+.orphan-icon {
+  font-size: 1.3rem;
 }
-
-.node-item::before {
-  content: "";
-  position: absolute;
-  left: -20px;
-  top: 50%;
-  width: 15px;
-  height: 2px;
-  background: #e2e8f0;
-  display: none; /* Only show for children */
-}
-
-.node-item:hover {
-  border-color: #cbd5e1;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-.node-avatar {
-  width: 36px;
-  height: 36px;
-  background: #f1f5f9;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.1rem;
-}
-
-.node-details {
+.orphan-text {
   flex: 1;
 }
-
-.node-details strong {
+.orphan-text strong {
   display: block;
-  font-size: 0.9rem;
-  color: #1e293b;
+  color: #92400e;
+  font-size: 0.85rem;
 }
-
-.node-details small {
-  color: #64748b;
-  font-size: 0.8rem;
+.orphan-text span {
+  color: #a16207;
+  font-size: 0.75rem;
 }
-
-.node-actions {
-  display: flex;
-  gap: 0.5rem;
-  opacity: 0.6;
-  transition: opacity 0.2s;
-}
-
-.node-item:hover .node-actions {
-  opacity: 1;
-}
-
-.action-btn {
-  background: transparent;
-  border: 1px solid transparent;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-size: 0.9rem;
-  color: #64748b;
-  transition: all 0.2s;
-}
-
-.action-btn:hover {
-  background: #f1f5f9;
-  border-color: #e2e8f0;
-  color: #1e293b;
-}
-
-.action-btn.delete:hover {
-  background: #fef2f2;
-  border-color: #fecaca;
-  color: #ef4444;
-}
-
-/* Nav Buttons */
-.nav-buttons {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 3rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid #f1f5f9;
-}
-
-.back-btn {
-  background: transparent;
-  color: #64748b;
-  border: none;
-  font-weight: 600;
-  font-size: 0.9rem;
-  cursor: pointer;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-}
-
-.back-btn:hover {
-  background: #f1f5f9;
-  color: #334155;
-}
-
-.next-btn,
-.create-btn {
-  background: #0f172a;
+.fix-btn {
+  padding: 0.4rem 0.8rem;
+  background: #f59e0b;
   color: white;
   border: none;
-  padding: 0.75rem 2rem;
+  border-radius: 5px;
+  font-weight: 600;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+.fix-btn:hover {
+  background: #d97706;
+}
+
+/* Modern Floating Header */
+.demo-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  z-index: 20;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  pointer-events: none;
+}
+.demo-header > * {
+  pointer-events: auto;
+}
+
+.back-link {
+  color: #475569;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 8px 16px;
+  border-radius: 30px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s;
+}
+.back-link:hover {
+  background: white;
+  color: #0f172a;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.header-center {
+  text-align: center;
+  pointer-events: none;
+}
+.demo-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin: 0;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  text-shadow: 0 2px 10px rgba(255, 255, 255, 0.5);
+}
+.demo-subtitle {
+  display: none;
+}
+
+.cta-btn {
+  padding: 0.6rem 1.2rem;
+  background: #0f172a;
+  color: white;
+  text-decoration: none;
   border-radius: 30px;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.8rem;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+  transition: all 0.2s;
+}
+.cta-btn:hover {
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.25);
+  transform: translateY(-1px);
+}
+
+/* Floating Toolbar Island */
+.toolbar {
+  position: absolute;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 6px 8px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 16px;
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.1),
+    0 2px 10px -2px rgba(0, 0, 0, 0.05);
+  z-index: 20;
+  flex-wrap: nowrap;
+}
+
+.toolbar-section {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.tool-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+  box-shadow: none;
 }
-
-.next-btn:hover,
-.create-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.25);
-  background: #1e293b;
-}
-
-.next-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.tool-btn:hover {
+  background: #f1f5f9;
+  color: #1e293b;
   transform: none;
   box-shadow: none;
 }
+.tool-btn.primary {
+  background: #eff6ff;
+  color: #2563eb;
+  box-shadow: none;
+}
+.tool-btn.primary:hover {
+  background: #dbeafe;
+}
+.export-btn {
+  background: #fdf4ff !important;
+  color: #9333ea !important;
+}
+.export-btn:hover {
+  background: #fae8ff !important;
+}
+
+.divider {
+  width: 1px;
+  height: 24px;
+  background: #e2e8f0;
+  margin: 0 6px;
+}
+
+.label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-right: 6px;
+}
+.picker {
+  display: flex;
+  gap: 4px;
+}
+.swatch {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+.swatch:hover {
+  transform: scale(1.1);
+  z-index: 2;
+}
+.swatch.active {
+  border-color: #0f172a;
+  transform: scale(1.1);
+  z-index: 2;
+}
+
+.style-select {
+  padding: 6px 10px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: #1e293b;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+  box-shadow: none;
+}
+.style-select:hover {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+/* Expanding Search */
+.search-section {
+  position: relative;
+}
+.search-box input {
+  padding: 8px 12px 8px 36px;
+  width: 40px;
+  height: 36px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 20px;
+  color: transparent;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: none;
+}
+.search-box input:focus,
+.search-box input:not(:placeholder-shown) {
+  width: 240px;
+  background: white;
+  border-color: #e2e8f0;
+  color: #1e293b;
+  cursor: text;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+.search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1rem;
+  opacity: 0.5;
+  pointer-events: none;
+  transition: 0.2s;
+}
+.search-box input:focus + .search-icon,
+.search-box input:not(:placeholder-shown) + .search-icon {
+  opacity: 1;
+  color: #2563eb;
+}
+
+.search-results {
+  position: absolute;
+  top: 120%;
+  right: 0;
+  left: auto;
+  width: 280px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(0, 0, 0, 0.03);
+  padding: 6px;
+  margin: 0;
+  border: none;
+}
+.search-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  color: #1e293b;
+  transition: 0.1s;
+}
+.search-item:hover {
+  background: #f1f5f9;
+}
+.result-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+}
+.result-info strong {
+  display: block;
+  font-size: 0.8rem;
+}
+.result-info small {
+  color: #64748b;
+  font-size: 0.7rem;
+}
+
+/* Floating Legend Widget */
+/* Floating Legend Widget */
+.department-legend {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 16px;
+  box-shadow: 0 10px 40px -5px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  min-width: 200px;
+  max-width: 280px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.department-legend.minimized {
+  min-width: auto;
+  width: auto;
+  padding: 0.75rem 1rem;
+}
+.legend-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  margin-bottom: 2px;
+}
+.minimize-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  line-height: 1;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.minimize-btn:hover {
+  color: #1e293b;
+}
+.legend-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  animation: slideDown 0.3s ease;
+}
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.legend-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.dept-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: white;
+  border: 1px solid transparent;
+  transition: 0.2s;
+}
+.dept-tag:hover {
+  transform: translateX(2px);
+}
+
+.no-depts {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-style: italic;
+  padding: 0.5rem 0;
+}
+.dept-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.legend-stats {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+.legend-stats .warning {
+  color: #d97706;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Dark Theme: Department Legend */
+.theme-dark .department-legend,
+.theme-blue .department-legend,
+.theme-purple .department-legend,
+.theme-green .department-legend,
+.theme-warm .department-legend {
+  background: rgba(30, 41, 59, 0.95);
+  border-color: rgba(71, 85, 105, 0.5);
+}
+.theme-dark .legend-label,
+.theme-blue .legend-label,
+.theme-purple .legend-label,
+.theme-green .legend-label,
+.theme-warm .legend-label {
+  color: #94a3b8;
+}
+.theme-dark .dept-tag,
+.theme-blue .dept-tag,
+.theme-purple .dept-tag,
+.theme-green .dept-tag,
+.theme-warm .dept-tag {
+  background: rgba(30, 41, 59, 0.8) !important;
+}
+.theme-dark .legend-stats,
+.theme-blue .legend-stats,
+.theme-purple .legend-stats,
+.theme-green .legend-stats,
+.theme-warm .legend-stats {
+  border-top-color: #475569;
+  color: #94a3b8;
+}
+.theme-dark .no-depts,
+.theme-blue .no-depts,
+.theme-purple .no-depts,
+.theme-green .no-depts,
+.theme-warm .no-depts {
+  color: #64748b;
+}
+
+/* Dark Theme: Toolbar */
+.theme-dark .toolbar,
+.theme-blue .toolbar,
+.theme-purple .toolbar,
+.theme-green .toolbar,
+.theme-warm .toolbar {
+  background: rgba(30, 41, 59, 0.95);
+  border-color: rgba(71, 85, 105, 0.5);
+}
+.theme-dark .tool-btn,
+.theme-blue .tool-btn,
+.theme-purple .tool-btn,
+.theme-green .tool-btn,
+.theme-warm .tool-btn {
+  color: #94a3b8;
+}
+.theme-dark .tool-btn:hover,
+.theme-blue .tool-btn:hover,
+.theme-purple .tool-btn:hover,
+.theme-green .tool-btn:hover,
+.theme-warm .tool-btn:hover {
+  background: rgba(71, 85, 105, 0.5);
+  color: #f1f5f9;
+}
+.theme-dark .tool-btn.primary,
+.theme-blue .tool-btn.primary,
+.theme-purple .tool-btn.primary,
+.theme-green .tool-btn.primary,
+.theme-warm .tool-btn.primary {
+  background: rgba(37, 99, 235, 0.3);
+  color: #93c5fd;
+}
+.theme-dark .divider,
+.theme-blue .divider,
+.theme-purple .divider,
+.theme-green .divider,
+.theme-warm .divider {
+  background: #475569;
+}
+.theme-dark .label,
+.theme-blue .label,
+.theme-purple .label,
+.theme-green .label,
+.theme-warm .label {
+  color: #64748b;
+}
+.theme-dark .style-select,
+.theme-blue .style-select,
+.theme-purple .style-select,
+.theme-green .style-select,
+.theme-warm .style-select {
+  color: #f1f5f9;
+  background: transparent;
+}
+.theme-dark .search-box input,
+.theme-blue .search-box input,
+.theme-purple .search-box input,
+.theme-green .search-box input,
+.theme-warm .search-box input {
+  color: #f1f5f9;
+}
+.theme-dark .search-box input:focus,
+.theme-blue .search-box input:focus,
+.theme-purple .search-box input:focus,
+.theme-green .search-box input:focus,
+.theme-warm .search-box input:focus {
+  background: rgba(30, 41, 59, 0.95);
+  border-color: #475569;
+  color: #f1f5f9;
+}
+.theme-dark .search-results,
+.theme-blue .search-results,
+.theme-purple .search-results,
+.theme-green .search-results,
+.theme-warm .search-results {
+  background: #1e293b;
+}
+.theme-dark .search-item,
+.theme-blue .search-item,
+.theme-purple .search-item,
+.theme-green .search-item,
+.theme-warm .search-item {
+  color: #f1f5f9;
+}
+.theme-dark .search-item:hover,
+.theme-blue .search-item:hover,
+.theme-purple .search-item:hover,
+.theme-green .search-item:hover,
+.theme-warm .search-item:hover {
+  background: #334155;
+}
+
+/* Dark Theme: Header */
+.theme-dark .demo-header,
+.theme-blue .demo-header,
+.theme-purple .demo-header,
+.theme-green .demo-header,
+.theme-warm .demo-header {
+  background: linear-gradient(
+    180deg,
+    rgba(15, 23, 42, 0.9) 0%,
+    rgba(15, 23, 42, 0) 100%
+  );
+}
+.theme-dark .back-link,
+.theme-blue .back-link,
+.theme-purple .back-link,
+.theme-green .back-link,
+.theme-warm .back-link {
+  background: rgba(30, 41, 59, 0.8);
+  color: #94a3b8;
+}
+.theme-dark .back-link:hover,
+.theme-blue .back-link:hover,
+.theme-purple .back-link:hover,
+.theme-green .back-link:hover,
+.theme-warm .back-link:hover {
+  background: #1e293b;
+  color: #f1f5f9;
+}
+.theme-dark .demo-title,
+.theme-blue .demo-title,
+.theme-purple .demo-title,
+.theme-green .demo-title,
+.theme-warm .demo-title {
+  color: #f1f5f9;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Theme-Specific Accent Colors */
+.theme-blue .department-legend {
+  background: rgba(12, 25, 41, 0.95);
+  border-color: rgba(37, 99, 235, 0.4);
+}
+.theme-blue .toolbar {
+  background: rgba(12, 25, 41, 0.95);
+  border-color: rgba(37, 99, 235, 0.4);
+}
+.theme-blue .tool-btn.primary {
+  background: rgba(37, 99, 235, 0.3);
+  color: #60a5fa;
+}
+.theme-blue .demo-header {
+  background: linear-gradient(
+    180deg,
+    rgba(12, 25, 41, 0.95) 0%,
+    transparent 100%
+  );
+}
+
+.theme-purple .department-legend {
+  background: rgba(30, 16, 51, 0.95);
+  border-color: rgba(124, 58, 237, 0.4);
+}
+.theme-purple .toolbar {
+  background: rgba(30, 16, 51, 0.95);
+  border-color: rgba(124, 58, 237, 0.4);
+}
+.theme-purple .tool-btn.primary {
+  background: rgba(124, 58, 237, 0.3);
+  color: #a78bfa;
+}
+.theme-purple .demo-header {
+  background: linear-gradient(
+    180deg,
+    rgba(30, 16, 51, 0.95) 0%,
+    transparent 100%
+  );
+}
+
+.theme-green .department-legend {
+  background: rgba(2, 44, 34, 0.95);
+  border-color: rgba(5, 150, 105, 0.4);
+}
+.theme-green .toolbar {
+  background: rgba(2, 44, 34, 0.95);
+  border-color: rgba(5, 150, 105, 0.4);
+}
+.theme-green .tool-btn.primary {
+  background: rgba(5, 150, 105, 0.3);
+  color: #34d399;
+}
+.theme-green .demo-header {
+  background: linear-gradient(
+    180deg,
+    rgba(2, 44, 34, 0.95) 0%,
+    transparent 100%
+  );
+}
+
+.theme-warm .department-legend {
+  background: rgba(28, 18, 16, 0.95);
+  border-color: rgba(234, 88, 12, 0.4);
+}
+.theme-warm .toolbar {
+  background: rgba(28, 18, 16, 0.95);
+  border-color: rgba(234, 88, 12, 0.4);
+}
+.theme-warm .tool-btn.primary {
+  background: rgba(234, 88, 12, 0.3);
+  color: #fb923c;
+}
+.theme-warm .demo-header {
+  background: linear-gradient(
+    180deg,
+    rgba(28, 18, 16, 0.95) 0%,
+    transparent 100%
+  );
+}
+
+.chart-area {
+  flex: 1;
+  overflow: hidden;
+  padding: 0.5rem;
+}
+.chart-canvas {
+  width: 100%;
+  height: 100%;
+  min-height: 350px;
+}
+
+.demo-badge {
+  position: fixed;
+  bottom: 0.6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.3rem 0.8rem;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  border-radius: 50px;
+  font-size: 0.7rem;
+  z-index: 50;
+}
+.demo-badge a {
+  color: #60a5fa;
+  text-decoration: none;
+}
+
+/* UI Updates */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.tool-btn {
+  background: white;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  font-weight: 500;
+  color: #475569;
+  transition: all 0.2s;
+}
+.tool-btn:hover {
+  background: #f8fafc;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+.tool-btn.primary {
+  background: #0ea5e9;
+  color: white;
+  border: none;
+  box-shadow: 0 4px 6px -1px rgba(14, 165, 233, 0.3);
+}
+.tool-btn.primary:hover {
+  background: #0284c7;
+  box-shadow: 0 6px 12px -2px rgba(14, 165, 233, 0.4);
+}
+.style-select {
+  background: white;
+  border: 1px solid #e2e8f0;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-weight: 500;
+  color: #334155;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+.search-box input {
+  padding: 0.4rem 0.8rem 0.4rem 2rem;
+  width: 200px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s;
+}
+.search-box input:focus {
+  width: 240px;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  outline: none;
+}
+.theme-dark .tool-btn,
+.theme-blue .tool-btn,
+.theme-purple .tool-btn,
+.theme-green .tool-btn,
+.theme-warm .tool-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.9);
+}
+.theme-dark .tool-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+.theme-dark .search-box input {
+  background: rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+.theme-dark .modal,
+.theme-dark .action-menu-modal,
+.theme-dark .orphan-modal-body,
+.theme-dark .orphan-modal .modal-header {
+  background: #1e293b;
+  color: #f1f5f9;
+  border-color: #334155;
+}
+.theme-dark .modal-header,
+.theme-dark .action-menu-header,
+.theme-dark .field input,
+.theme-dark .photo-tabs button,
+.theme-dark .btn-secondary {
+  border-color: #334155;
+  color: #f1f5f9;
+}
+.theme-dark .field input,
+.theme-dark .photo-tabs button,
+.theme-dark .btn-secondary,
+.theme-dark .generate-id-btn {
+  background: #0f172a;
+}
+.theme-dark .field label {
+  color: #94a3b8;
+}
+.theme-dark .close-btn {
+  background: #334155;
+  color: #94a3b8;
+}
+.theme-dark .close-btn:hover {
+  background: #475569;
+  color: white;
+}
+.theme-dark .action-item:hover {
+  background: #334155;
+}
+.theme-dark .action-text strong {
+  color: #f1f5f9;
+}
+.theme-dark .action-text small {
+  color: #94a3b8;
+}
+.theme-dark .upload-area {
+  border-color: #334155;
+}
+.theme-dark .style-select {
+  background: rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+.theme-dark .style-select:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
 
 /* Modal */
-.modal-overlay {
+.modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 50;
+  z-index: 100;
   padding: 1rem;
 }
-
-.editor-modal {
+.modal {
   background: white;
-  border-radius: 20px;
+  border-radius: 14px;
   width: 100%;
-  max-width: 450px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-  animation: modalSlide 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  max-width: 420px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  color: #1e293b;
 }
-
-@keyframes modalSlide {
-  from {
-    opacity: 0;
-    transform: translateY(20px) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
 .modal-header {
-  padding: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 0.9rem 1.1rem;
+  border-bottom: 1px solid #e2e8f0;
 }
-
 .modal-header h3 {
   margin: 0;
-  font-size: 1.2rem;
-  color: #0f172a;
+  font-size: 1rem;
 }
-
 .close-btn {
-  width: 32px;
-  height: 32px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   border: none;
   background: #f1f5f9;
   color: #64748b;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-}
-
-.close-btn:hover {
-  background: #e2e8f0;
-  color: #0f172a;
-}
-
-.node-form {
-  padding: 1.5rem;
-}
-
-.avatar-options {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.avatar-btn {
-  width: 42px;
-  height: 42px;
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
-  background: white;
-  font-size: 1.25rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.avatar-btn:hover {
-  background: #f8fafc;
-  transform: translateY(-1px);
-}
-
-.avatar-btn.selected {
-  border-color: #0f172a;
-  background: #f1f5f9;
-  box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.1);
-}
-
-.color-options {
-  display: flex;
-  gap: 0.75rem;
-}
-
-.color-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  border: 2px solid white;
-  cursor: pointer;
-  transition: all 0.2s;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.color-btn.selected {
-  transform: scale(1.1);
-  box-shadow: 0 0 0 2px #0f172a;
-}
-
-.form-actions {
-  display: flex;
-  gap: 1rem;
-  margin-top: 2rem;
-}
-
-.cancel-btn,
-.save-btn {
-  flex: 1;
-  padding: 0.75rem;
-  border-radius: 10px;
-  font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 1rem;
   cursor: pointer;
 }
-
-.cancel-btn {
-  background: white;
-  border: 1px solid #e2e8f0;
+.modal-body {
+  padding: 1rem;
+}
+.field {
+  margin-bottom: 0.9rem;
+}
+.field label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
   color: #64748b;
 }
-
-.cancel-btn:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
+.field input {
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 5px;
+  font-size: 0.85rem;
 }
-
-.save-btn {
-  background: #0f172a;
+.field input:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+.error-text {
+  color: #ef4444;
+  font-size: 0.7rem;
+}
+.id-input-row {
+  display: flex;
+  gap: 0.4rem;
+}
+.id-input-row input {
+  flex: 1;
+}
+.generate-id-btn {
+  padding: 0.4rem 0.6rem;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 5px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.photo-tabs {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+}
+.photo-tabs button {
+  flex: 1;
+  padding: 0.35rem;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 5px;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+.photo-tabs button.active {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: white;
+}
+.upload-area {
+  display: block;
+  border: 2px dashed #e2e8f0;
+  border-radius: 8px;
+  padding: 0.8rem;
+  text-align: center;
+  cursor: pointer;
+}
+.upload-placeholder {
+  color: #94a3b8;
+}
+.upload-placeholder span {
+  font-size: 1.5rem;
+  display: block;
+  margin-bottom: 0.3rem;
+}
+.preview-img {
+  position: relative;
+  display: inline-block;
+}
+.preview-img img {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.remove-img {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: none;
+  background: #ef4444;
+  color: white;
+  cursor: pointer;
+  font-size: 12px;
+}
+.color-row {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+.color-swatch {
+  width: 26px;
+  height: 26px;
+  border-radius: 5px;
+  border: 2px solid transparent;
+  cursor: pointer;
+}
+.color-swatch.active {
+  border-color: #1e293b;
+}
+.modal-footer {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+}
+.btn-secondary,
+.btn-primary {
+  flex: 1;
+  padding: 0.55rem;
+  border-radius: 5px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-secondary {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+}
+.btn-primary {
+  background: #3b82f6;
   border: none;
   color: white;
 }
 
-.save-btn:hover {
-  background: #1e293b;
+/* Action Menu */
+.action-menu-modal {
+  background: white;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 360px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  color: #1e293b;
 }
-
-/* Success Screen */
-.success-screen {
-  position: fixed;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(10px);
-  z-index: 100;
+.action-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+.selected-person {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.person-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem;
-}
-
-.success-card {
-  background: white;
-  border-radius: 24px;
-  padding: 3rem 2rem;
-  text-align: center;
-  max-width: 500px;
-  width: 100%;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e2e8f0;
-}
-
-.success-icon {
-  font-size: 4rem;
-  margin-bottom: 1.5rem;
-  animation: bounce 1s infinite;
-}
-
-@keyframes bounce {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-.success-title {
-  font-size: 1.8rem;
-  color: #0f172a;
-  margin-bottom: 1rem;
-}
-
-.success-message {
-  color: #64748b;
-  margin-bottom: 2rem;
-}
-
-.link-box {
-  background: #f8fafc;
-  padding: 1.5rem;
-  border-radius: 12px;
-  text-align: left;
-  border: 1px solid #e2e8f0;
-  margin-bottom: 1.5rem;
-}
-
-.link-box.management {
-  background: #fff7ed;
-  border-color: #ffedd5;
-}
-
-.link-box label {
-  display: block;
-  font-size: 0.8rem;
+  color: white;
   font-weight: 600;
+}
+.person-details strong {
+  display: block;
+  font-size: 0.9rem;
+}
+.person-details small {
   color: #64748b;
-  margin-bottom: 0.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-size: 0.75rem;
+}
+.action-menu-body {
+  padding: 0.5rem;
+}
+.action-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+}
+.action-item:hover {
+  background: #f1f5f9;
+}
+.action-item.replace:hover {
+  background: #fef3c7;
+}
+.action-item.danger:hover {
+  background: #fee2e2;
+}
+.action-icon {
+  font-size: 1.2rem;
+  width: 32px;
+  text-align: center;
+}
+.action-text strong {
+  display: block;
+  font-size: 0.85rem;
+  color: #1e293b;
+}
+.action-text small {
+  color: #64748b;
+  font-size: 0.7rem;
+}
+.action-item.danger .action-text small {
+  color: #ef4444;
 }
 
-.link-row {
+/* Custom Searchable Select */
+.custom-select {
+  position: relative;
+  width: 100%;
+}
+.selected-option {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 5px;
+  background: white;
+  cursor: pointer;
+  min-height: 42px;
+}
+.selected-option.active {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+.selected-content {
+  display: flex;
+  align-items: center;
   gap: 0.5rem;
 }
-
-.link-row input {
-  flex: 1;
+.selected-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #3b82f6;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+.selected-info strong {
+  display: block;
+  font-size: 0.85rem;
+  line-height: 1.2;
+}
+.selected-info small {
+  display: block;
+  font-size: 0.7rem;
+  color: #64748b;
+  line-height: 1.2;
+}
+.placeholder {
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+.chevron {
+  font-size: 0.7rem;
+  color: #94a3b8;
+}
+.dropdown-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 4px;
+  background: white;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.9rem;
-  color: #334155;
-  background: white;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  z-index: 50;
+  max-height: 250px;
+  display: flex;
+  flex-direction: column;
+}
+.dropdown-search {
+  padding: 8px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.dropdown-search input {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+.dropdown-search input:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+.options-list {
+  overflow-y: auto;
+  max-height: 200px;
+}
+.option-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.option-item:hover {
+  background: #f1f5f9;
+}
+.option-item.selected {
+  background: #eff6ff;
+}
+.option-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #cbd5e1;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+.option-info strong {
+  display: block;
+  font-size: 0.85rem;
+  color: #1e293b;
+}
+.option-info small {
+  display: block;
+  font-size: 0.7rem;
+  color: #64748b;
+}
+.no-results {
+  padding: 1rem;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.8rem;
 }
 
-.copy-btn {
-  padding: 0.5rem 1rem;
+/* Dark Mode Support for Select */
+.theme-dark .selected-option,
+.theme-dark .dropdown-options {
+  background: #1e293b;
+  border-color: #334155;
+}
+.theme-dark .selected-info strong,
+.theme-dark .option-info strong {
+  color: #f1f5f9;
+}
+.theme-dark .dropdown-search {
+  border-color: #334155;
+}
+.theme-dark .dropdown-search input {
+  background: #0f172a;
+  border-color: #334155;
+  color: white;
+}
+.theme-dark .option-item:hover {
+  background: #334155;
+}
+.theme-dark .option-item.selected {
+  background: #1e3a8a;
+}
+
+.orphan-modal {
   background: white;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 500px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  color: #1e293b;
+}
+.orphan-modal-body {
+  padding: 1rem;
+}
+.orphan-intro {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin: 0 0 1rem;
+  line-height: 1.5;
+}
+.orphan-item {
+  background: #fef3c7;
+  border: 1px solid #fcd34d;
+  border-radius: 10px;
+  padding: 0.9rem;
+  margin-bottom: 0.75rem;
+}
+.orphan-person {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.75rem;
+}
+.orphan-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 12px;
+}
+.orphan-info strong {
+  display: block;
+  font-size: 0.85rem;
+}
+.orphan-info small {
+  color: #64748b;
+  font-size: 0.7rem;
+}
+.orphan-error {
+  margin-top: 0.3rem;
+  font-size: 0.7rem;
+  color: #dc2626;
+  font-weight: 500;
+}
+.orphan-fix {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.orphan-fix label {
+  font-size: 0.7rem;
+  color: #64748b;
+  font-weight: 500;
+}
+.orphan-select {
+  padding: 0.45rem 0.6rem;
   border: 1px solid #e2e8f0;
+  border-radius: 5px;
+  font-size: 0.8rem;
+  background: white;
+}
+.orphan-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+@media (max-width: 768px) {
+  .demo-header {
+    padding: 0 1rem;
+    height: 56px;
+    flex-direction: row; /* Keep row for back link and title */
+  }
+  .demo-title {
+    font-size: 0.95rem;
+  }
+  .back-link {
+    font-size: 0.75rem;
+    padding: 6px 12px;
+  }
+  .cta-btn {
+    display: none; /* Hide Create button on small mobile top bar to save space */
+  }
+
+  /* Full width scrollable toolbar */
+  .toolbar {
+    top: 60px;
+    width: 95%;
+    overflow-x: auto;
+    justify-content: flex-start;
+    padding: 6px 4px;
+    border-radius: 12px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .toolbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .toolbar-section {
+    flex-shrink: 0;
+  }
+
+  .label {
+    display: none;
+  }
+
+  .tool-btn {
+    padding: 6px 10px;
+    font-size: 0.7rem;
+  }
+
+  .search-box input {
+    width: 120px;
+  }
+  .search-box input:focus {
+    width: 180px;
+  }
+
+  /* Bottom sheet style legend */
+  .department-legend {
+    bottom: 0;
+    right: 0;
+    left: 0;
+    width: 100%;
+    max-width: none;
+    border-radius: 16px 16px 0 0;
+    border-bottom: none;
+  }
+  .department-legend.minimized {
+    width: auto;
+    left: auto;
+    right: 1rem;
+    bottom: 1rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    padding: 0.75rem 1rem;
+  }
+
+  .modal {
+    width: 95%;
+    max-height: 85vh;
+  }
+
+  .action-menu-modal {
+    width: 90%;
+    max-width: 320px;
+  }
+
+  .orphan-alert-content {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+/* Create Header Styles */
+.create-header {
+  padding: 0 2rem;
+  height: 70px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  z-index: 100;
+}
+
+.create-inputs {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex: 1;
+  max-width: 600px;
+  margin: 0 2rem;
+}
+
+.title-input {
+  flex: 1;
+  padding: 0.5rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: inherit;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(4px);
+  outline: none;
+  transition: all 0.2s;
+}
+
+.title-input:focus {
+  border-color: #3b82f6;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.slug-wrapper {
+  display: flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding-left: 0.75rem;
+  overflow: hidden;
+}
+
+.slug-prefix {
+  color: inherit;
+  opacity: 0.7;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.slug-input {
+  border: none;
+  background: transparent;
+  padding: 0.5rem 0.5rem 0.5rem 0;
+  font-size: 0.9rem;
+  color: #3b82f6;
+  font-weight: 600;
+  outline: none;
+  width: 150px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  z-index: 100;
+}
+
+.login-prompt-btn {
+  background: transparent;
+  border: 1px solid #3b82f6;
+  color: #3b82f6;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.copy-btn:hover {
-  background: #f1f5f9;
+.login-prompt-btn:hover {
+  background: #eff6ff;
 }
 
-.warning-text {
-  font-size: 0.8rem;
-  color: #c2410c;
-  margin-top: 0.75rem;
+.user-email-badge {
+  font-size: 0.85rem;
+  color: #475569;
+  background: #f1f5f9;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
   font-weight: 500;
 }
 
-.success-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.primary-btn {
-  background: #0f172a;
+.create-btn {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
   color: white;
   border: none;
-  padding: 1rem;
-  border-radius: 12px;
+  padding: 0.5rem 1.5rem;
+  border-radius: 30px;
   font-weight: 600;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
+  z-index: 100;
 }
 
-.secondary-btn {
-  background: transparent;
-  color: #64748b;
-  border: none;
-  font-weight: 600;
-  cursor: pointer;
+.create-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
 }
 
-.secondary-btn:hover {
-  color: #334155;
-  text-decoration: underline;
+.create-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
 }
 
-/* Responsive */
-@media (max-width: 640px) {
-  .form-card {
-    padding: 1.5rem;
-  }
-  .header-icon {
-    font-size: 2.5rem;
-    width: 64px;
-    height: 64px;
-  }
-  .form-title {
-    font-size: 1.5rem;
-  }
+.login-modal {
+  max-width: 400px;
+}
+
+.error-banner {
+  background: #fef2f2;
+  color: #ef4444;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+  border: 1px solid #fecaca;
+  text-align: center;
 }
 </style>

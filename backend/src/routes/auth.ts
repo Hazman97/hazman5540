@@ -108,6 +108,28 @@ auth.post('/admin/login', async (c) => {
   })
 })
 
+// ── Register New User (Uses admin table for demo) ──
+auth.post('/register', async (c) => {
+  const { username, password, name } = await c.req.json<{ username: string; password: string; name?: string }>()
+  if (!username || !password) return c.json({ error: 'username and password required' }, 400)
+
+  const hashed = await hashPassword(password)
+  const existing = await c.env.DB.prepare('SELECT id FROM attendance_admins WHERE username = ?').bind(username).first()
+  if (existing) return c.json({ error: 'Username already taken' }, 409)
+
+  const result = await c.env.DB.prepare(
+    'INSERT INTO attendance_admins (username, password, name) VALUES (?, ?, ?) RETURNING id'
+  ).bind(username, hashed, name || username).first<{ id: string }>()
+
+  const payload: AuthPayload = { sub: result!.id, role: 'admin', name: name || username }
+  const token = await signToken(payload, c.env.JWT_SECRET)
+  
+  return c.json({
+    token,
+    user: { id: result!.id, name: name || username, username, role: 'admin' }
+  }, 201)
+})
+
 // ── Seed Admin (only in dev / first-time setup) ──
 auth.post('/admin/seed', async (c) => {
   if (c.env.ENVIRONMENT === 'production') {

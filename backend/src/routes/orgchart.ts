@@ -39,6 +39,15 @@ orgchart.post('/', async (c) => {
   return c.json(result, 201)
 })
 
+// Get org charts by owner
+orgchart.get('/user/:token', async (c) => {
+  const { token } = c.req.param()
+  const { results } = await c.env.DB.prepare(
+    'SELECT slug, title, description, theme, created_at FROM org_charts WHERE owner_token = ? ORDER BY created_at DESC'
+  ).bind(token).all()
+  return c.json(results)
+})
+
 // Get org chart by slug
 orgchart.get('/:slug', async (c) => {
   const { slug } = c.req.param()

@@ -18,6 +18,7 @@ export const orgchartApi = {
   create: (data: Partial<OrgChart> & { slug: string; owner_token: string }) =>
     api.post<{ id: string; slug: string }>('/orgchart', data),
   get: (slug: string) => api.get<OrgChart>(`/orgchart/${slug}`),
+  getByUser: (token: string) => api.get<Omit<OrgChart, 'chart_data' | 'owner_token' | 'custom_settings'>[]>(`/orgchart/user/${token}`),
   update: (slug: string, data: Partial<OrgChart> & { owner_token: string }) =>
     api.patch(`/orgchart/${slug}`, data),
   delete: (slug: string, owner_token: string) =>
