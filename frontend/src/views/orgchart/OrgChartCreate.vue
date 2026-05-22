@@ -2625,6 +2625,7 @@ export default {
   flex: 1;
   max-width: 600px;
   margin: 0 2rem;
+  pointer-events: auto;
 }
 
 .title-input {
