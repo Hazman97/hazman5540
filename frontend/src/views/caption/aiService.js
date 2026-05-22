@@ -22,10 +22,11 @@ const GEMINI_MODELS = [
   'gemini-1.5-flash-latest',
 ];
 
-// Available models for DeepSeek
+// Available models for DeepSeek (Official API: api-docs.deepseek.com)
 const DEEPSEEK_MODELS = [
-  'deepseek-chat',      // DeepSeek-V3
-  'deepseek-reasoner',  // DeepSeek-R1 (Reasoning model)
+  'deepseek-v4-flash',          // DeepSeek-V4 Flash (Fast, cost-effective)
+  'deepseek-v4-flash-thinking', // DeepSeek-V4 Flash Thinking Mode (Deep reasoning)
+  'deepseek-v4-pro',            // DeepSeek-V4 Pro (Advanced, 1.6T params)
 ];
 
 /**
@@ -67,7 +68,7 @@ export function getStoredModel(provider) {
   if (provider === 'gemini') {
     return localStorage.getItem(STORAGE_KEYS.geminiModel) || 'gemini-2.0-flash';
   } else {
-    return localStorage.getItem(STORAGE_KEYS.deepseekModel) || 'deepseek-chat';
+    return localStorage.getItem(STORAGE_KEYS.deepseekModel) || 'deepseek-v4-flash';
   }
 }
 
@@ -283,7 +284,7 @@ export async function generateWithAI(provider, model, params) {
   } else {
     // DeepSeek AI
     try {
-      const rawCaption = await callDeepSeek(model || 'deepseek-chat', prompt, apiKey);
+      const rawCaption = await callDeepSeek(model || 'deepseek-v4-flash', prompt, apiKey);
       if (!rawCaption) throw new Error('AI tidak berjaya menjana caption.');
       
       const caption = sanitizeAICaption(rawCaption);
@@ -295,7 +296,7 @@ export async function generateWithAI(provider, model, params) {
         totalVariations: '∞',
         isAI: true,
         provider: 'DeepSeek',
-        model: model || 'deepseek-chat',
+        model: model || 'deepseek-v4-flash',
       };
     } catch (err) {
       throw new Error(err.message || 'Gagal menjana caption menggunakan DeepSeek.');

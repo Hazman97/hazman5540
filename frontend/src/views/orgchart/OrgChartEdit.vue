@@ -341,7 +341,7 @@
 </template>
 
 <script>
-import { supabase } from "@/supabase.js";
+import { orgchartApi } from "@/api/orgchart";
 
 export default {
   name: "OrgChartEdit",
@@ -481,21 +481,37 @@ export default {
   methods: {
     async loadChart() {
       try {
-        const { data, error } = await supabase
-          .from("org_charts")
-          .select("*")
-          .eq("slug", this.slug)
-          .single();
+        const data = await orgchartApi.get(this.slug);
 
-        if (error) throw error;
         if (!data) throw new Error("Chart not found");
-        if (data.owner_token !== this.token)
-          throw new Error("Invalid access token");
+
+        // Auth logic: Check URL token OR logged in user email
+        let userEmail = null;
+        try {
+          const userRaw = localStorage.getItem('hazman_user');
+          if (userRaw) {
+            userEmail = JSON.parse(userRaw)?.email;
+          }
+        } catch (e) {}
+
+        const isAuthenticated = (this.token && this.token === data.owner_token) || (userEmail && userEmail === data.owner_token);
+
+        if (!isAuthenticated) {
+          throw new Error("Invalid access token or not authorized");
+        }
+
+        // If authenticated via email and no token in URL, set the token so saving works
+        if (!this.token) {
+          this.token = data.owner_token;
+        }
+
+        const chartData = typeof data.chart_data === 'string' ? JSON.parse(data.chart_data) : (data.chart_data || []);
+        const customSettings = typeof data.custom_settings === 'string' ? JSON.parse(data.custom_settings) : (data.custom_settings || {});
 
         this.chart = data;
-        this.nodes = data.chart_data || [];
+        this.nodes = chartData;
         this.theme = data.theme || "corporate";
-        this.allowExport = data.custom_settings?.allowExport !== false;
+        this.allowExport = customSettings.allowExport !== false;
         this.lastSaved = new Date(data.updated_at);
         this.hasChanges = false;
       } catch (err) {
@@ -507,22 +523,17 @@ export default {
     async saveChanges() {
       this.saving = true;
       try {
-        const { error } = await supabase
-          .from("org_charts")
-          .update({
-            title: this.chart.title,
-            description: this.chart.description,
-            theme: this.theme,
-            chart_data: this.nodes,
-            custom_settings: {
-              allowExport: this.allowExport,
-            },
-            updated_at: new Date().toISOString(),
-          })
-          .eq("slug", this.slug)
-          .eq("owner_token", this.token);
+        await orgchartApi.update(this.slug, {
+          title: this.chart.title,
+          description: this.chart.description,
+          theme: this.theme,
+          chart_data: this.nodes,
+          custom_settings: {
+            allowExport: this.allowExport,
+          },
+          owner_token: this.token,
+        });
 
-        if (error) throw error;
         this.lastSaved = new Date();
         this.hasChanges = false;
       } catch (err) {
@@ -540,11 +551,7 @@ export default {
         return;
 
       try {
-        await supabase
-          .from("org_charts")
-          .delete()
-          .eq("slug", this.slug)
-          .eq("owner_token", this.token);
+        await orgchartApi.delete(this.slug, this.token);
         this.$router.push("/org-demo");
       } catch (err) {
         alert("Failed to delete: " + err.message);

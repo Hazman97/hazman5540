@@ -441,7 +441,7 @@
 import { OrgChart } from "d3-org-chart";
 import * as d3 from "d3";
 import html2canvas from "html2canvas";
-import { supabase } from "@/supabase";
+import { orgchartApi } from "@/api/orgchart";
 
 export default {
   directives: {
@@ -641,27 +641,36 @@ export default {
     async loadChart() {
       try {
         this.loading = true;
-        const { data, error } = await supabase
-          .from("org_charts")
-          .select("*")
-          .eq("slug", this.demoSlug)
-          .single();
 
-        if (error) {
-          console.error("Error loading demo chart:", error);
-          this.nodes = [];
-          return;
-        }
+        const data = await orgchartApi.get(this.demoSlug);
 
         if (data) {
-          this.nodes = data.chart_data || [];
-          console.log(this.nodes);
-          this.selectedTheme = data.custom_settings?.theme || "dark";
-          this.selectedStyle = data.custom_settings?.style || "modern";
+          // D1 stores JSON as text strings — parse them
+          const chartData = typeof data.chart_data === 'string'
+            ? JSON.parse(data.chart_data)
+            : (data.chart_data || []);
+
+          const customSettings = typeof data.custom_settings === 'string'
+            ? JSON.parse(data.custom_settings)
+            : (data.custom_settings || {});
+
+          this.nodes = chartData;
+          this.selectedTheme = customSettings.theme || "dark";
+          this.selectedStyle = customSettings.style || "modern";
+
+          console.log(`[OrgChartDemo] Loaded ${this.nodes.length} nodes from Cloudflare D1`);
         }
       } catch (err) {
-        console.error("Failed to load demo chart:", err);
-        this.nodes = [];
+        // If demo chart not seeded yet, silently start with empty chart
+        if (err.message && err.message.includes('Not found')) {
+          console.warn('[OrgChartDemo] Demo chart not found in D1. Starting with empty chart.');
+          console.warn('[OrgChartDemo] Run the seed script to populate demo data:');
+          console.warn('[OrgChartDemo]   npx wrangler d1 execute hazman5540db --file=create_demo_org_chart_d1.sql --remote');
+          this.nodes = [];
+        } else {
+          console.error("[OrgChartDemo] Failed to load demo chart:", err);
+          this.nodes = [];
+        }
       } finally {
         this.loading = false;
       }

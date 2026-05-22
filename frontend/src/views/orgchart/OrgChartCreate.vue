@@ -346,7 +346,7 @@
 </template>
 
 <script>
-import { supabase } from "@/supabase.js";
+import { orgchartApi } from "@/api/orgchart";
 
 export default {
   name: "OrgChartCreate",
@@ -587,31 +587,35 @@ export default {
       this.errorMsg = "";
 
       try {
-        this.ownerToken =
-          Math.random().toString(36).substring(2) + Date.now().toString(36);
+        // Tie ownership to logged in user if available
+        let userEmail = null;
+        try {
+          const userRaw = localStorage.getItem('hazman_user');
+          if (userRaw) {
+            const user = JSON.parse(userRaw);
+            userEmail = user?.email;
+          }
+        } catch (e) {}
 
-        const { data, error } = await supabase
-          .from("org_charts")
-          .insert({
-            slug: this.slug,
-            title: this.companyName,
-            description: this.description,
-            theme: this.selectedTheme,
-            owner_token: this.ownerToken,
-            chart_data: this.nodes,
-            custom_settings: { allowExport: this.allowExport },
-          })
-          .select()
-          .single();
+        this.ownerToken = userEmail || (Math.random().toString(36).substring(2) + Date.now().toString(36));
 
-        if (error) throw error;
+        const result = await orgchartApi.create({
+          slug: this.slug,
+          title: this.companyName,
+          description: this.description,
+          theme: this.selectedTheme,
+          owner_token: this.ownerToken,
+          chart_data: this.nodes, // Backend will JSON.stringify this
+          custom_settings: { allowExport: this.allowExport },
+        });
 
-        this.createdSlug = this.slug;
+        if (!result || !result.slug) throw new Error("Failed to create chart");
+
+        this.createdSlug = result.slug;
         this.created = true;
       } catch (err) {
         console.error("Error creating chart:", err);
-        this.errorMsg =
-          err.message || "Failed to create chart. Please try again.";
+        this.errorMsg = err.message || "Failed to create chart. Please try again.";
       } finally {
         this.isSubmitting = false;
       }

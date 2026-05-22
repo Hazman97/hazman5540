@@ -28,6 +28,11 @@
             {{ chart.description }}
           </p>
         </div>
+        <div class="header-actions">
+          <router-link v-if="isOwner" :to="'/org/' + $route.params.slug + '/edit'" class="edit-link-btn">
+            ✏️ Edit Chart
+          </router-link>
+        </div>
       </header>
 
       <!-- Toolbar -->
@@ -171,7 +176,7 @@
 </template>
 
 <script>
-import { supabase } from "@/supabase.js";
+import { orgchartApi } from "@/api/orgchart";
 import { OrgChart } from "d3-org-chart";
 import * as d3 from "d3";
 import html2canvas from "html2canvas";
@@ -194,6 +199,7 @@ export default {
       searchResults: [],
       isLegendMinimized: false,
       isExporting: false,
+      isOwner: false,
       colors: {
         blue: "#3b82f6",
         cyan: "#06b6d4",
@@ -281,22 +287,30 @@ export default {
       console.log("Loading chart with slug:", slug);
 
       try {
-        const { data, error } = await supabase
-          .from("org_charts")
-          .select("*")
-          .eq("slug", slug)
-          .single();
+        const data = await orgchartApi.get(slug);
 
-        console.log("Supabase response:", { data, error });
-
-        if (error) throw error;
+        console.log("Cloudflare D1 response:", data);
         if (!data) throw new Error("Chart not found");
 
+        const chartData = typeof data.chart_data === 'string' ? JSON.parse(data.chart_data) : (data.chart_data || []);
+        const customSettings = typeof data.custom_settings === 'string' ? JSON.parse(data.custom_settings) : (data.custom_settings || {});
+
         this.chart = data;
-        this.nodes = data.chart_data || [];
+        this.nodes = chartData;
         this.selectedTheme = data.theme || "dark";
-        this.selectedStyle = data.custom_settings?.style || "modern";
-        this.allowExport = data.custom_settings?.allowExport !== false;
+        this.selectedStyle = customSettings.style || "modern";
+        this.allowExport = customSettings.allowExport !== false;
+
+        // Check ownership
+        try {
+          const userRaw = localStorage.getItem('hazman_user');
+          if (userRaw) {
+            const user = JSON.parse(userRaw);
+            if (user?.email && user.email === data.owner_token) {
+              this.isOwner = true;
+            }
+          }
+        } catch (e) {}
 
         console.log("Loaded nodes:", this.nodes);
         console.log("Theme:", this.selectedTheme, "Style:", this.selectedStyle);
@@ -1564,6 +1578,35 @@ export default {
 
   .viral-badge {
     bottom: 1rem;
+  }
+}
+.header-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+
+.edit-link-btn {
+  background: #3b82f6;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
+  transition: all 0.2s;
+}
+
+.edit-link-btn:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+  .edit-link-btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
   }
 }
 </style>

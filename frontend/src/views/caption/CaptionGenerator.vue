@@ -74,8 +74,9 @@
                 @change="handleModelChange"
                 class="text-input select-input"
               >
-                <option value="deepseek-chat">deepseek-chat (V3 - Fast)</option>
-                <option value="deepseek-reasoner">deepseek-reasoner (R1 - Deep Thinking)</option>
+                <option value="deepseek-v4-flash">deepseek-v4-flash — Fast &amp; Efficient ⭐ (Recommended)</option>
+                <option value="deepseek-v4-flash-thinking">deepseek-v4-flash — Thinking Mode 🧠 (Deep Reasoning)</option>
+                <option value="deepseek-v4-pro">deepseek-v4-pro — Advanced Pro 🔬 (75% off until May 31)</option>
               </select>
             </div>
 
