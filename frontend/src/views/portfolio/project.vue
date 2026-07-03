@@ -290,6 +290,33 @@ export default {
       scrollOffset: 0,
       vibeCoderProjects: [
         {
+          image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop",
+          title: "ASTI Portal",
+          description:
+            "An exclusive portal for Alumni SEMESTI, providing a platform to connect, network, and engage with the alumni community.",
+          url: "https://asti.my/",
+          tag: "Portal",
+          tech: ["Web App", "Vue.js", "Tailwind"],
+        },
+        {
+          image: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=800&h=600&fit=crop",
+          title: "EZQRCode",
+          description:
+            "A dynamic QR Code Management system that allows users to create, track, and manage customizable QR codes seamlessly.",
+          url: "https://ezqrcode.pages.dev/",
+          tag: "Web App",
+          tech: ["Vue.js", "Vite", "Tailwind"],
+        },
+        {
+          image: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&h=600&fit=crop",
+          title: "EZresit",
+          description:
+            "A minimalist, ultra-fast receipt management system exclusively for small businesses. 100% serverless and zero maintenance.",
+          url: "https://ezresit.pages.dev/",
+          tag: "SaaS",
+          tech: ["Nuxt", "Vue", "Cloudflare"],
+        },
+        {
           image: "/img/confession_bot.png",
           title: "Confession Bot",
           description:
