@@ -32,6 +32,12 @@
           >
             🤖 AI Generator
           </button>
+          <button
+            @click="mode = 'marketing'"
+            :class="['mode-btn marketing', { active: mode === 'marketing' }]"
+          >
+            🔥 Copywriting Pro
+          </button>
         </div>
 
         <!-- AI API Key Settings -->
@@ -52,76 +58,296 @@
               <span :class="['key-dot', apiKeyConfigured.deepseek ? 'green' : 'red']"></span>
               DeepSeek AI
             </button>
+            <button 
+              @click="handleSwitchProvider('custom')"
+              :class="['provider-tab custom-tab', { active: aiProvider === 'custom' }]"
+            >
+              <span :class="['key-dot', customConfigured ? 'green' : 'red']"></span>
+              🔧 Custom
+            </button>
           </div>
 
           <!-- Model & Key Setup -->
           <div class="provider-config">
-            <div class="input-group">
-              <label>Model AI</label>
-              <select 
-                v-if="aiProvider === 'gemini'" 
-                v-model="geminiModel" 
-                @change="handleModelChange"
-                class="text-input select-input"
-              >
-                <option value="gemini-2.0-flash">gemini-2.0-flash (Recommended)</option>
-                <option value="gemini-2.0-flash-lite">gemini-2.0-flash-lite</option>
-                <option value="gemini-1.5-flash-latest">gemini-1.5-flash-latest</option>
-              </select>
-              <select 
-                v-else 
-                v-model="deepseekModel" 
-                @change="handleModelChange"
-                class="text-input select-input"
-              >
-                <option value="deepseek-v4-flash">deepseek-v4-flash — Fast &amp; Efficient ⭐ (Recommended)</option>
-                <option value="deepseek-v4-flash-thinking">deepseek-v4-flash — Thinking Mode 🧠 (Deep Reasoning)</option>
-                <option value="deepseek-v4-pro">deepseek-v4-pro — Advanced Pro 🔬 (75% off until May 31)</option>
-              </select>
-            </div>
-
-            <!-- Key Status -->
-            <div v-if="!showApiKeyInput && apiKeyConfigured[aiProvider]" class="api-key-status">
-              <span class="status-text">
-                🔑 API Key untuk {{ aiProvider === 'gemini' ? 'Gemini' : 'DeepSeek' }} bersedia
-              </span>
-              <button @click="showApiKeyInput = true" class="key-edit-btn">Tukar</button>
-            </div>
-            
-            <!-- Key Form -->
-            <div v-else class="api-key-form">
-              <label>{{ aiProvider === 'gemini' ? 'Gemini API Key' : 'DeepSeek API Key' }}</label>
-              <div class="key-input-row">
-                <input
-                  v-model="apiKeyInput"
-                  type="password"
-                  :placeholder="aiProvider === 'gemini' ? 'Masukkan Gemini API key...' : 'Masukkan DeepSeek API key...'"
-                  class="text-input"
-                />
-                <button @click="handleSaveApiKey" class="key-save-btn">Simpan</button>
+            <!-- GEMINI / DEEPSEEK config -->
+            <template v-if="aiProvider !== 'custom'">
+              <div class="input-group">
+                <label>Model AI</label>
+                <select 
+                  v-if="aiProvider === 'gemini'" 
+                  v-model="geminiModel" 
+                  @change="handleModelChange"
+                  class="text-input select-input"
+                >
+                  <option value="gemini-2.0-flash">gemini-2.0-flash (Recommended)</option>
+                  <option value="gemini-2.0-flash-lite">gemini-2.0-flash-lite</option>
+                  <option value="gemini-1.5-flash-latest">gemini-1.5-flash-latest</option>
+                </select>
+                <select 
+                  v-else 
+                  v-model="deepseekModel" 
+                  @change="handleModelChange"
+                  class="text-input select-input"
+                >
+                  <option value="deepseek-v4-flash">deepseek-v4-flash — Fast &amp; Efficient ⭐ (Recommended)</option>
+                  <option value="deepseek-v4-flash-thinking">deepseek-v4-flash — Thinking Mode 🧠 (Deep Reasoning)</option>
+                  <option value="deepseek-v4-pro">deepseek-v4-pro — Advanced Pro 🔬 (75% off until May 31)</option>
+                </select>
               </div>
-              <a 
-                v-if="aiProvider === 'gemini'" 
-                href="https://aistudio.google.com/apikey" 
-                target="_blank" 
-                class="key-help"
-              >
-                → Dapatkan API key percuma dari Google AI Studio
-              </a>
-              <a 
-                v-else 
-                href="https://platform.deepseek.com/api_keys" 
-                target="_blank" 
-                class="key-help deepseek"
-              >
-                → Dapatkan API key dari platform DeepSeek AI
-              </a>
-            </div>
+
+              <!-- Key Status -->
+              <div v-if="!showApiKeyInput && apiKeyConfigured[aiProvider]" class="api-key-status">
+                <span class="status-text">
+                  🔑 API Key untuk {{ aiProvider === 'gemini' ? 'Gemini' : 'DeepSeek' }} bersedia
+                </span>
+                <button @click="showApiKeyInput = true" class="key-edit-btn">Tukar</button>
+              </div>
+              
+              <!-- Key Form -->
+              <div v-else class="api-key-form">
+                <label>{{ aiProvider === 'gemini' ? 'Gemini API Key' : 'DeepSeek API Key' }}</label>
+                <div class="key-input-row">
+                  <input
+                    v-model="apiKeyInput"
+                    type="password"
+                    :placeholder="aiProvider === 'gemini' ? 'Masukkan Gemini API key...' : 'Masukkan DeepSeek API key...'"
+                    class="text-input"
+                  />
+                  <button @click="handleSaveApiKey" class="key-save-btn">Simpan</button>
+                </div>
+                <a 
+                  v-if="aiProvider === 'gemini'" 
+                  href="https://aistudio.google.com/apikey" 
+                  target="_blank" 
+                  class="key-help"
+                >
+                  → Dapatkan API key percuma dari Google AI Studio
+                </a>
+                <a 
+                  v-else 
+                  href="https://platform.deepseek.com/api_keys" 
+                  target="_blank" 
+                  class="key-help deepseek"
+                >
+                  → Dapatkan API key dari platform DeepSeek AI
+                </a>
+              </div>
+            </template>
+
+            <!-- CUSTOM API config -->
+            <template v-else>
+              <div class="custom-api-section">
+                <div class="custom-api-badge">
+                  🔧 Custom API — OpenAI-Compatible
+                </div>
+                <p class="custom-api-desc">
+                  Sambung ke mana-mana API yang serasi dengan OpenAI (OpenRouter, Groq, Ollama, LM Studio, Azure OpenAI, dsb.)
+                </p>
+
+                <!-- Quick presets -->
+                <div class="custom-presets">
+                  <span class="presets-label">Isi pantas:</span>
+                  <button @click="applyCustomPreset('openrouter')" class="preset-chip">OpenRouter</button>
+                  <button @click="applyCustomPreset('groq')" class="preset-chip">Groq</button>
+                  <button @click="applyCustomPreset('ollama')" class="preset-chip">Ollama (local)</button>
+                  <button @click="applyCustomPreset('lmstudio')" class="preset-chip">LM Studio</button>
+                </div>
+
+                <!-- Endpoint URL -->
+                <div class="input-group">
+                  <label>🌐 URL Endpoint (Base URL)</label>
+                  <input
+                    v-model="customEndpointInput"
+                    type="url"
+                    placeholder="cth: https://openrouter.ai/api/v1"
+                    class="text-input"
+                    @blur="handleSaveCustomConfig"
+                  />
+                  <span class="input-hint">/chat/completions akan ditambah secara automatik jika tiada</span>
+                </div>
+
+                <!-- Model Name -->
+                <div class="input-group">
+                  <label>🤖 Nama Model</label>
+                  <input
+                    v-model="customModelInput"
+                    type="text"
+                    placeholder="cth: meta-llama/llama-3.1-8b-instruct:free"
+                    class="text-input"
+                    @blur="handleSaveCustomConfig"
+                  />
+                </div>
+
+                <!-- API Key -->
+                <div class="input-group">
+                  <label>🔑 API Key <span class="optional-label">(kosongkan untuk Ollama/LM Studio)</span></label>
+                  <div class="key-input-row">
+                    <input
+                      v-model="customApiKeyInput"
+                      :type="showCustomKey ? 'text' : 'password'"
+                      placeholder="Masukkan API key..."
+                      class="text-input"
+                    />
+                    <button @click="showCustomKey = !showCustomKey" class="key-edit-btn" title="Tunjuk/Sembunyikan">
+                      {{ showCustomKey ? '🙈' : '👁️' }}
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Save button -->
+                <button @click="handleSaveCustomConfig" class="key-save-btn w-full mt-2" style="width:100%">
+                  💾 Simpan Konfigurasi Custom
+                </button>
+
+                <!-- Status -->
+                <div v-if="customConfigured" class="api-key-status mt-2">
+                  <span class="status-text">✅ Konfigurasi Custom API bersedia</span>
+                </div>
+                <div v-else class="custom-incomplete-msg">
+                  ⚠️ Sila isi Endpoint URL dan Nama Model untuk menggunakan Custom API
+                </div>
+              </div>
+            </template>
           </div>
         </div>
 
         <div class="scroll-area">
-          
+
+          <!-- ============================================
+               MARKETING COPYWRITING PRO FORM
+               ============================================ -->
+          <div v-if="mode === 'marketing'" class="marketing-form">
+
+            <!-- Campaign Goal -->
+            <section class="section">
+              <div class="section-header-row">
+                <h3>🎯 Objektif Kempen</h3>
+              </div>
+              <div class="goal-grid">
+                <button
+                  v-for="goal in campaignGoals"
+                  :key="goal.id"
+                  @click="mktForm.campaignGoal = goal.id"
+                  :class="['goal-card', { active: mktForm.campaignGoal === goal.id }]"
+                >
+                  <span class="goal-icon">{{ goal.icon }}</span>
+                  <span class="goal-label">{{ goal.label }}</span>
+                  <span class="goal-desc">{{ goal.desc }}</span>
+                </button>
+              </div>
+            </section>
+
+            <!-- Post Topic -->
+            <section class="section">
+              <div class="mkt-topic-label">📣 POST TENTANG APA?</div>
+              <textarea
+                v-model="mktForm.postTopic"
+                class="text-input textarea mkt-topic-textarea"
+                rows="3"
+                placeholder="cth: Supplement kolagen Premium, kulit glow dalam 7 hari, harga RM89"
+              ></textarea>
+            </section>
+
+            <!-- Platform + Language -->
+            <section class="section">
+              <div class="input-row">
+                <div class="input-group">
+                  <label>📱 Platform</label>
+                  <select v-model="mktForm.platform" class="text-input select-input">
+                    <option value="whatsapp">💬 WhatsApp</option>
+                    <option value="instagram">📸 Instagram</option>
+                    <option value="tiktok">🎵 TikTok</option>
+                    <option value="threads">🧵 Threads</option>
+                    <option value="facebook">👥 Facebook</option>
+                    <option value="twitter">🐦 Twitter/X</option>
+                    <option value="linkedin">💼 LinkedIn</option>
+                  </select>
+                </div>
+                <div class="input-group">
+                  <label>🌐 Bahasa</label>
+                  <select v-model="mktForm.language" class="text-input select-input">
+                    <option value="melayu">🇲🇾 Melayu</option>
+                    <option value="rojak">🤙 Rojak (Manglish)</option>
+                    <option value="english">🇬🇧 English</option>
+                  </select>
+                </div>
+              </div>
+            </section>
+
+            <!-- Hook Type -->
+            <section class="section">
+              <div class="section-header-row">
+                <h3>🧠 Jenis Hook (Psikologi)</h3>
+                <span class="badge mkt-badge">Rahsia Viral</span>
+              </div>
+              <div class="hook-grid">
+                <button
+                  v-for="hook in hookTypes"
+                  :key="hook.id"
+                  @click="mktForm.hookType = hook.id"
+                  :class="['hook-card', { active: mktForm.hookType === hook.id }]"
+                  :title="hook.desc"
+                >
+                  <span class="hook-icon">{{ hook.icon }}</span>
+                  <span class="hook-label">{{ hook.label }}</span>
+                  <span class="hook-framework">{{ hook.framework }}</span>
+                </button>
+              </div>
+            </section>
+
+            <!-- Thread Count -->
+            <section class="section">
+              <h3>🔢 Bilangan Thread / Bahagian</h3>
+              <div class="thread-count-row">
+                <button
+                  v-for="n in [1, 3, 5, 10]"
+                  :key="n"
+                  @click="mktForm.threadCount = n"
+                  :class="['thread-pill', { active: mktForm.threadCount === n }]"
+                >
+                  {{ n === 1 ? '1 Post' : `${n} Thread` }}
+                </button>
+              </div>
+              <p class="thread-hint" v-if="mktForm.threadCount > 1">
+                💡 AI akan hasilkan {{ mktForm.threadCount }} bahagian berasingan — sesuai untuk thread panjang.
+              </p>
+            </section>
+
+            <!-- Extra Details (collapsible) -->
+            <section class="section">
+              <div class="section-toggle-header" @click="showMktExtras = !showMktExtras">
+                <h3>📋 Maklumat Tambahan <span class="optional-label">(Pilihan)</span></h3>
+                <span class="toggle-icon">{{ showMktExtras ? '▲' : '▼' }}</span>
+              </div>
+              <transition name="wizard-fade">
+                <div v-show="showMktExtras" class="mt-2">
+                  <textarea
+                    v-model="mktForm.extraDetails"
+                    class="text-input textarea"
+                    rows="4"
+                    placeholder="cth:&#10;- Harga: RM89 (FREE postage)&#10;- Ingredients: Marine Collagen 5000mg&#10;- Testimonial: 3000+ satisfied customers&#10;- Shopee rating: 4.9 ⭐"
+                  ></textarea>
+                </div>
+              </transition>
+            </section>
+
+            <!-- Product Link / CTA -->
+            <section class="section">
+              <h3>🔗 Link Produk / CTA</h3>
+              <input
+                v-model="mktForm.productLink"
+                type="url"
+                class="text-input"
+                placeholder="cth: https://shp.ee/abc123  atau  https://wa.me/60123456789"
+              />
+              <span class="input-hint">AI akan letakkan link ini secara natural dalam CTA</span>
+            </section>
+
+          </div>
+
+          <!-- Existing form sections (Template + AI modes) -->
+          <div v-if="mode !== 'marketing'">
+
           <!-- Guided Writing Assistant Wizard -->
           <section class="section assistant-section glass-dark">
             <div class="section-toggle-header" @click="showAssistant = !showAssistant">
@@ -341,22 +567,31 @@
             </div>
           </section>
 
+          </div><!-- end v-if mode !== 'marketing' -->
+
           <!-- Generate Button -->
           <button 
             @click="handleGenerate" 
-            :class="['generate-btn', { 'warning-btn': !canGenerate && mode === 'ai' }]" 
+            :class="['generate-btn', { 
+              'warning-btn': !canGenerate && (mode === 'ai' || mode === 'marketing'),
+              'marketing-btn': mode === 'marketing'
+            }]" 
             :disabled="generating"
           >
             <span v-if="generating" class="spinner"></span>
-            <span v-else class="gen-icon">🚀</span>
+            <span v-else class="gen-icon">{{ mode === 'marketing' ? '🔥' : '🚀' }}</span>
             <span>{{ 
               generating 
                 ? 'Menjana...' 
                 : !canGenerate && mode === 'ai' 
-                  ? '⚠️ Sila Masukkan API Key' 
-                  : mode === 'ai' 
-                    ? `Jana dengan ${aiProvider === 'gemini' ? 'Gemini' : 'DeepSeek'}` 
-                    : 'Jana Caption' 
+                  ? aiProvider === 'custom' ? '⚠️ Isi Konfigurasi Custom API' : '⚠️ Sila Masukkan API Key'
+                  : !canGenerate && mode === 'marketing'
+                    ? '⚠️ Sila Isi Topik & API Key'
+                    : mode === 'ai' 
+                      ? `Jana dengan ${aiProvider === 'gemini' ? 'Gemini' : aiProvider === 'custom' ? 'Custom API' : 'DeepSeek'}` 
+                      : mode === 'marketing'
+                        ? `Jana Copywriting 🔥`
+                        : 'Jana Caption' 
             }}</span>
           </button>
 
@@ -400,13 +635,16 @@
           <!-- Text Mode View -->
           <div v-if="outputViewMode === 'text'">
             <div class="result-header">
-              <h2>{{ result.isAI ? `Hasil AI (${result.provider || 'AI'})` : 'Hasil Caption' }}</h2>
+              <h2>{{ result.isMarketing ? '🔥 Hasil Copywriting Pro' : result.isAI ? `Hasil AI (${result.provider || 'AI'})` : 'Hasil Caption' }}</h2>
               <div class="result-meta">
+                <span v-if="result.isMarketing" class="meta-badge mkt-result-badge">
+                  {{ hookTypes.find(h => h.id === mktForm.hookType)?.label || 'Marketing' }}
+                </span>
                 <span class="meta-badge" :class="{ warning: result.maxChars && result.charCount > result.maxChars }">
                   {{ result.charCount }} aksara
                   <template v-if="result.maxChars"> / {{ result.maxChars }}</template>
                 </span>
-                <span v-if="result.isAI" class="meta-badge ai-badge">{{ result.model }}</span>
+                <span v-if="result.isAI || result.isMarketing" class="meta-badge ai-badge">{{ result.model }}</span>
                 <span v-else class="meta-badge neutral">
                   Variasi {{ result.templateIndex + 1 }}/{{ result.totalVariations }}
                 </span>
@@ -418,8 +656,38 @@
                Melebihi had {{ selectedPlatform?.label }}! Sila pendekkan caption anda.
             </div>
 
-            <!-- Caption Output -->
-            <div class="caption-output">
+            <!-- Thread Cards View (marketing multi-thread) -->
+            <div v-if="result.isMarketing && marketingThreads.length > 1" class="thread-output-section">
+              <div class="thread-output-header">
+                <span class="thread-count-badge">{{ marketingThreads.length }} Thread</span>
+                <button @click="copyAllThreads" :class="['action-btn copy-btn', { copied: copiedAll }]" style="margin-left:auto">
+                  {{ copiedAll ? '✔️ Semua Disalin!' : '📋 Salin Semua' }}
+                </button>
+              </div>
+              <div class="thread-cards-list">
+                <div
+                  v-for="(thread, idx) in marketingThreads"
+                  :key="idx"
+                  class="thread-card"
+                >
+                  <div class="thread-card-header">
+                    <span class="thread-card-num">{{ idx + 1 }} / {{ marketingThreads.length }}</span>
+                    <span class="thread-card-chars">{{ thread.length }} aksara</span>
+                    <button @click="copyThread(idx)" :class="['thread-copy-btn', { copied: copiedThreadIdx === idx }]">
+                      {{ copiedThreadIdx === idx ? '✔️' : '📋' }}
+                    </button>
+                  </div>
+                  <textarea
+                    v-model="marketingThreads[idx]"
+                    class="caption-textarea thread-card-textarea"
+                    rows="5"
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Single Caption Output (default + single-thread marketing) -->
+            <div v-else class="caption-output">
               <textarea 
                 v-model="result.caption" 
                 @input="result.charCount = result.caption.length" 
@@ -623,18 +891,24 @@ import {
 import {
   generateWithAI,
   polishTextWithAI,
+  buildMarketingPrompt,
   getApiKey,
   saveApiKey,
   hasApiKey,
   getStoredProvider,
   saveStoredProvider,
   getStoredModel,
-  saveStoredModel
+  saveStoredModel,
+  getCustomEndpoint,
+  saveCustomEndpoint,
+  getCustomModel,
+  saveCustomModel,
+  hasCustomConfig
 } from './aiService.js';
 
 // Mode states
-const mode = ref('template'); // 'template' | 'ai'
-const aiProvider = ref('gemini'); // 'gemini' | 'deepseek'
+const mode = ref('template'); // 'template' | 'ai' | 'marketing'
+const aiProvider = ref('gemini'); // 'gemini' | 'deepseek' | 'custom'
 const geminiModel = ref('gemini-2.0-flash');
 const deepseekModel = ref('deepseek-chat');
 const apiKeyInput = ref('');
@@ -647,6 +921,46 @@ const generating = ref(false);
 const aiError = ref('');
 const outputViewMode = ref('text'); // 'text' | 'mockup'
 const polishingText = ref(false);
+
+// Custom API state
+const customEndpointInput = ref('');
+const customModelInput = ref('');
+const customApiKeyInput = ref('');
+const showCustomKey = ref(false);
+const customConfigured = ref(false);
+
+// Marketing Copywriting Pro state
+const mktForm = reactive({
+  campaignGoal: 'jualan',
+  postTopic: '',
+  platform: 'instagram',
+  language: 'melayu',
+  hookType: 'fomo',
+  threadCount: 1,
+  extraDetails: '',
+  productLink: '',
+});
+const marketingThreads = ref([]);
+const copiedAll = ref(false);
+const copiedThreadIdx = ref(-1);
+const showMktExtras = ref(false);
+
+// Campaign goals data
+const campaignGoals = [
+  { id: 'jualan', icon: '🛒', label: 'Post Jualan', desc: 'Hard-sell & CTA kuat' },
+  { id: 'biasa', icon: '📝', label: 'Post Biasa', desc: 'Awareness & reach' },
+  { id: 'engagement', icon: '💬', label: 'Post Engagement', desc: 'Komen, share & viral' },
+];
+
+// Hook types data
+const hookTypes = [
+  { id: 'fomo', icon: '😱', label: 'FOMO', framework: 'Scarcity · Urgency', desc: 'Fear Of Missing Out — cipta rasa takut terlepas' },
+  { id: 'problem-solution', icon: '💡', label: 'Problem-Solution', framework: 'P·A·S Framework', desc: 'Pain → Agitate → Solve' },
+  { id: 'storytelling', icon: '📖', label: 'Storytelling', framework: 'Hook→Story→CTA', desc: 'Cerita yang relatable & authentic' },
+  { id: 'social-proof', icon: '⭐', label: 'Social Proof', framework: 'Bukti Sosial', desc: 'Testimoni, angka & pencapaian' },
+  { id: 'curiosity', icon: '🤔', label: 'Curiosity Gap', framework: 'Open Loop', desc: 'Buka gelung — buat pembaca mesti baca habis' },
+  { id: 'direct', icon: '🎯', label: 'Direct Sell', framework: 'A·I·D·A', desc: 'Terus ke point, tiada basa-basi' },
+];
 
 // Writing Assistant Wizard state
 const showAssistant = ref(false);
@@ -727,7 +1041,14 @@ const ctaLibrary = [
 
 // Computed
 const canGenerate = computed(() => {
+  if (mode.value === 'marketing') {
+    const hasKey = aiProvider.value === 'custom' ? customConfigured.value : apiKeyConfigured[aiProvider.value];
+    return !!(hasKey && mktForm.postTopic.trim());
+  }
   if (mode.value === 'ai') {
+    if (aiProvider.value === 'custom') {
+      return customConfigured.value;
+    }
     return apiKeyConfigured[aiProvider.value];
   }
   return form.category && form.platform && form.tone;
@@ -782,6 +1103,32 @@ const handleSaveApiKey = () => {
   apiKeyInput.value = '';
 };
 
+// Custom API methods
+const handleSaveCustomConfig = () => {
+  if (customEndpointInput.value.trim()) saveCustomEndpoint(customEndpointInput.value);
+  if (customModelInput.value.trim()) saveCustomModel(customModelInput.value);
+  if (customApiKeyInput.value.trim()) saveApiKey('custom', customApiKeyInput.value);
+  customConfigured.value = hasCustomConfig();
+  aiError.value = '';
+};
+
+const applyCustomPreset = (preset) => {
+  const presets = {
+    openrouter: { url: 'https://openrouter.ai/api/v1', model: 'meta-llama/llama-3.1-8b-instruct:free' },
+    groq: { url: 'https://api.groq.com/openai/v1', model: 'llama-3.1-8b-instant' },
+    ollama: { url: 'http://localhost:11434/v1', model: 'llama3.2' },
+    lmstudio: { url: 'http://localhost:1234/v1', model: 'local-model' },
+  };
+  const p = presets[preset];
+  if (!p) return;
+  customEndpointInput.value = p.url;
+  customModelInput.value = p.model;
+  // Auto-save endpoint and model
+  saveCustomEndpoint(p.url);
+  saveCustomModel(p.model);
+  customConfigured.value = hasCustomConfig();
+};
+
 const applyWizard = () => {
   let detailsText = '';
   if (wizard.subject) detailsText += `- Subjek: ${wizard.subject}\n`;
@@ -831,7 +1178,11 @@ const handlePolishText = async () => {
   aiError.value = '';
   
   try {
-    const currentModel = aiProvider.value === 'gemini' ? geminiModel.value : deepseekModel.value;
+    const currentModel = aiProvider.value === 'gemini'
+      ? geminiModel.value
+      : aiProvider.value === 'custom'
+        ? customModelInput.value
+        : deepseekModel.value;
     const polished = await polishTextWithAI(aiProvider.value, currentModel, form.butiran);
     if (polished) {
       form.butiran = polished;
@@ -843,36 +1194,91 @@ const handlePolishText = async () => {
   }
 };
 
+const parseThreads = (rawCaption) => {
+  // Regex to match ===THREAD N=== or [Thread N] markers
+  const threadRegex = /(?:===+)?\s*THREAD\s*\d+\s*(?:===+)?|\[THREAD\s*\d+\]/gi;
+  const parts = rawCaption.split(threadRegex).map(p => p.trim()).filter(p => p.length > 0);
+  if (parts.length > 0) {
+    marketingThreads.value = parts;
+  } else {
+    marketingThreads.value = [rawCaption];
+  }
+};
+
+const copyThread = async (idx) => {
+  const text = marketingThreads.value[idx];
+  if (!text) return;
+  try {
+    await navigator.clipboard.writeText(text);
+    copiedThreadIdx.value = idx;
+    setTimeout(() => { copiedThreadIdx.value = -1; }, 2000);
+  } catch (err) {
+    console.error('Failed to copy thread', err);
+  }
+};
+
+const copyAllThreads = async () => {
+  if (!marketingThreads.value.length) return;
+  const text = marketingThreads.value.join('\n\n-------------------\n\n');
+  try {
+    await navigator.clipboard.writeText(text);
+    copiedAll.value = true;
+    setTimeout(() => { copiedAll.value = false; }, 2000);
+  } catch (err) {
+    console.error('Failed to copy all threads', err);
+  }
+};
+
 const handleGenerate = async () => {
-  if (!canGenerate.value && mode.value === 'ai') {
-    aiError.value = 'Sila masukkan dan simpan API Key terlebih dahulu di bahagian atas.';
-    showApiKeyInput.value = true;
-    setTimeout(() => {
-      const el = document.querySelector('.api-key-section');
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 50);
+  if (!canGenerate.value && (mode.value === 'ai' || mode.value === 'marketing')) {
+    aiError.value = 'Sila pastikan API Key dan maklumat penting telah diisi.';
+    if (!apiKeyConfigured[aiProvider.value] && !(aiProvider.value === 'custom' && customConfigured.value)) {
+      showApiKeyInput.value = true;
+      setTimeout(() => {
+        const el = document.querySelector('.api-key-section');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 50);
+    }
     return;
   }
   aiError.value = '';
   generating.value = true;
+  marketingThreads.value = [];
 
   try {
-    if (mode.value === 'ai') {
-      const activeModel = aiProvider.value === 'gemini' ? geminiModel.value : deepseekModel.value;
+    if (mode.value === 'ai' || mode.value === 'marketing') {
+      const activeModel = aiProvider.value === 'gemini'
+        ? geminiModel.value
+        : aiProvider.value === 'custom'
+          ? customModelInput.value
+          : deepseekModel.value;
+          
+      const isMarketing = mode.value === 'marketing';
+      const mktParams = isMarketing ? { ...mktForm } : null;
+      
       result.value = await generateWithAI(aiProvider.value, activeModel, {
         category: form.category,
-        platform: form.platform,
+        platform: isMarketing ? mktForm.platform : form.platform,
         tone: form.tone,
         nama: form.nama,
         tarikh: form.tarikh ? formatDate(form.tarikh) : '',
         lokasi: form.lokasi,
         butiran: form.butiran,
         rujukan: selectedReferenceId.value ? referenceCollection.value.find(r => r.id === selectedReferenceId.value)?.text : null,
-      });
+      }, isMarketing, mktParams);
+
+      // Extract thread parts if marketing mode and threadCount > 1
+      if (isMarketing && mktForm.threadCount > 1) {
+        parseThreads(result.value.caption);
+      } else if (isMarketing) {
+        marketingThreads.value = [result.value.caption];
+      }
 
       // Apply platform max chars
-      if (selectedPlatform.value?.maxChars) {
-        result.value.maxChars = selectedPlatform.value.maxChars;
+      const pId = isMarketing ? mktForm.platform : form.platform;
+      const platformDef = platforms.find(p => p.id === pId);
+      if (platformDef?.maxChars) {
+        result.value.maxChars = platformDef.maxChars;
       }
     } else {
       // Template mode
@@ -1034,6 +1440,12 @@ onMounted(() => {
   
   apiKeyConfigured.gemini = hasApiKey('gemini');
   apiKeyConfigured.deepseek = hasApiKey('deepseek');
+
+  // Load custom API config
+  customEndpointInput.value = getCustomEndpoint();
+  customModelInput.value = getCustomModel();
+  customApiKeyInput.value = getApiKey('custom');
+  customConfigured.value = hasCustomConfig();
 });
 </script>
 
@@ -2044,6 +2456,13 @@ onMounted(() => {
   color: white;
 }
 
+.mode-btn.marketing.active {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(249, 115, 22, 0.15));
+  border: 1px solid rgba(249, 115, 22, 0.25);
+  color: white;
+}
+
+
 /* ============================================
    API KEY SECTION & PROVIDER TABS
    ============================================ */
@@ -2190,6 +2609,107 @@ onMounted(() => {
 
 .key-help:hover {
   text-decoration: underline;
+}
+
+/* ============================================
+   CUSTOM API PROVIDER STYLES
+   ============================================ */
+.custom-tab {
+  background: rgba(245, 158, 11, 0.05) !important;
+  border-color: rgba(245, 158, 11, 0.1) !important;
+}
+
+.custom-tab.active {
+  background: rgba(245, 158, 11, 0.12) !important;
+  border-color: rgba(245, 158, 11, 0.4) !important;
+  color: #fbbf24 !important;
+}
+
+.custom-api-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.custom-api-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(251, 191, 36, 0.08));
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #fbbf24;
+  letter-spacing: 0.02em;
+}
+
+.custom-api-desc {
+  font-size: 0.7rem;
+  color: #64748b;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.custom-presets {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.presets-label {
+  font-size: 0.65rem;
+  color: #64748b;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.preset-chip {
+  padding: 0.25rem 0.6rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  background: rgba(245, 158, 11, 0.06);
+  color: #fbbf24;
+  font-size: 0.65rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.preset-chip:hover {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.4);
+  transform: translateY(-1px);
+}
+
+.input-hint {
+  display: block;
+  font-size: 0.62rem;
+  color: #475569;
+  margin-top: 0.2rem;
+  font-style: italic;
+}
+
+.optional-label {
+  font-size: 0.6rem;
+  color: #475569;
+  font-weight: 400;
+}
+
+.custom-incomplete-msg {
+  font-size: 0.68rem;
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.06);
+  border: 1px solid rgba(245, 158, 11, 0.15);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+}
+
+.mt-2 {
+  margin-top: 0.5rem;
 }
 
 /* ============================================
@@ -2859,5 +3379,302 @@ onMounted(() => {
   color: #94a3b8;
   margin: 0;
   line-height: 1.35;
+}
+
+/* ============================================
+   MARKETING MODE STYLES
+   ============================================ */
+
+.generate-btn.marketing-btn:not(.warning-btn) {
+  background: linear-gradient(135deg, #ef4444, #f97316);
+  box-shadow: 0 10px 25px rgba(249, 115, 22, 0.4);
+}
+
+.mkt-topic-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #fed7aa;
+  margin-bottom: 0.6rem;
+  letter-spacing: 0.5px;
+}
+
+.mkt-topic-textarea {
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  background: rgba(249, 115, 22, 0.03);
+  font-size: 0.95rem;
+  padding: 1rem;
+}
+
+.mkt-topic-textarea:focus {
+  border-color: rgba(249, 115, 22, 0.6);
+  box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.15);
+}
+
+.mkt-badge {
+  background: linear-gradient(135deg, #ef4444, #f97316);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 0.2rem 0.5rem;
+  border-radius: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Campaign Goal Grid */
+.goal-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.65rem;
+}
+
+.goal-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0.85rem 0.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  gap: 0.35rem;
+}
+
+.goal-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateY(-2px);
+}
+
+.goal-card.active {
+  background: rgba(249, 115, 22, 0.1);
+  border-color: rgba(249, 115, 22, 0.4);
+}
+
+.goal-icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.2rem;
+}
+
+.goal-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #e2e8f0;
+}
+
+.goal-card.active .goal-label {
+  color: #fed7aa;
+}
+
+.goal-desc {
+  font-size: 0.6rem;
+  color: #94a3b8;
+  line-height: 1.3;
+}
+
+/* Hook Types Grid */
+.hook-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.65rem;
+}
+
+.hook-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  padding: 0.8rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.hook-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.hook-card.active {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(249, 115, 22, 0.05));
+  border-color: rgba(249, 115, 22, 0.3);
+}
+
+.hook-icon {
+  font-size: 1.25rem;
+  margin-bottom: 0.4rem;
+}
+
+.hook-label {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #e2e8f0;
+  margin-bottom: 0.2rem;
+}
+
+.hook-card.active .hook-label {
+  color: #ffedd5;
+}
+
+.hook-framework {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.15);
+  padding: 0.15rem 0.4rem;
+  border-radius: 0.25rem;
+  margin-top: auto;
+}
+
+/* Thread Count */
+.thread-count-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.thread-pill {
+  flex: 1;
+  padding: 0.6rem 0;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 2rem;
+  color: #94a3b8;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.thread-pill:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.thread-pill.active {
+  background: rgba(249, 115, 22, 0.15);
+  border-color: rgba(249, 115, 22, 0.4);
+  color: #fed7aa;
+}
+
+.thread-hint {
+  font-size: 0.65rem;
+  color: #94a3b8;
+  margin: 0;
+  font-style: italic;
+}
+
+/* Thread Output section */
+.thread-output-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.thread-output-header {
+  display: flex;
+  align-items: center;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.thread-count-badge {
+  background: rgba(249, 115, 22, 0.2);
+  color: #fed7aa;
+  padding: 0.3rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: 1px solid rgba(249, 115, 22, 0.3);
+}
+
+.thread-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-height: 550px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.thread-card {
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.85rem;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.thread-card-header {
+  display: flex;
+  align-items: center;
+  padding: 0.65rem 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.thread-card-num {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #fed7aa;
+  background: rgba(249, 115, 22, 0.15);
+  padding: 0.2rem 0.6rem;
+  border-radius: 0.5rem;
+  margin-right: 0.75rem;
+}
+
+.thread-card-chars {
+  font-size: 0.65rem;
+  color: #94a3b8;
+  margin-right: auto;
+}
+
+.thread-copy-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.2rem;
+  transition: all 0.2s;
+}
+
+.thread-copy-btn:hover {
+  transform: scale(1.1);
+  color: white;
+}
+
+.thread-card-textarea {
+  border: none !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  resize: vertical;
+  min-height: 100px;
+}
+
+.thread-card-textarea:focus {
+  box-shadow: none !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+}
+
+.mkt-result-badge {
+  background: rgba(249, 115, 22, 0.15);
+  color: #fed7aa;
+  border: 1px solid rgba(249, 115, 22, 0.3);
+}
+
+@media (max-width: 768px) {
+  .goal-grid {
+    grid-template-columns: 1fr;
+  }
+  .hook-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

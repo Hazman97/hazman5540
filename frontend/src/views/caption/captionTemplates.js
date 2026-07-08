@@ -23,8 +23,11 @@ export const platforms = [
   { id: 'facebook', label: 'Facebook', emoji: '', maxChars: null, tip: 'Penceritaan panjang OK, tag orang & tempat' },
   { id: 'instagram', label: 'Instagram', emoji: '', maxChars: 2200, tip: 'Hashtag penting! Max 30 hashtags, caption menarik di 2 baris pertama' },
   { id: 'twitter', label: 'Twitter/X', emoji: '', maxChars: 280, tip: 'Pendek & padat. Thread jika perlu. Hashtag max 2-3' },
+  { id: 'threads', label: 'Threads', emoji: '', maxChars: 500, tip: 'Gaya santai seperti Twitter, max 500 aksara. Hashtag 1-3.' },
+  { id: 'tiktok', label: 'TikTok', emoji: '', maxChars: 2200, tip: 'Hook kuat di 3 patah kata pertama! Hashtag trending penting.' },
   { id: 'linkedin', label: 'LinkedIn', emoji: '', maxChars: 3000, tip: 'Nada profesional, storytelling, tag organisasi' },
 ];
+
 
 // ============================================
 // TONES
