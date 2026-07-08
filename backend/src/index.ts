@@ -11,6 +11,7 @@ import officeRouter from './routes/office'
 import { portfolioRoutes } from './routes/portfolio'
 import { financeRoutes } from './routes/finance'
 import systemRouter from './routes/system'
+import proxyRouter from './routes/proxy'
 
 const app = new Hono<{ Bindings: Env }>()
 
@@ -37,6 +38,7 @@ app.route('/api/office', officeRouter)
 app.route('/api/portfolio', portfolioRoutes)
 app.route('/api/finance', financeRoutes)
 app.route('/api/system', systemRouter)
+app.route('/api/proxy', proxyRouter)
 
 // ── 404 Fallback ───────────────────────────────────────────
 app.notFound((c) => c.json({ error: 'Route not found', path: c.req.path }, 404))

@@ -433,16 +433,24 @@ async function callCustom(endpointUrl, model, prompt, apiKey) {
     headers['Authorization'] = `Bearer ${apiKey}`;
   }
 
-  const response = await fetch(url, {
+  const backendProxyUrl = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api/proxy/ai` : '/api/proxy/ai';
+
+  const response = await fetch(backendProxyUrl, {
     method: 'POST',
-    headers,
+    headers: {
+      'Content-Type': 'application/json'
+    },
     body: JSON.stringify({
-      model: model,
-      messages: [
-        { role: 'user', content: prompt }
-      ],
-      temperature: 0.8,
-      max_tokens: 1024
+      targetUrl: url,
+      headers: headers,
+      payload: {
+        model: model,
+        messages: [
+          { role: 'user', content: prompt }
+        ],
+        temperature: 0.8,
+        max_tokens: 1024
+      }
     }),
   });
 
