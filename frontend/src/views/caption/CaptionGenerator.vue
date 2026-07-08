@@ -40,6 +40,8 @@
           </button>
         </div>
 
+        <div class="scroll-area">
+
         <!-- AI API Key Settings -->
         <div v-if="mode === 'ai'" class="api-key-section">
           <!-- Provider Tabs -->
@@ -211,7 +213,7 @@
           </div>
         </div>
 
-        <div class="scroll-area">
+
 
           <!-- ============================================
                MARKETING COPYWRITING PRO FORM
