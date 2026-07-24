@@ -1,0 +1,400 @@
+<template>
+  <section id="works" class="relative py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <!-- Asymmetric Organic Doodle & Circuit Decorations -->
+    <DoodleDecorations type="chip-doodle" class="absolute -top-6 left-[6%]" />
+    <DoodleDecorations type="antenna-wave" class="absolute bottom-10 right-[5%] hidden md:block" />
+
+    <!-- Section Header -->
+    <div class="text-center mb-10 relative z-10">
+      <h2 class="text-3xl sm:text-5xl font-serif text-[#B5502F] dark:text-[#E8C976] tracking-wide mb-3">
+        All Projects & Engineering Builds
+      </h2>
+      <p class="text-[#6E655F] dark:text-[#8A8A8A] text-sm sm:text-base font-sans max-w-2xl mx-auto">
+        Complete showcase of 18 software applications, IoT platforms, enterprise portals, and personal tools.
+      </p>
+      <WavyDivider />
+    </div>
+
+    <!-- Category Filter Tabs -->
+    <div class="flex flex-wrap items-center justify-center gap-2 mb-8 relative z-10">
+      <button 
+        v-for="cat in categories"
+        :key="cat.id"
+        @click="activeCategory = cat.id"
+        class="px-4 py-1.5 rounded-full text-xs font-mono transition-all cursor-pointer focus-ring"
+        :class="activeCategory === cat.id
+          ? 'bg-[#B5502F] dark:bg-[#E8C976] text-white dark:text-[#0F0F0F] font-semibold shadow-md'
+          : 'bg-white dark:bg-[#1A1A1A] text-[#6E655F] dark:text-[#8A8A8A] border border-[#E6E0D4] dark:border-[#2A2A2A] hover:text-[#2A2421] dark:hover:text-[#F5F0E8]'"
+      >
+        {{ cat.label }} ({{ getCategoryCount(cat.id) }})
+      </button>
+    </div>
+
+    <!-- Carousel Controls (Desktop Edge Arrow Buttons) -->
+    <div class="relative group">
+      <button 
+        @click="scrollLeft"
+        class="hidden sm:flex absolute -left-4 md:-left-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] text-[#B5502F] dark:text-[#E8C976] hover:scale-110 active:scale-95 transition-all shadow-xl items-center justify-center cursor-pointer focus-ring"
+        aria-label="Scroll Carousel Left"
+      >
+        <svg class="w-5 h-5 transform -rotate-90 fill-current" viewBox="0 0 24 24">
+          <path d="M12 4l-8 8h16l-8-8z" />
+        </svg>
+      </button>
+
+      <button 
+        @click="scrollRight"
+        class="hidden sm:flex absolute -right-4 md:-right-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] text-[#B5502F] dark:text-[#E8C976] hover:scale-110 active:scale-95 transition-all shadow-xl items-center justify-center cursor-pointer focus-ring"
+        aria-label="Scroll Carousel Right"
+      >
+        <svg class="w-5 h-5 transform rotate-90 fill-current" viewBox="0 0 24 24">
+          <path d="M12 4l-8 8h16l-8-8z" />
+        </svg>
+      </button>
+
+      <!-- Horizontal Scrollable Cards Container -->
+      <div 
+        ref="scrollContainer"
+        class="flex gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-none py-4 px-2 scroll-smooth"
+        style="scrollbar-width: none; -ms-overflow-style: none;"
+      >
+        <!-- Project Card -->
+        <div 
+          v-for="project in filteredProjects"
+          :key="project.title"
+          class="snap-start shrink-0 w-[290px] sm:w-[350px] md:w-[380px] bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] rounded-xl overflow-hidden shadow-xl hover:border-[#B5502F]/40 dark:hover:border-[#E8C976]/40 transition-all duration-300 flex flex-col group/card"
+        >
+          <!-- Browser Window Top Bar (3 Traffic Light Dots) -->
+          <div class="flex items-center justify-between px-3.5 py-2.5 bg-[#F5F0E8] dark:bg-[#141414] border-b border-[#E6E0D4] dark:border-[#2A2A2A]">
+            <div class="flex items-center gap-1.5">
+              <span class="w-3 h-3 rounded-full bg-[#FF5F56] inline-block"></span>
+              <span class="w-3 h-3 rounded-full bg-[#FFBD2E] inline-block"></span>
+              <span class="w-3 h-3 rounded-full bg-[#27C93F] inline-block"></span>
+            </div>
+            <div class="text-[10px] font-mono text-[#6E655F] dark:text-[#8A8A8A] truncate max-w-[170px]">
+              {{ project.url }}
+            </div>
+            <div class="w-4"></div>
+          </div>
+
+          <!-- Preview Content Area with Real Project Screenshot/Image -->
+          <div class="relative h-44 sm:h-48 bg-[#FAF7F2] dark:bg-[#0F0F0F] overflow-hidden group/img">
+            <!-- Background Image -->
+            <img 
+              :src="project.image" 
+              :alt="project.title" 
+              class="w-full h-full object-cover group-hover/img:scale-110 transition-transform duration-500"
+              @error="handleImgError"
+            />
+
+            <!-- Top Floating Tag -->
+            <div class="absolute top-3 left-3 z-10">
+              <span class="px-2.5 py-1 rounded-full text-[10px] font-mono font-semibold bg-white/90 dark:bg-[#1A1A1A]/90 text-[#B5502F] dark:text-[#E8C976] border border-[#E6E0D4] dark:border-[#2A2A2A] shadow-md backdrop-blur-md">
+                {{ project.tag }}
+              </span>
+            </div>
+
+            <!-- Bottom Gradient Overlay -->
+            <div class="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white dark:from-[#1A1A1A] to-transparent z-10 opacity-90"></div>
+          </div>
+
+          <!-- Below Card Details -->
+          <div class="p-5 flex-1 flex flex-col justify-between">
+            <div>
+              <div class="flex items-start justify-between gap-2 mb-2">
+                <h3 class="font-serif font-semibold text-lg text-[#2A2421] dark:text-[#F5F0E8] group-hover/card:text-[#B5502F] dark:group-hover/card:text-[#E8C976] transition-colors">
+                  {{ project.title }}
+                </h3>
+                <a 
+                  :href="project.url"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="text-[#B5502F] dark:text-[#E8C976] hover:scale-125 transition-transform shrink-0 p-1"
+                  aria-label="View Project"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </a>
+              </div>
+
+              <p class="text-[#6E655F] dark:text-[#8A8A8A] text-xs sm:text-sm font-sans line-clamp-2 mb-4 leading-relaxed">
+                {{ project.description }}
+              </p>
+            </div>
+
+            <!-- Tech Stack Tags -->
+            <div class="flex flex-wrap gap-1.5 pt-3 border-t border-[#E6E0D4] dark:border-[#2A2A2A]">
+              <span 
+                v-for="t in project.tech"
+                :key="t"
+                class="px-2 py-0.5 text-[11px] font-mono bg-[#F0EBE1] dark:bg-[#242424] text-[#2A2421]/80 dark:text-[#F5F0E8]/80 rounded-md border border-[#E6E0D4] dark:border-[#2D2D2D]"
+              >
+                {{ t }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Scroll Indicators -->
+      <div class="flex justify-center items-center gap-4 mt-6 sm:hidden">
+        <button 
+          @click="scrollLeft"
+          class="w-9 h-9 rounded-full bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] text-[#B5502F] dark:text-[#E8C976] flex items-center justify-center active:scale-95 shadow-md"
+        >
+          <svg class="w-4 h-4 transform -rotate-90 fill-current" viewBox="0 0 24 24">
+            <path d="M12 4l-8 8h16l-8-8z" />
+          </svg>
+        </button>
+        <span class="text-xs font-mono text-[#6E655F] dark:text-[#8A8A8A]">swipe or tap</span>
+        <button 
+          @click="scrollRight"
+          class="w-9 h-9 rounded-full bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] text-[#B5502F] dark:text-[#E8C976] flex items-center justify-center active:scale-95 shadow-md"
+        >
+          <svg class="w-4 h-4 transform rotate-90 fill-current" viewBox="0 0 24 24">
+            <path d="M12 4l-8 8h16l-8-8z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </section>
+</template>
+
+<script setup lang="ts">
+import { ref, computed } from 'vue';
+import WavyDivider from './WavyDivider.vue';
+import DoodleDecorations from './DoodleDecorations.vue';
+
+interface ProjectItem {
+  title: string;
+  description: string;
+  url: string;
+  image: string;
+  tag: string;
+  tech: string[];
+  category: 'iot' | 'web' | 'tools';
+  status?: string;
+}
+
+const scrollContainer = ref<HTMLElement | null>(null);
+const activeCategory = ref<string>('all');
+
+const categories = [
+  { id: 'all', label: 'All Builds' },
+  { id: 'iot', label: 'IoT & Robotics' },
+  { id: 'web', label: 'Web Apps & SaaS' },
+  { id: 'tools', label: 'Tools & Utilities' },
+];
+
+const scrollLeft = () => {
+  if (scrollContainer.value) {
+    scrollContainer.value.scrollBy({ left: -360, behavior: 'smooth' });
+  }
+};
+
+const scrollRight = () => {
+  if (scrollContainer.value) {
+    scrollContainer.value.scrollBy({ left: 360, behavior: 'smooth' });
+  }
+};
+
+const handleImgError = (e: Event) => {
+  const target = e.target as HTMLImageElement;
+  target.src = 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&h=600&fit=crop';
+};
+
+// All 18 Projects with exact images and fallbacks
+const allProjects: ProjectItem[] = [
+  {
+    title: 'Shooting Range Control System',
+    category: 'iot',
+    url: 'https://mindnrobotics.com/',
+    image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&h=600&fit=crop',
+    status: 'Mindnrobotics',
+    tag: 'IoT Robotics',
+    description: 'Engineered full-stack HTML control dashboard with ESP32 & Node.js embedded target hardware, MP2P links, Rajant mesh nodes & Starlink connectivity.',
+    tech: ['ESP32', 'Node.js', 'Rajant Mesh', 'Starlink'],
+  },
+  {
+    title: 'MindGPS Telemetry Tracker',
+    category: 'iot',
+    url: 'https://gps.mindnrobotics.com/',
+    image: '/img/mindgps_tracker.png',
+    status: 'Mindnrobotics',
+    tag: 'Fleet Telemetry',
+    description: 'Fleet management telemetry system in Node.js, integrating Teltonika FMC920 GPS devices with an optimized PostgreSQL database.',
+    tech: ['Teltonika FMC920', 'Node.js', 'PostgreSQL', 'GPS'],
+  },
+  {
+    title: 'CanopyNet UGV Dashboard',
+    category: 'iot',
+    url: 'https://canopynet.mindnrobotics.com/',
+    image: '/img/canopynet_dashboard.png',
+    status: 'Mindnrobotics',
+    tag: 'IoT Platform',
+    description: 'Real-time plantation management platform with live UGV tracking, tree coverage monitoring, and ROS integration.',
+    tech: ['Vue 3', 'Leaflet', 'ROS', 'IoT'],
+  },
+  {
+    title: 'Interactive Org Chart Builder',
+    category: 'web',
+    url: '/org-demo',
+    image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&h=600&fit=crop',
+    status: 'Live Tool',
+    tag: 'Web App',
+    description: 'Interactive organization chart builder supporting drag-and-drop hierarchy management, custom role assignments, and instant sharing.',
+    tech: ['Vue 3', 'TypeScript', 'Tailwind', 'Cloudflare D1'],
+  },
+  {
+    title: 'PKT Security Portal & E-Claim Platform',
+    category: 'web',
+    url: '/eclaim',
+    image: 'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=800&h=600&fit=crop',
+    status: 'PKT Logistics',
+    tag: 'Enterprise App',
+    description: 'Led front-end development for PKT Logistics internal portals, security management, CCTV access controls, e-claim system & WMS integration.',
+    tech: ['Vue.js', 'Tailwind', 'WMS Integration', 'CCTV Access'],
+  },
+  {
+    title: 'MediSaaS Clinic System',
+    category: 'web',
+    url: 'https://demo-clinic-management-system.vercel.app/',
+    image: '/img/medisaas_clinic.png',
+    status: 'SaaS',
+    tag: 'Medical SaaS',
+    description: 'Comprehensive clinic management system with appointment scheduling, patient registry, doctor console, pharmacy integration, and queue display.',
+    tech: ['Vue.js', 'Tailwind', 'Vercel'],
+  },
+  {
+    title: 'EZQRCode Manager',
+    category: 'tools',
+    url: 'https://ezqrcode.pages.dev/',
+    image: 'https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=800&h=600&fit=crop',
+    status: 'Live',
+    tag: 'Web App',
+    description: 'Dynamic QR Code Management system allowing users to create, track, and manage customizable QR codes seamlessly.',
+    tech: ['Vue.js', 'Vite', 'Tailwind'],
+  },
+  {
+    title: 'EZresit Receipt Manager',
+    category: 'web',
+    url: 'https://ezresit.pages.dev/',
+    image: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&h=600&fit=crop',
+    status: 'SaaS',
+    tag: 'SaaS',
+    description: 'Minimalist, ultra-fast receipt management system exclusively for small businesses. 100% serverless and zero maintenance.',
+    tech: ['Nuxt', 'Vue', 'Cloudflare'],
+  },
+  {
+    title: 'Confession Bot',
+    category: 'tools',
+    url: 'https://confess-bot.pages.dev/',
+    image: '/img/confession_bot.png',
+    status: 'Live',
+    tag: 'Discord Bot',
+    description: 'An anonymous confession bot for Discord servers. Allows users to submit confessions anonymously to specified channels.',
+    tech: ['Node.js', 'Discord.js', 'JavaScript'],
+  },
+  {
+    title: 'Restaurant POS System',
+    category: 'web',
+    url: 'https://demo-restaurant-ordering-system.vercel.app/',
+    image: '/img/restaurant_pos.png',
+    status: 'AI Studio',
+    tag: 'POS System',
+    description: 'Modern Point of Sale system for restaurants, featuring order management, menu customization, and sales tracking.',
+    tech: ['Vue.js', 'Tailwind', 'Firebase'],
+  },
+  {
+    title: 'SmashPoint Badminton Booking',
+    category: 'web',
+    url: 'https://smashpoint.vercel.app/',
+    image: '/img/smashpoint_booking.png',
+    status: 'AI Studio',
+    tag: 'Booking App',
+    description: 'Modern badminton court booking system with real-time availability, slot management, and seamless reservations.',
+    tech: ['React', 'Tailwind', 'Firebase'],
+  },
+  {
+    title: 'TravThru Premium Chauffeur',
+    category: 'tools',
+    url: 'https://www.travthru.com/',
+    image: '/img/travthru.png',
+    status: 'Client Site',
+    tag: 'Client Website',
+    description: 'Premium 24/7 airport transfer & chauffeur service in KL. Corporate and private booking for luxury MPVs.',
+    tech: ['Web Dev', 'SEO', 'Responsive'],
+  },
+  {
+    title: 'QR Memories',
+    category: 'tools',
+    url: 'https://qrmemories.pages.dev/login',
+    image: '/img/qr_memories.png',
+    status: 'Live',
+    tag: 'Web App',
+    description: 'Digital memory lane using QR codes to store and view photo collections. Share and scan to relive moments instantly.',
+    tech: ['Vue.js', 'Cloudflare Pages', 'Tailwind'],
+  },
+  {
+    title: 'Birthday Wish Creator',
+    category: 'web',
+    url: '/birthday/create',
+    image: '/img/birthday_wish.png',
+    status: 'Live Tool',
+    tag: 'Web App',
+    description: 'Multi-user birthday page system with customizable templates, YouTube music integration, and wish submission forms.',
+    tech: ['Vue.js', 'Supabase', 'Tailwind'],
+  },
+  {
+    title: 'Global Photo Collection',
+    category: 'tools',
+    url: '/photocollection',
+    image: '/img/photo_collection.png',
+    status: 'Live Showcase',
+    tag: 'Media Showcase',
+    description: 'Curated photo collection showcasing travel photography categorized by countries & landmarks.',
+    tech: ['Vue.js', 'Cloudflare R2', 'Tailwind'],
+  },
+  {
+    title: 'WiFi QR Code Generator',
+    category: 'tools',
+    url: '/wifi-qr',
+    image: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&h=600&fit=crop',
+    status: 'Live Tool',
+    tag: 'Utility',
+    description: 'Instant printable QR code generator for guest Wi-Fi access without typing passwords.',
+    tech: ['Vue 3', 'QRCode Canvas', 'Tailwind'],
+  },
+  {
+    title: 'Tasmik Progress Management System',
+    category: 'web',
+    url: 'http://[2001:f40:935:99c:6806:fc47:e2f3:97e7]:5175',
+    image: '/img/tasmik_system.png',
+    status: 'Live System',
+    tag: 'School System',
+    description: 'Comprehensive system for schools to manage student records, tasmik progress, attendance, and user roles.',
+    tech: ['Vue.js', 'Tailwind', 'Supabase'],
+  },
+  {
+    title: 'Social Copywriting Generator',
+    category: 'tools',
+    url: '/caption',
+    image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&h=600&fit=crop',
+    status: 'Live Tool',
+    tag: 'Copy Tool',
+    description: 'Interactive caption generator assistant for social media posts, structuring tags and promotional copy.',
+    tech: ['Vue 3', 'Composition API', 'Tailwind'],
+  },
+];
+
+const filteredProjects = computed(() => {
+  if (activeCategory.value === 'all') return allProjects;
+  return allProjects.filter((p) => p.category === activeCategory.value);
+});
+
+const getCategoryCount = (catId: string) => {
+  if (catId === 'all') return allProjects.length;
+  return allProjects.filter((p) => p.category === catId).length;
+};
+</script>

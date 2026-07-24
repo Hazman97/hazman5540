@@ -16,6 +16,12 @@ const routes = [
     meta: { title: "Hazman — Portfolio", description: "Personal portfolio and projects showcase" },
   },
   {
+    path: "/v1",
+    name: "v1-portfolio",
+    component: () => import("../views/v1/HomeV1.vue"),
+    meta: { title: "Hazman — Portfolio (v1 Archive)", description: "Previous portfolio design snapshot", version: "v1" },
+  },
+  {
     path: "/home",
     name: "home-page",
     component: () => import("../views/HomeView.vue"),
