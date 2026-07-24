@@ -311,13 +311,13 @@ async function submitApplication() {
     let attachmentUrl: string | null = null;
 
     if (selectedFile.value && student.value) {
-      const result = await uploadLeaveAttachment(
+      const result = (await uploadLeaveAttachment(
         selectedFile.value,
         "leave_" + form.value.type,
         student.value.id,
-      );
+      )) as { success?: boolean; url?: string; error?: string };
 
-      if (result.success) {
+      if (result.success && result.url) {
         attachmentUrl = result.url;
       } else {
         throw new Error(result.error || "File upload failed");

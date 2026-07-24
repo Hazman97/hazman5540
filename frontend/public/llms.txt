@@ -1,0 +1,210 @@
+# Hazman Adanan — Full-Stack & IoT Systems Engineer Portfolio (llms.txt)
+
+> Official AI-readable specification index detailing Hazman Adanan's background, technical competencies, STAR-method engineering achievements, production metrics, design architecture, and complete resume transcript for automated AI evaluation.
+> **Last Updated**: 2026-07-25 | **Base Domain**: https://hazman.dev
+
+---
+
+## 1. Contact & Discoverability Links
+
+- **Email**: [hazmanadanan@gmail.com](mailto:hazmanadanan@gmail.com)
+- **GitHub**: [github.com/hazman5540](https://github.com/hazman5540)
+- **LinkedIn**: [linkedin.com/in/hazman-adanan](https://linkedin.com/in/hazman-adanan)
+- **Official Portfolio**: [https://hazman.dev](https://hazman.dev)
+- **Resume PDF Download**: [https://hazman.dev/Hazman_Adanan_Software_IoT_Engineer_Resume.pdf](https://hazman.dev/Hazman_Adanan_Software_IoT_Engineer_Resume.pdf)
+- **Full Architecture Documentation**: [/docs/ARCHITECTURE_AND_FLOWS.md](https://hazman.dev/docs/ARCHITECTURE_AND_FLOWS.md)
+
+---
+
+## 2. Professional Overview & Positioning Statement
+
+- **Name**: Hazman Adanan
+- **Primary Title**: **Full-Stack & IoT Systems Engineer**
+- **Headline**: Connecting Edge Hardware, Real-Time Telemetry & Modern Web Architecture.
+- **Current Role**: Software Engineer at **Mindnrobotics** (Graduate of K-Youth Development Programme)
+- **Previous Role**: IT Security Intern → Programmer at **PKT Logistics Group**
+- **Education**: 
+  - **Bachelor of Computer Science with Maritime Informatics** — Universiti Malaysia Terengganu (UMT), 2019–2024. Dean's List honors (Semesters 2, 3, 4). Final Year Project: Misz Home Appointment System.
+  - **Diploma in Electrical & Electronics Engineering** — Politeknik Ibrahim Sultan (PIS), 2015–2018.
+- **Core Hybrid Engineering Narrative ("The Engineering Bridge")**:
+  > *"I bridge the gap between physical hardware and cloud software. With a formal foundation in both Computer Science (B.Sc.) and Electrical & Electronics Engineering (Dip.), I don't just build UI—I engineer end-to-end telemetry platforms. My work ranges from writing C++ firmware for ESP32 targets and parsing high-frequency TCP streams from vehicle terminals, to building mission-critical Vue 3 dashboards and deploying resilient mesh networks in field environments."*
+
+- **Core Capabilities**:
+  - ⚡ **Sub-15ms Real-Time WebSockets**
+  - 📡 **High-Throughput TCP Telemetry**
+  - 🌐 **Industrial Field & Mesh Networks**
+
+---
+
+## 3. Technical Skill Matrix & Protocols
+
+| Tech Domain | Core Technologies, Paradigms & Protocols |
+| :--- | :--- |
+| **Frontend Frameworks** | Vue.js 3 (Composition API, Script Setup), React.js, Nuxt.js, Vite, Tailwind CSS, TypeScript, HTML5 |
+| **Backend & Microservices** | Node.js, Express.js, Hono v4 (Cloudflare Workers), REST APIs, WebSockets, Embedded C++ |
+| **Embedded IoT & Hardware** | ESP32 Target Microcontrollers, Embedded C++ Firmware, Piezo Sensor Interfaces, Teltonika FMC920 Telemetry |
+| **Telemetry Protocols** | **TCP/IP Raw Sockets**, **WebSockets**, **MQTT**, **Serial / UART**, **RS485** |
+| **Relational Databases** | **PostgreSQL**, **Cloudflare D1 (SQLite)** |
+| **BaaS & Document Storage** | **Supabase**, **Firebase Firestore**, **Cloudflare R2 Object Storage** |
+| **Field Networking & Infrastructure** | Rajant Kinetic Mesh BreadCrumb Nodes, MP2P Wireless Bridges, Starlink Satellite Uplink, Cisco Packet Tracer |
+| **DevOps & Hosting** | Cloudflare Pages, Vercel, GitHub Actions CI/CD, Edge Workers |
+
+---
+
+## 4. Work Experience & STAR Metric-Driven Impact
+
+### 1. Software Engineer — Mindnrobotics (May 2024 – Present)
+- **Shooting Range Target Control System**: **Architected a low-latency WebSockets communication protocol** between a Vue 3 dashboard and ESP32 C++ target microcontrollers over Rajant Mesh & Starlink uplinks, **achieving <15ms end-to-end hit detection latency** in field operations.
+- **MindGPS Fleet Telemetry Tracker**: **Designed a scalable Node.js TCP ingestion engine** to parse raw binary telemetry streams from Teltonika FMC920 GPS devices, **maintaining steady 500+ pkts/sec ingestion into PostgreSQL with 99.9% pipeline uptime**.
+- **CanopyNet Unmanned Ground Vehicle (UGV) Dashboard**: **Engineered an interactive mobile robot fleet dashboard** using Vue 3 and Leaflet.js, integrating ROS 2 telemetry feeds to deliver real-time spatial positioning for autonomous plantation UGVs.
+
+### 2. IT Programmer / Intern — PKT Logistics Group (Aug 2023 – Mar 2024)
+- **Enterprise Security & E-Claim Platform**: **Developed and integrated enterprise internal portals** (Security Access, E-Claim, WMS Vendor API) using Vue.js and Tailwind CSS, **streamlining operational workflows for over 1,000 active employees and logistics partners**.
+
+---
+
+## 5. Tiered Engineering Builds Showcase (18 Production Builds)
+
+### Tier 1: Enterprise & Industrial IoT Systems (Flagship Builds)
+1. **Shooting Range Target System** ([https://mindnrobotics.com/](https://mindnrobotics.com/)): ESP32 microcontrollers + WebSockets + Node.js + Rajant Mesh + Starlink. Sub-15ms hit latency. Pipeline: `Piezo Sensor ➔ ESP32 C++ ➔ WebSockets ➔ Rajant Mesh / Starlink ➔ Node.js ➔ Vue 3 UI`.
+2. **MindGPS Telemetry Tracker** ([https://gps.mindnrobotics.com/](https://gps.mindnrobotics.com/)): Teltonika FMC920 GPS + TCP Raw Sockets + Node.js + PostgreSQL. 500+ pkts/sec ingestion. Pipeline: `Teltonika FMC920 ➔ TCP Raw Socket ➔ Byte Parser ➔ Worker Ingestion ➔ PostgreSQL ➔ Leaflet GIS`.
+3. **CanopyNet UGV Dashboard** ([https://canopynet.mindnrobotics.com/](https://canopynet.mindnrobotics.com/)): Vue 3 + Leaflet + ROS + Field UGV tracking. Pipeline: `UGV Hardware Sensors ➔ ROS Robot Engine ➔ WebSocket Bridge ➔ Vue 3 + Leaflet GIS`.
+4. **PKT Security & E-Claim Portal** ([https://hazman.dev/eclaim](https://hazman.dev/eclaim)): Vue.js + Tailwind + WMS API + CCTV Access Controls. Streamlined workflows for 1,000+ users.
+
+### Tier 2: Full-Stack Web Applications
+5. **Interactive Org Chart Builder** ([https://hazman.dev/org-demo](https://hazman.dev/org-demo)): Vue 3 + TypeScript + D3 Org Chart + Cloudflare D1. Drag-and-drop hierarchy builder.
+6. **MediSaaS Clinic System** ([https://demo-clinic-management-system.vercel.app/](https://demo-clinic-management-system.vercel.app/)): Vue.js + Tailwind + Vercel multi-doctor queue system.
+7. **Tasmik Progress Management System** ([http://[2001:f40:935:99c:6806:fc47:e2f3:97e7]:5175](http://[2001:f40:935:99c:6806:fc47:e2f3:97e7]:5175)): Student progress tracker + Supabase.
+8. **Restaurant POS System** ([https://demo-restaurant-ordering-system.vercel.app/](https://demo-restaurant-ordering-system.vercel.app/)): Vue.js + Firebase POS.
+9. **SmashPoint Badminton Booking** ([https://smashpoint.vercel.app/](https://smashpoint.vercel.app/)): React + Firebase court reservation app.
+10. **QR Memories** ([https://qrmemories.pages.dev/login](https://qrmemories.pages.dev/login)): Digital memory lane photo scanner app.
+
+### Tier 3: Tools & Micro-Apps
+11. **EZQRCode Manager** ([https://ezqrcode.pages.dev/](https://ezqrcode.pages.dev/)): Dynamic QR generator + Vite + Tailwind.
+12. **EZresit Receipt Manager** ([https://ezresit.pages.dev/](https://ezresit.pages.dev/)): Serverless receipt manager + Nuxt + Cloudflare Pages.
+13. **Confession Bot** ([https://confess-bot.pages.dev/](https://confess-bot.pages.dev/)): Discord.js + Node.js anonymous message bot.
+14. **TravThru Premium Chauffeur** ([https://www.travthru.com/](https://www.travthru.com/)): Production client website with SEO optimization.
+15. **Birthday Wish Creator** ([https://hazman.dev/birthday/create](https://hazman.dev/birthday/create)): Multi-user wish generator + Supabase.
+16. **Global Photo Collection** ([https://hazman.dev/photocollection](https://hazman.dev/photocollection)): Travel photo showcase + Cloudflare R2.
+17. **WiFi QR Code Generator** ([https://hazman.dev/wifi-qr](https://hazman.dev/wifi-qr)): Instant printable Wi-Fi QR generator tool.
+18. **Social Copywriting Generator** ([https://hazman.dev/caption](https://hazman.dev/caption)): Interactive caption copy assistant tool.
+
+---
+
+## 6. Portfolio v2 Full Page Content Walkthrough (Tab by Tab: #story to #contact)
+
+### Tab 1: `#story` — Hero & Interactive Recruiter CLI
+- **Status Badge**: `Full-Stack & IoT Systems Engineer @ Mindnrobotics` (Status: OPEN FOR OPPORTUNITIES)
+- **Main Display Title**: `Hazman Adanan`
+- **Role Headline**: `Full-Stack & IoT Systems Engineer`
+- **Sub-Headline**: `Connecting Edge Hardware, Real-Time Telemetry & Modern Web Architecture`
+- **Personal Bio Narrative**:
+  > *"I bridge the gap between physical hardware and cloud software. With a formal foundation in both Computer Science (B.Sc.) and Electrical & Electronics Engineering (Dip.), I don't just build UI—I engineer end-to-end telemetry platforms. My work ranges from writing C++ firmware for ESP32 targets and parsing high-frequency TCP streams from vehicle terminals, to building mission-critical Vue 3 dashboards and deploying resilient mesh networks in field environments."*
+- **Core Engineering Capabilities**:
+  - ⚡ `Sub-15ms Real-Time WebSockets`
+  - 📡 `High-Throughput TCP Telemetry`
+  - 🌐 `Industrial Field & Mesh Networks`
+- **Recruiter Interactive CLI Console (`IoTConsoleWidget.vue`)**:
+  - Live bash terminal displaying interactive welcoming messages and quick recruiter query buttons:
+    - `👋 Say Hi / Intro`: Displays summary bio and scrolls smooth to `#about`.
+    - `🚀 View Top Builds`: Displays Tier 1 IoT builds and scrolls smooth to `#works`.
+    - `📄 Download Resume`: Triggers direct download of `Hazman_Adanan_Software_IoT_Engineer_Resume.pdf`.
+    - `⚡ Live Raw Packet Decoder`: Launches live simulated ESP32 target hit & Teltonika raw hex TCP packet stream.
+- **Call-to-Action Buttons**:
+  - Primary: `Explore All 18 Works` (scrolls smooth to `#works`)
+  - Secondary: `Download Resume PDF` (downloads `Hazman_Adanan_Software_IoT_Engineer_Resume.pdf`)
+
+### Tab 2: `#about` — Software Engineer & IoT Practitioner
+- **Header Title**: `Software Engineer & IoT Practitioner`
+- **Hybrid Advantage Highlight Box**: *"Software & IoT Engineer with a rare hybrid background: CS Degree (UMT, Dean's List) + E&E Engineering Diploma (PIS). Specialized in building mission-critical full-stack applications that interface directly with field hardware, telemetry protocols, and edge networks."*
+- **4-Column Skill Matrix Grid**:
+  1. *Frontend & UI*: Vue 3, Composition API, React.js, Nuxt.js, Vite, Tailwind CSS, TypeScript, HTML5/CSS3.
+  2. *Backend & Microservices*: Node.js, Express.js TCP Servers, Hono v4 (Cloudflare Edge Workers), REST APIs, WebSockets, Embedded C++.
+  3. *IoT & Protocols*: TCP/IP Raw Sockets, WebSockets, MQTT, Serial/UART, RS485, ESP32, Teltonika FMC920, Rajant Mesh, Starlink.
+  4. *Databases & Cloud*: Relational (PostgreSQL, Cloudflare D1), BaaS/Doc (Supabase, Firebase Firestore), Cloudflare R2, Vercel.
+
+### Tab 3: `#experience` — Career History & Academic Journey
+- **Header Title**: `Experience & Education Journey`
+- **Career Timeline (STAR Method Bullet Points)**:
+  - **Software Engineer — Mindnrobotics** (May 2024 – Present):
+    - **Architected low-latency WebSockets communication protocol** between Vue 3 and ESP32 C++ target controllers over Rajant Mesh/Starlink (<15ms latency).
+    - **Designed scalable Node.js TCP ingestion engine** parsing Teltonika FMC920 GPS packets into PostgreSQL (500+ pkts/sec).
+    - **Engineered interactive mobile robot fleet dashboard** using Vue 3, Leaflet.js, and ROS 2 telemetry feeds for autonomous plantation UGVs.
+  - **IT Programmer / IT Security Intern — PKT Logistics Group** (Aug 2023 – Mar 2024):
+    - **Developed & integrated enterprise internal portals** (Security Access, E-Claim, WMS Vendor API) using Vue.js & Tailwind CSS (streamlining workflows for 1,000+ users).
+- **Academic Honors Grid**: UMT CS Degree (Dean's List Semesters 2, 3, 4) & PIS E&E Diploma.
+
+### Tab 4: `#hardware` — Engineering Workbench & Field Gear
+- **Header Title**: `Engineering Workbench & Field Gear`
+- **4 Physical Hardware Cards**:
+  1. 🛠️ **ESP32 Shooting Range Targets**: Custom C++ target firmware with piezo hit sensors (<15ms latency).
+  2. 🚗 **Teltonika FMC920 Telemetry**: Industrial 4G vehicle tracking terminal connected to Node.js TCP server & PostgreSQL.
+  3. 📡 **Rajant Mesh & Starlink Uplink**: Kinetic Mesh BreadCrumb nodes, MP2P wireless bridges, and Starlink satellite backhaul.
+  4. 💻 **Full-Stack & Cloud Workstation**: Vue 3 SPA + Vite + Tailwind CSS + TypeScript + Hono v4 on Cloudflare Workers & D1 SQLite.
+
+### Tab 5: `#works` — All Projects & Engineering Builds
+- **Header Title**: `All Projects & Engineering Builds` (Showcase of 18 builds)
+- **Tier Filter Tabs**: `All Builds (18)`, `Tier 1: Enterprise & IoT Systems (4)`, `Tier 2: Full-Stack Web Apps (6)`, `Tier 3: Tools & Micro-Apps (8)`.
+- **Project Cards & Lightbox Modal**: Each card features a browser top-bar visual with traffic dots, real high-res project screenshot, live URL link, tech tags, and click-to-open **Project Detail Lightbox Modal** displaying visual system architecture flowcharts.
+
+### Tab 6: `#writing` — Notes & Technical Thoughts
+- **Header Title**: `Notes & Technical Thoughts`
+- **Content**: Technical reflections on embedded IoT architectures, full-stack state management, network protocol optimization, and continuous learning experiences.
+
+### Tab 7: `#contact` — Get In Touch
+- **Header Title**: `Get In Touch / Contact Hazman`
+- **Interactive Contact Form**: Inputs for Name, Email, Subject, and Message with focus rings and feedback toast.
+- **Direct Contact Info**:
+  - Email: `hazmanadanan@gmail.com`
+  - GitHub: `https://github.com/hazman5540`
+  - LinkedIn: `https://linkedin.com/in/hazman-adanan`
+- **Live Visitor Counter**: Real-time visitor counter badge displaying total visits recorded via Cloudflare Worker API & localStorage fallback.
+
+---
+
+## 7. System Verification & Quality Compliance
+
+- **Production Build Pipeline**: Verified with Vite production build (`npm run build`) — `✓ 1218 modules transformed` in ~7s with zero compilation errors.
+- **Accessibility & Contrast**: Complies with WCAG AA contrast standards (>4.5:1 ratio across all light & dark themes).
+- **Keyboard Navigation**: Implements `.focus-ring` focus indicators on all interactive buttons, inputs, and dropdown selectors.
+
+---
+
+## 8. Complete Official Resume Transcript (Hazman_Adanan_Software_IoT_Engineer_Resume.pdf)
+
+### Executive Summary
+Motivated Full-Stack & IoT Systems Engineer holding a Bachelor of Computer Science (Maritime Informatics) from UMT and a Diploma in Electrical & Electronics Engineering from PIS. Proven track record in developing full-stack web applications (Vue.js, React, Node.js, Tailwind CSS), embedded target controllers (ESP32 C++ firmware), vehicle telemetry trackers (Teltonika FMC920 TCP ingestion + PostgreSQL), and industrial field network infrastructures (Rajant Kinetic Mesh + Starlink satellite uplinks). Fast learner with strong analytical skills, adept at building scalable full-stack solutions and field-ready IoT systems.
+
+### Education Background
+1. **Bachelor of Computer Science with Maritime Informatics**
+   - *Institution*: Universiti Malaysia Terengganu (UMT)
+   - *Period*: 2019 – 2024
+   - *Honors*: Dean's List (Semesters 2, 3, and 4)
+   - *Final Year Project*: Misz Home Appointment System — Comprehensive online booking & queue management portal.
+
+2. **Diploma in Electrical & Electronics Engineering**
+   - *Institution*: Politeknik Ibrahim Sultan (PIS)
+   - *Period*: 2015 – 2018
+   - *Focus*: Embedded Systems, Circuit Logic, Microcontrollers, Industrial Electronics.
+
+### Detailed Professional Experience
+
+#### 1. Software Engineer — Mindnrobotics (May 2024 – Present)
+- **Shooting Range Target Control System**: Architected a low-latency WebSockets communication protocol between a Vue 3 dashboard and ESP32 C++ target microcontrollers over Rajant Mesh & Starlink uplinks, achieving <15ms end-to-end hit detection latency in field operations.
+- **MindGPS Telemetry Tracking Platform**: Designed a scalable Node.js TCP ingestion engine to parse raw binary telemetry streams from Teltonika FMC920 GPS devices, maintaining steady 500+ pkts/sec ingestion into PostgreSQL with 99.9% pipeline uptime.
+- **CanopyNet UGV Dashboard**: Engineered an interactive mobile robot fleet dashboard using Vue 3 and Leaflet.js, integrating ROS 2 telemetry feeds to deliver real-time spatial positioning for autonomous plantation UGVs.
+
+#### 2. IT Programmer / IT Security Intern — PKT Logistics Group (Aug 2023 – Mar 2024)
+- **Enterprise Security & E-Claim Platform**: Developed and integrated enterprise internal portals (Security Access, E-Claim, WMS Vendor API) using Vue.js and Tailwind CSS, streamlining operational workflows for over 1,000 active employees and logistics partners.
+
+### Technical & Soft Skills Breakdown
+- **Programming Languages**: JavaScript (ES6+), TypeScript, C++, HTML5, CSS3, SQL.
+- **Frameworks & Libraries**: Vue 3 (Composition API), React.js, Nuxt.js, Vite, Tailwind CSS, Express.js, Hono v4.
+- **Embedded & IoT Hardware**: ESP32 WROOM-32, Teltonika FMC920, Piezo Sensors, MP2P Wireless Bridges, Rajant Mesh, Starlink.
+- **Telemetry Protocols**: TCP/IP Raw Sockets, WebSockets, MQTT, Serial/UART, RS485.
+- **Databases & Serverless**: PostgreSQL, Cloudflare D1 (SQLite), Supabase, Firebase Firestore, Cloudflare R2, Vercel.
+- **Tools & Utilities**: Git, VS Code, Postman, Cisco Packet Tracer, Figma, Node Package Manager (npm).
+- **Languages**: Bahasa Melayu (Native), English (Professional Working Proficiency).
+
+### Professional References
+- Available upon request. Contact: [hazmanadanan@gmail.com](mailto:hazmanadanan@gmail.com)

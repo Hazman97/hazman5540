@@ -32,6 +32,7 @@ export interface LeaveRequest {
   end_date: string
   reason: string | null
   status: 'pending' | 'approved' | 'rejected'
+  attachment_url?: string | null
   created_at: string
 }
 

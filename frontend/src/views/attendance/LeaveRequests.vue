@@ -61,30 +61,30 @@
                 class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border border-slate-100 dark:border-white/5 font-bold"
                 :class="{
                   'bg-blue-100 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400':
-                    req.type === 'MC',
+                    req.leave_type === 'MC',
                   'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400':
-                    req.type === 'AL',
+                    req.leave_type === 'AL',
                   'bg-orange-100 text-orange-600 dark:bg-orange-500/10 dark:text-orange-400':
-                    req.type === 'EL',
+                    req.leave_type === 'EL',
                 }"
               >
-                {{ req.type }}
+                {{ req.leave_type }}
               </div>
               <div>
                 <h3 class="text-slate-900 dark:text-white font-bold text-lg">
-                  {{ req.studentName }}
+                  {{ req.student_name }}
                 </h3>
                 <p class="text-indigo-600 dark:text-indigo-300 font-medium">
-                  {{ formatDate(req.startDate) }} -
-                  {{ formatDate(req.endDate) }}
+                  {{ formatDate(req.start_date) }} -
+                  {{ formatDate(req.end_date) }}
                 </p>
                 <p class="text-slate-600 dark:text-white/60 mt-1 max-w-xl">
                   {{ req.reason }}
                 </p>
 
-                <div v-if="req.attachmentUrl" class="mt-3">
+                <div v-if="req.attachment_url" class="mt-3">
                   <a
-                    :href="req.attachmentUrl"
+                    :href="req.attachment_url"
                     target="_blank"
                     class="text-xs flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline"
                   >

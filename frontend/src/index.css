@@ -5,14 +5,16 @@
 @tailwind utilities;
 
 @layer base {
-  body {
+  html, body {
     @apply bg-white dark:bg-primary text-slate-800 dark:text-text font-sans transition-colors duration-300;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+  }
+  section {
+    scroll-margin-top: 100px;
   }
   h1, h2, h3, h4, h5, h6 {
     @apply dark:text-heading font-bold;
-  }
-  html {
-    scroll-behavior: smooth;
   }
 }
 

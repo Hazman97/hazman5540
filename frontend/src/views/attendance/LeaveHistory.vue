@@ -97,18 +97,18 @@
               class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border border-slate-100 dark:border-white/5"
               :class="{
                 'bg-blue-100 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400':
-                  app.type === 'MC',
+                  app.leave_type === 'MC',
                 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400':
-                  app.type === 'AL',
+                  app.leave_type === 'AL',
                 'bg-orange-100 text-orange-600 dark:bg-orange-500/10 dark:text-orange-400':
-                  app.type === 'EL',
+                  app.leave_type === 'EL',
               }"
             >
-              <span class="font-bold text-sm">{{ app.type }}</span>
+              <span class="font-bold text-sm">{{ app.leave_type }}</span>
             </div>
             <div>
               <p class="text-slate-900 dark:text-white font-medium">
-                {{ formatDate(app.startDate) }} - {{ formatDate(app.endDate) }}
+                {{ formatDate(app.start_date) }} - {{ formatDate(app.end_date) }}
               </p>
               <p
                 class="text-slate-500 dark:text-white/40 text-sm truncate max-w-[200px]"
@@ -123,8 +123,8 @@
           >
             <!-- Attachment Link -->
             <a
-              v-if="app.attachmentUrl"
-              :href="app.attachmentUrl"
+              v-if="app.attachment_url"
+              :href="app.attachment_url"
               target="_blank"
               class="p-2 text-slate-400 hover:text-slate-600 dark:text-white/40 dark:hover:text-white transition-colors"
               title="View Attachment"

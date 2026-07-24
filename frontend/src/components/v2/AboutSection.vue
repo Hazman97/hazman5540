@@ -9,121 +9,95 @@
       <h2 class="text-3xl sm:text-5xl font-serif text-[#B5502F] dark:text-[#E8C976] tracking-wide mb-3">
         Software Engineer & <span class="italic text-[#2A2421] dark:text-[#F5F0E8]">IoT Practitioner</span>
       </h2>
-      <p class="text-[#6E655F] dark:text-[#8A8A8A] text-sm sm:text-base font-sans max-w-xl mx-auto">
-        Combining Computer Science degree & Electrical Electronics diploma background.
+      <p class="text-[#6E655F] dark:text-[#8A8A8A] text-sm sm:text-base font-sans max-w-2xl mx-auto">
+        Bridging Computer Science (UMT) & Electrical & Electronics Engineering (PIS) backgrounds.
       </p>
       <WavyDivider />
     </div>
 
-    <!-- Main Grid: Avatar + Bio + Stats -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center mb-16">
-      <!-- Left: Profile Image Card (5 cols) -->
-      <div class="lg:col-span-5 flex justify-center">
-        <div class="relative group">
-          <!-- Outer Gold/Terracotta Glow Ring -->
-          <div class="absolute -inset-2 bg-gradient-to-tr from-[#B5502F] via-[#E8C976] to-[#B5502F] dark:from-[#E8C976] dark:via-[#B5502F] dark:to-[#E8C976] rounded-3xl blur-md opacity-40 group-hover:opacity-75 transition-opacity duration-500"></div>
-
-          <!-- Image Container -->
-          <div class="relative w-64 h-72 sm:w-72 sm:h-80 rounded-2xl overflow-hidden bg-white dark:bg-[#141414] border-2 border-[#E6E0D4] dark:border-[#2A2A2A] shadow-2xl p-2">
-            <img 
-              src="/logo.png" 
-              alt="Hazman Profile Logo" 
-              class="w-full h-full object-cover rounded-xl bg-[#FAF7F2] dark:bg-[#0F0F0F]"
-              @error="(e) => (e.target as HTMLImageElement).src = 'https://ui-avatars.com/api/?name=Hazman+Adanan&background=1A1A1A&color=E8C976&size=300'"
-            />
-          </div>
-
-          <!-- Floating Badges -->
-          <div class="absolute -top-4 -right-4 bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] text-[#B5502F] dark:text-[#E8C976] p-2.5 rounded-xl shadow-xl transform rotate-6 group-hover:rotate-0 transition-transform">
-            <span class="text-xl">⚙️</span>
-          </div>
-          <div class="absolute -bottom-3 -left-3 bg-[#B5502F] dark:bg-[#E8C976] text-white dark:text-[#0F0F0F] px-3 py-1 rounded-full text-xs font-mono font-bold tracking-wider shadow-lg transform -rotate-3 group-hover:rotate-0 transition-transform">
-            MINDNROBOTICS
-          </div>
-        </div>
-      </div>
-
-      <!-- Right: Detailed Bio & Core Expertise (7 cols) -->
-      <div class="lg:col-span-7 space-y-6">
-        <div class="bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] p-6 sm:p-8 rounded-2xl shadow-xl leading-relaxed space-y-4">
-          <p class="text-[#2A2421] dark:text-[#F5F0E8] text-base sm:text-lg font-sans">
-            I work as a 
-            <span class="inline-block border-2 border-[#B5502F]/80 dark:border-[#E8C976]/80 bg-[#B5502F]/10 dark:bg-[#E8C976]/10 px-2 py-0.5 rounded text-[#B5502F] dark:text-[#E8C976] font-medium my-0.5 shadow-sm">Software Engineer at Mindnrobotics</span> 
-            developing embedded control systems & full-stack web platforms.
+    <!-- Hybrid Bio Highlight Callout Box -->
+    <div class="mb-12 p-6 sm:p-8 rounded-2xl bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] shadow-xl relative z-10">
+      <div class="flex items-start gap-4">
+        <span class="text-3xl shrink-0">⚡</span>
+        <div class="space-y-3 font-sans">
+          <h3 class="text-xl font-serif font-bold text-[#B5502F] dark:text-[#E8C976]">
+            The Hybrid Advantage: Computer Science + Electrical Engineering
+          </h3>
+          <p class="text-sm sm:text-base text-[#2A2421] dark:text-[#F5F0E8] leading-relaxed font-normal">
+            Software & IoT Engineer with a rare hybrid background: <span class="font-semibold text-[#B5502F] dark:text-[#E8C976]">CS Degree (UMT, Dean's List) + E&E Engineering Diploma (PIS)</span>. Specialized in building mission-critical full-stack applications that interface directly with field hardware, telemetry protocols, and edge networks.
           </p>
-          <p class="text-[#6E655F] dark:text-[#8A8A8A] text-sm sm:text-base font-sans leading-relaxed">
-            With a <b class="text-[#2A2421] dark:text-[#F5F0E8]">Bachelor of Computer Science with Maritime Informatics</b> (UMT) and a <b class="text-[#2A2421] dark:text-[#F5F0E8]">Diploma in Electrical & Electronic Engineering</b> (Politeknik Ibrahim Sultan), I possess a unique dual foundation in software architecture and hardware circuits.
-          </p>
-          <p class="text-[#6E655F] dark:text-[#8A8A8A] text-sm sm:text-base font-sans leading-relaxed">
-            My daily work involves programming <span class="text-[#B5502F] dark:text-[#E8C976] font-semibold">ESP32 microcontrollers in C/C++</span>, constructing Node.js & Vue.js web dashboards, managing Teltonika FMC920 vehicle telemetry pipelines, and deploying field networks with Rajant Mesh & Starlink.
-          </p>
-        </div>
-
-        <!-- Quick Stats Grid -->
-        <div class="grid grid-cols-3 gap-4">
-          <div class="bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] p-4 rounded-xl text-center group hover:border-[#B5502F]/50 dark:hover:border-[#E8C976]/50 transition-colors shadow-sm">
-            <div class="text-2xl sm:text-3xl font-serif font-bold text-[#B5502F] dark:text-[#E8C976]">2+</div>
-            <div class="text-[11px] font-mono text-[#6E655F] dark:text-[#8A8A8A] uppercase tracking-wider mt-1">Years Exp</div>
-          </div>
-          <div class="bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] p-4 rounded-xl text-center group hover:border-[#B5502F]/50 dark:hover:border-[#E8C976]/50 transition-colors shadow-sm">
-            <div class="text-2xl sm:text-3xl font-serif font-bold text-[#B5502F] dark:text-[#E8C976]">3x</div>
-            <div class="text-[11px] font-mono text-[#6E655F] dark:text-[#8A8A8A] uppercase tracking-wider mt-1">Dean's List</div>
-          </div>
-          <div class="bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] p-4 rounded-xl text-center group hover:border-[#B5502F]/50 dark:hover:border-[#E8C976]/50 transition-colors shadow-sm">
-            <div class="text-2xl sm:text-3xl font-serif font-bold text-[#B5502F] dark:text-[#E8C976]">IoT</div>
-            <div class="text-[11px] font-mono text-[#6E655F] dark:text-[#8A8A8A] uppercase tracking-wider mt-1">Specialist</div>
-          </div>
         </div>
       </div>
     </div>
 
-    <!-- Technical Skills Breakdown -->
-    <div class="mt-16 pt-12 border-t border-[#E6E0D4] dark:border-[#2A2A2A]">
-      <div class="mb-8">
-        <h3 class="text-xl sm:text-2xl font-serif text-[#B5502F] dark:text-[#E8C976] mb-2">Technical Skills & Technologies</h3>
-        <p class="text-[#6E655F] dark:text-[#8A8A8A] text-xs sm:text-sm font-sans">Full skill matrix from software engineering to hardware & networking.</p>
+    <!-- 4-Column Technical Matrix with Explicit Protocols & Database Paradigms -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
+      <!-- Col 1: Frontend & UI -->
+      <div class="bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] p-6 rounded-2xl shadow-lg hover:border-[#B5502F]/40 dark:hover:border-[#E8C976]/40 transition-colors">
+        <div class="w-10 h-10 rounded-xl bg-[#B5502F]/10 dark:bg-[#E8C976]/10 text-[#B5502F] dark:text-[#E8C976] flex items-center justify-center font-bold mb-4 text-lg">
+          💻
+        </div>
+        <h3 class="font-serif font-bold text-lg text-[#2A2421] dark:text-[#F5F0E8] mb-3">
+          Frontend & UI
+        </h3>
+        <ul class="text-xs sm:text-sm font-sans text-[#6E655F] dark:text-[#8A8A8A] space-y-2">
+          <li>• Vue 3 (Composition API / Script Setup)</li>
+          <li>• React.js & Nuxt.js</li>
+          <li>• Vite & TypeScript</li>
+          <li>• Tailwind CSS & Design Tokens</li>
+          <li>• Responsive UI & Accessibility (WCAG AA)</li>
+        </ul>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <!-- Programming & Web -->
-        <div class="bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] p-5 rounded-xl hover:border-[#B5502F]/30 dark:hover:border-[#E8C976]/30 transition-colors shadow-sm">
-          <div class="text-xs font-mono text-[#B5502F] dark:text-[#E8C976] uppercase tracking-widest mb-3">// Web & Languages</div>
-          <div class="flex flex-wrap gap-2">
-            <span v-for="t in ['Vue.js', 'TypeScript', 'Tailwind', 'Node.js', 'PHP', 'Python', 'C/C++', 'Java']" :key="t" class="px-2.5 py-1 text-xs font-mono bg-[#F0EBE1] dark:bg-[#242424] text-[#2A2421]/90 dark:text-[#F5F0E8]/80 border border-[#E6E0D4] dark:border-[#2D2D2D] rounded-md">
-              {{ t }}
-            </span>
-          </div>
+      <!-- Col 2: Backend & Microservices -->
+      <div class="bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] p-6 rounded-2xl shadow-lg hover:border-[#B5502F]/40 dark:hover:border-[#E8C976]/40 transition-colors">
+        <div class="w-10 h-10 rounded-xl bg-[#27C93F]/10 text-[#27C93F] flex items-center justify-center font-bold mb-4 text-lg">
+          ⚙️
         </div>
+        <h3 class="font-serif font-bold text-lg text-[#2A2421] dark:text-[#F5F0E8] mb-3">
+          Backend & Microservices
+        </h3>
+        <ul class="text-xs sm:text-sm font-sans text-[#6E655F] dark:text-[#8A8A8A] space-y-2">
+          <li>• Node.js & Express.js TCP Servers</li>
+          <li>• Hono v4 (Cloudflare Edge Workers)</li>
+          <li>• RESTful API Design & Open API Specs</li>
+          <li>• Embedded C++ MCU Target Control</li>
+          <li>• Node Worker Pools & High Throughput</li>
+        </ul>
+      </div>
 
-        <!-- Databases & Cloud -->
-        <div class="bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] p-5 rounded-xl hover:border-[#B5502F]/30 dark:hover:border-[#E8C976]/30 transition-colors shadow-sm">
-          <div class="text-xs font-mono text-[#B5502F] dark:text-[#E8C976] uppercase tracking-widest mb-3">// Backend & Cloud</div>
-          <div class="flex flex-wrap gap-2">
-            <span v-for="t in ['PostgreSQL', 'Cloudflare D1', 'Firebase', 'Supabase', 'REST APIs', 'phpMyAdmin']" :key="t" class="px-2.5 py-1 text-xs font-mono bg-[#F0EBE1] dark:bg-[#242424] text-[#2A2421]/90 dark:text-[#F5F0E8]/80 border border-[#E6E0D4] dark:border-[#2D2D2D] rounded-md">
-              {{ t }}
-            </span>
-          </div>
+      <!-- Col 3: Hardware & Telemetry Protocols -->
+      <div class="bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] p-6 rounded-2xl shadow-lg hover:border-[#B5502F]/40 dark:hover:border-[#E8C976]/40 transition-colors">
+        <div class="w-10 h-10 rounded-xl bg-[#64FFDA]/10 text-[#64FFDA] flex items-center justify-center font-bold mb-4 text-lg">
+          📡
         </div>
+        <h3 class="font-serif font-bold text-lg text-[#2A2421] dark:text-[#F5F0E8] mb-3">
+          IoT & Protocols
+        </h3>
+        <ul class="text-xs sm:text-sm font-sans text-[#6E655F] dark:text-[#8A8A8A] space-y-2">
+          <li>• <strong class="text-[#2A2421] dark:text-[#F5F0E8]">TCP/IP Raw Sockets</strong></li>
+          <li>• <strong class="text-[#2A2421] dark:text-[#F5F0E8]">WebSockets & MQTT</strong></li>
+          <li>• ESP32 WROOM-32 & Piezo Sensors</li>
+          <li>• Teltonika FMC920 Telemetry</li>
+          <li>• Rajant Kinetic Mesh & Starlink</li>
+        </ul>
+      </div>
 
-        <!-- IoT & Robotics -->
-        <div class="bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] p-5 rounded-xl hover:border-[#B5502F]/30 dark:hover:border-[#E8C976]/30 transition-colors shadow-sm">
-          <div class="text-xs font-mono text-[#B5502F] dark:text-[#E8C976] uppercase tracking-widest mb-3">// IoT & Embedded</div>
-          <div class="flex flex-wrap gap-2">
-            <span v-for="t in ['ESP32 Targets', 'Teltonika FMC920', 'Rajant Mesh', 'Starlink', 'MP2P Links', 'PLC Automation']" :key="t" class="px-2.5 py-1 text-xs font-mono bg-[#F0EBE1] dark:bg-[#242424] text-[#2A2421]/90 dark:text-[#F5F0E8]/80 border border-[#E6E0D4] dark:border-[#2D2D2D] rounded-md">
-              {{ t }}
-            </span>
-          </div>
+      <!-- Col 4: Database & Cloud Paradigms -->
+      <div class="bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] p-6 rounded-2xl shadow-lg hover:border-[#B5502F]/40 dark:hover:border-[#E8C976]/40 transition-colors">
+        <div class="w-10 h-10 rounded-xl bg-[#B5502F]/10 dark:bg-[#E8C976]/10 text-[#B5502F] dark:text-[#E8C976] flex items-center justify-center font-bold mb-4 text-lg">
+          🗄️
         </div>
-
-        <!-- Networking & Hardware -->
-        <div class="bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] p-5 rounded-xl hover:border-[#B5502F]/30 dark:hover:border-[#E8C976]/30 transition-colors shadow-sm">
-          <div class="text-xs font-mono text-[#B5502F] dark:text-[#E8C976] uppercase tracking-widest mb-3">// Net & Hardware</div>
-          <div class="flex flex-wrap gap-2">
-            <span v-for="t in ['Cisco Packet Tracer', 'CCTV & Access Control', 'Circuit Analysis', 'Hardware Repair', 'OS Troubleshooting']" :key="t" class="px-2.5 py-1 text-xs font-mono bg-[#F0EBE1] dark:bg-[#242424] text-[#2A2421]/90 dark:text-[#F5F0E8]/80 border border-[#E6E0D4] dark:border-[#2D2D2D] rounded-md">
-              {{ t }}
-            </span>
-          </div>
-        </div>
+        <h3 class="font-serif font-bold text-lg text-[#2A2421] dark:text-[#F5F0E8] mb-3">
+          Databases & Cloud
+        </h3>
+        <ul class="text-xs sm:text-sm font-sans text-[#6E655F] dark:text-[#8A8A8A] space-y-2">
+          <li>• <strong class="text-[#2A2421] dark:text-[#F5F0E8]">Relational</strong>: PostgreSQL, Cloudflare D1</li>
+          <li>• <strong class="text-[#2A2421] dark:text-[#F5F0E8]">BaaS/Doc</strong>: Supabase, Firebase</li>
+          <li>• Cloudflare R2 Media Storage</li>
+          <li>• Cloudflare Pages & Vercel Edge</li>
+          <li>• Git & GitHub Actions CI/CD</li>
+        </ul>
       </div>
     </div>
   </section>

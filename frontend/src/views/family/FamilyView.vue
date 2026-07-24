@@ -782,7 +782,6 @@ import {
   query,
   orderBy,
   getDoc,
-  setDoc,
 } from "firebase/firestore";
 
 // State

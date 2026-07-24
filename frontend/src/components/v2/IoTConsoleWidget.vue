@@ -1,104 +1,115 @@
 <template>
-  <div class="w-full bg-[#141414] dark:bg-[#141414] bg-[#1E1B18] border border-[#2A2A2A] dark:border-[#2A2A2A] border-[#3D352E] rounded-2xl shadow-2xl overflow-hidden font-mono text-xs text-[#F5F0E8] my-8">
-    <!-- Console Header Bar -->
-    <div class="flex items-center justify-between px-4 py-3 bg-[#1D1D1D] dark:bg-[#1D1D1D] bg-[#292420] border-b border-[#2A2A2A] dark:border-[#2A2A2A] border-[#3D352E]">
+  <div class="w-full bg-[#141414] border border-[#E6E0D4] dark:border-[#2A2A2A] rounded-2xl shadow-2xl overflow-hidden font-mono text-xs text-[#F5F0E8] my-8 transition-colors">
+    <!-- Terminal Window Top Bar -->
+    <div class="flex items-center justify-between px-4 py-3 bg-[#1D1D1D] border-b border-[#2A2A2A]">
       <div class="flex items-center gap-2">
         <span class="w-3 h-3 rounded-full bg-[#FF5F56] inline-block"></span>
         <span class="w-3 h-3 rounded-full bg-[#FFBD2E] inline-block"></span>
         <span class="w-3 h-3 rounded-full bg-[#27C93F] inline-block"></span>
-        <span class="ml-2 text-[11px] text-[#8A8A8A] dark:text-[#8A8A8A] text-[#A89F95] font-semibold">hazman-iot-telemetry-console ~ bash</span>
+        <span class="ml-2 text-[11px] text-[#8A8A8A] font-semibold">hazman-recruiter-cli ~ bash v2.6</span>
       </div>
-      <div class="flex items-center gap-2 text-[10px] text-[#E8C976] dark:text-[#E8C976] text-[#F3D78A]">
-        <span class="w-2 h-2 rounded-full bg-[#27C93F] animate-ping"></span>
-        <span>SYSTEM LIVE</span>
-      </div>
-    </div>
-
-    <!-- Live Log Feed Output Area -->
-    <div ref="logContainer" class="p-4 sm:p-5 h-48 sm:h-56 overflow-y-auto space-y-2 text-[11px] sm:text-xs leading-relaxed bg-[#0F0F0F] dark:bg-[#0F0F0F] bg-[#171412]">
-      <div v-for="(log, i) in logs" :key="i" class="flex items-start gap-2">
-        <span class="text-[#8A8A8A] dark:text-[#8A8A8A] text-[#A89F95] shrink-0">[{{ log.timestamp }}]</span>
-        <span 
-          class="font-semibold shrink-0"
-          :class="{
-            'text-[#E8C976]': log.type === 'esp32',
-            'text-[#27C93F]': log.type === 'gps',
-            'text-[#64FFDA]': log.type === 'mesh',
-            'text-[#FF5F56]': log.type === 'system',
-          }"
-        >
-          [{{ log.tag }}]
-        </span>
-        <span class="text-[#F5F0E8]/90 break-all">{{ log.message }}</span>
+      <div class="flex items-center gap-2 text-[10px] text-[#E8C976]">
+        <span class="w-2 h-2 rounded-full bg-[#27C93F] animate-pulse"></span>
+        <span>OPEN FOR OPPORTUNITIES</span>
       </div>
     </div>
 
-    <!-- Interactive Terminal Controls -->
-    <div class="p-3 bg-[#1A1A1A] dark:bg-[#1A1A1A] bg-[#24201C] border-t border-[#2A2A2A] dark:border-[#2A2A2A] border-[#3D352E] flex flex-wrap items-center justify-between gap-2">
+    <!-- Terminal Display Screen Area -->
+    <div ref="logContainer" class="p-4 sm:p-5 h-72 sm:h-80 overflow-y-auto space-y-1 text-[11px] sm:text-xs leading-relaxed bg-[#0F0F0F] font-mono">
+      <div v-for="(log, i) in logs" :key="i" class="whitespace-pre-wrap break-words">
+        <span :class="log.colorClass || 'text-[#F5F0E8]'">{{ log.message }}</span>
+      </div>
+
+      <!-- Typing Blinking Cursor Indicator -->
+      <div v-if="isTyping" class="inline-block w-2 h-4 bg-[#E8C976] animate-pulse align-middle ml-1"></div>
+    </div>
+
+    <!-- Terminal Prompt Input Line -->
+    <div class="px-4 py-2 bg-[#171717] border-t border-[#262626] flex items-center gap-2 text-xs font-mono">
+      <span class="text-[#27C93F] font-bold">[HAZMAN-CLI ~]$</span>
+      <input
+        v-model="inputCommand"
+        type="text"
+        placeholder="Type command (1-4, 'help', 'clear')..."
+        class="flex-1 bg-transparent text-[#F5F0E8] focus:outline-none font-mono text-xs placeholder-[#6E655F]"
+        :disabled="isTyping"
+        @keydown.enter.prevent="handleCommandSubmit"
+      />
+      <kbd class="hidden sm:inline-block px-2 py-0.5 text-[10px] bg-[#242424] text-[#8A8A8A] rounded border border-[#333333]">
+        ENTER ↵
+      </kbd>
+    </div>
+
+    <!-- Recruiter Interactive Quick Action Buttons -->
+    <div class="p-3 bg-[#1A1A1A] border-t border-[#2A2A2A] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
       <div class="flex flex-wrap items-center gap-2">
+        <!-- Command 1: Tech Stack -->
         <button 
-          @click="triggerPing"
-          class="px-3 py-1.5 rounded-lg bg-[#242424] dark:bg-[#242424] bg-[#2E2823] hover:bg-[#38302A] text-[#E8C976] border border-[#333333] dark:border-[#333333] border-[#4A4037] hover:border-[#E8C976]/40 transition-all text-[11px] flex items-center gap-1.5 cursor-pointer active:scale-95 focus-ring"
+          @click="execTechStack"
+          :disabled="isTyping"
+          class="px-3 py-1.5 rounded-lg bg-[#242424] hover:bg-[#2D2D2D] text-[#E8C976] border border-[#333333] hover:border-[#E8C976]/50 transition-all text-[11px] font-medium flex items-center gap-1.5 cursor-pointer active:scale-95 focus-ring disabled:opacity-50"
         >
-          <span>📡 Ping ESP32 Target</span>
+          <span>🛠️ cat tech-stack.sh</span>
         </button>
 
+        <!-- Command 2: Metrics -->
         <button 
-          @click="triggerGPS"
-          class="px-3 py-1.5 rounded-lg bg-[#242424] dark:bg-[#242424] bg-[#2E2823] hover:bg-[#38302A] text-[#27C93F] border border-[#333333] dark:border-[#333333] border-[#4A4037] hover:border-[#27C93F]/40 transition-all text-[11px] flex items-center gap-1.5 cursor-pointer active:scale-95 focus-ring"
+          @click="execMetrics"
+          :disabled="isTyping"
+          class="px-3 py-1.5 rounded-lg bg-[#242424] hover:bg-[#2D2D2D] text-[#64FFDA] border border-[#333333] hover:border-[#64FFDA]/50 transition-all text-[11px] font-medium flex items-center gap-1.5 cursor-pointer active:scale-95 focus-ring disabled:opacity-50"
         >
-          <span>🚗 Stream Teltonika GPS</span>
+          <span>⚡ ./eval-metrics.sh</span>
         </button>
 
+        <!-- Command 3: Live Telemetry Stream -->
         <button 
-          @click="triggerMesh"
-          class="px-3 py-1.5 rounded-lg bg-[#242424] dark:bg-[#242424] bg-[#2E2823] hover:bg-[#38302A] text-[#64FFDA] border border-[#333333] dark:border-[#333333] border-[#4A4037] hover:border-[#64FFDA]/40 transition-all text-[11px] flex items-center gap-1.5 cursor-pointer active:scale-95 focus-ring"
+          @click="execLiveStream"
+          :disabled="isTyping"
+          class="px-3 py-1.5 rounded-lg bg-[#242424] hover:bg-[#2D2D2D] text-[#27C93F] border border-[#333333] hover:border-[#27C93F]/50 transition-all text-[11px] font-medium flex items-center gap-1.5 cursor-pointer active:scale-95 focus-ring disabled:opacity-50"
         >
-          <span>🌐 Check Rajant Mesh</span>
+          <span>📡 live-stream --telemetry</span>
+        </button>
+
+        <!-- Command 4: Hire & Resume PDF -->
+        <button 
+          @click="execHireContact"
+          :disabled="isTyping"
+          class="px-3 py-1.5 rounded-lg bg-[#242424] hover:bg-[#2D2D2D] text-[#F5F0E8] border border-[#333333] hover:border-[#F5F0E8]/50 transition-all text-[11px] font-medium flex items-center gap-1.5 cursor-pointer active:scale-95 focus-ring disabled:opacity-50"
+        >
+          <span>📄 cat hire-hazman.md</span>
         </button>
       </div>
 
       <button 
-        @click="clearLogs"
-        class="px-2.5 py-1.5 rounded-lg bg-[#242424] dark:bg-[#242424] bg-[#2E2823] hover:bg-[#38302A] text-[#8A8A8A] dark:text-[#8A8A8A] text-[#A89F95] hover:text-[#F5F0E8] transition-colors text-[10px] focus-ring"
+        @click="resetTerminal"
+        class="px-2.5 py-1.5 rounded-lg bg-[#242424] hover:bg-[#2D2D2D] text-[#8A8A8A] hover:text-[#F5F0E8] transition-colors text-[10px] focus-ring self-end sm:self-auto"
       >
-        Clear Console
+        Reset Screen
       </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, nextTick } from 'vue';
+import { ref, onMounted, nextTick } from 'vue';
 
-interface LogEntry {
-  timestamp: string;
-  tag: string;
-  type: 'esp32' | 'gps' | 'mesh' | 'system';
+interface LogLine {
   message: string;
+  colorClass?: string;
 }
 
 const logContainer = ref<HTMLElement | null>(null);
+const inputCommand = ref('');
+const isTyping = ref(false);
 
 const getTime = () => {
   const d = new Date();
-  return d.toTimeString().split(' ')[0] + '.' + Math.floor(d.getMilliseconds() / 100);
+  return d.toTimeString().split(' ')[0];
 };
 
-const logs = ref<LogEntry[]>([
-  { timestamp: getTime(), tag: 'SYSTEM', type: 'system', message: 'Mindnrobotics telemetry engine initialized.' },
-  { timestamp: getTime(), tag: 'ESP32-TARGET-01', type: 'esp32', message: 'Embedded Target MCU connected via WebSocket. Signal: -58dBm.' },
-  { timestamp: getTime(), tag: 'TELTONIKA-FMC920', type: 'gps', message: 'Fleet Vehicle #04 telemetry packet ingested -> Lat: 3.0738° N, Lon: 101.5183° E.' },
-  { timestamp: getTime(), tag: 'RAJANT-MESH', type: 'mesh', message: 'Rajant BreadCrumb node 10.0.4.12 mesh link established (100 Mbps).' },
-]);
+const logs = ref<LogLine[]>([]);
 
-let timer: number;
-
-const addLog = (tag: string, type: 'esp32' | 'gps' | 'mesh' | 'system', message: string) => {
-  logs.value.push({ timestamp: getTime(), tag, type, message });
-  if (logs.value.length > 25) {
-    logs.value.shift();
-  }
+const scrollToBottom = () => {
   nextTick(() => {
     if (logContainer.value) {
       logContainer.value.scrollTop = logContainer.value.scrollHeight;
@@ -106,43 +117,146 @@ const addLog = (tag: string, type: 'esp32' | 'gps' | 'mesh' | 'system', message:
   });
 };
 
-const triggerPing = () => {
-  const targetId = Math.floor(Math.random() * 8) + 1;
-  const latency = Math.floor(Math.random() * 15) + 8;
-  addLog(`ESP32-TARGET-0${targetId}`, 'esp32', `Target hit detected! Latency: ${latency}ms. Relaying hit event to web UI.`);
+const pushLog = (line: LogLine) => {
+  logs.value.push(line);
+  if (logs.value.length > 60) {
+    logs.value.shift();
+  }
+  scrollToBottom();
 };
 
-const triggerGPS = () => {
-  const speed = Math.floor(Math.random() * 40) + 40;
-  const lat = (3.0738 + (Math.random() - 0.5) * 0.01).toFixed(4);
-  const lon = (101.5183 + (Math.random() - 0.5) * 0.01).toFixed(4);
-  addLog('TELTONIKA-FMC920', 'gps', `Vehicle #02 speed: ${speed} km/h | Coords: ${lat}° N, ${lon}° E -> Ingested into PostgreSQL.`);
+// Line-by-line typing queue with dynamic real-time timestamp updating!
+const typeLines = async (linesToType: LogLine[], delayMs = 3000) => {
+  isTyping.value = true;
+  for (const item of linesToType) {
+    const liveTime = getTime();
+    // Update timestamp dynamically for each output line
+    const formattedMsg = item.message.replace(/\[\d{2}:\d{2}:\d{2}\]/g, `[${liveTime}]`);
+    pushLog({
+      ...item,
+      message: formattedMsg
+    });
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
+  }
+  isTyping.value = false;
 };
 
-const triggerMesh = () => {
-  const rssi = Math.floor(Math.random() * 15) - 68;
-  addLog('RAJANT-MESH', 'mesh', `Node 10.0.4.18 RSSI: ${rssi} dBm. Starlink uplink backhaul latency: 28ms.`);
-};
-
-const clearLogs = () => {
+// Initial State: Each menu line appears one by one with a 3.0s delay and LIVE timestamp for each line
+const initInitialState = async () => {
   logs.value = [];
-  addLog('SYSTEM', 'system', 'Console cleared by user.');
+  const menuLines: LogLine[] = [
+    { message: '[00:00:00] [SYSTEM] Hazman Interactive Terminal v2.6 Ready.', colorClass: 'text-[#E8C976] font-semibold' },
+    { message: '[00:00:00] [HAZMAN] Software & IoT Engineer | CS Degree + E&E Diploma', colorClass: 'text-[#64FFDA] font-semibold' },
+    { message: '[00:00:00] [SYSTEM] Type or click a command below to evaluate candidate:\n', colorClass: 'text-[#8A8A8A]' },
+    { message: '  > 1. cat tech-stack.sh      -- View full technical capabilities & protocols', colorClass: 'text-[#E8C976]' },
+    { message: '  > 2. ./eval-metrics.sh      -- Show key production systems & quantified metrics', colorClass: 'text-[#64FFDA]' },
+    { message: '  > 3. live-stream --telemetry-- Simulate real-time ESP32 & FMC920 TCP packet stream', colorClass: 'text-[#27C93F]' },
+    { message: '  > 4. cat hire-hazman.md     -- Direct contact info & download updated resume PDF\n', colorClass: 'text-[#F5F0E8]' },
+  ];
+  await typeLines(menuLines, 3000);
+};
+
+// Command 1: cat tech-stack.sh
+const execTechStack = async () => {
+  if (isTyping.value) return;
+  const lines: LogLine[] = [
+    { message: '\n[HAZMAN-CLI ~]$ cat tech-stack.sh\n', colorClass: 'text-[#27C93F] font-bold' },
+    { message: '[TECH STACK MATRIX]', colorClass: 'text-[#E8C976] font-bold' },
+    { message: '+-------------------+---------------------------------------------------+', colorClass: 'text-[#E8C976]' },
+    { message: '| Domain            | Technologies & Infrastructure                     |', colorClass: 'text-[#E8C976]' },
+    { message: '+-------------------+---------------------------------------------------+', colorClass: 'text-[#E8C976]' },
+    { message: '| Frontend & UI     | Vue 3 (Composition API), React, Vite, Tailwind    |', colorClass: 'text-[#F5F0E8]' },
+    { message: '| Backend & APIs    | Node.js, Express, Hono v4, REST, WebSockets, C++  |', colorClass: 'text-[#F5F0E8]' },
+    { message: '| IoT & Telemetry   | ESP32, Teltonika FMC920, TCP Raw Sockets, ROS 2   |', colorClass: 'text-[#F5F0E8]' },
+    { message: '| Databases & Cloud | PostgreSQL, Cloudflare D1/R2, Supabase, Vercel    |', colorClass: 'text-[#F5F0E8]' },
+    { message: '| Field Networking  | Rajant Kinetic Mesh, MP2P Wireless, Starlink      |', colorClass: 'text-[#F5F0E8]' },
+    { message: '+-------------------+---------------------------------------------------+', colorClass: 'text-[#E8C976]' },
+  ];
+  await typeLines(lines, 100);
+};
+
+// Command 2: ./eval-metrics.sh
+const execMetrics = async () => {
+  if (isTyping.value) return;
+  const lines: LogLine[] = [
+    { message: '\n[HAZMAN-CLI ~]$ ./eval-metrics.sh\n', colorClass: 'text-[#27C93F] font-bold' },
+    { message: '[EXECUTING CORE SYSTEM METRICS EVALUATION...]', colorClass: 'text-[#64FFDA] font-bold' },
+    { message: '[✔] Shooting Range System : WebSockets + ESP32 -> <15ms hit response latency achieved.', colorClass: 'text-[#64FFDA]' },
+    { message: '[✔] MindGPS Telemetry Engine: Node.js TCP -> 500+ pkts/sec ingested into PostgreSQL (99.9% uptime).', colorClass: 'text-[#64FFDA]' },
+    { message: '[✔] CanopyNet Dashboard   : Vue 3 + ROS 2 Telemetry -> Real-time field UGV spatial mapping.', colorClass: 'text-[#64FFDA]' },
+    { message: '[✔] PKT Enterprise Portal : Vue + WMS API -> Onboarded 1,000+ logistics users & vendors.', colorClass: 'text-[#64FFDA]' },
+  ];
+  await typeLines(lines, 200);
+};
+
+// Command 3: live-stream --telemetry
+const execLiveStream = async () => {
+  if (isTyping.value) return;
+  const lines: LogLine[] = [
+    { message: '\n[HAZMAN-CLI ~]$ live-stream --telemetry\n', colorClass: 'text-[#27C93F] font-bold' },
+    { message: '[LIVE SIMULATION: TELTONIKA TCP STREAM + ESP32 TARGET WEBSOCKETS]', colorClass: 'text-[#E8C976] font-bold' },
+    { message: '[00:00:00] [ESP32-TARGET-01]  [WS] Hit detected! Piezo Sensor Signal -> Latency: 12ms [HIT CONFIRMED]', colorClass: 'text-[#27C93F]' },
+    { message: '[00:00:00] [FMC920-GPS-092]  [TCP] Raw Binary Ingested -> 000f422414863492...', colorClass: 'text-[#64FFDA]' },
+    { message: '                             └── Decoded: Lat 3.0729° N, Lon 101.5194° E | Speed: 46 km/h | Satellites: 14', colorClass: 'text-[#8A8A8A]' },
+    { message: '[00:00:00] [SYSTEM] Pipeline Status: 524 pkts/sec | DB Ingestion: OK | Socket Connections: Active', colorClass: 'text-[#E8C976]' },
+  ];
+  await typeLines(lines, 300);
+};
+
+// Command 4: cat hire-hazman.md
+const execHireContact = async () => {
+  if (isTyping.value) return;
+  const lines: LogLine[] = [
+    { message: '\n[HAZMAN-CLI ~]$ cat hire-hazman.md\n', colorClass: 'text-[#27C93F] font-bold' },
+    { message: '[CANDIDATE CONTACT DETAILS]', colorClass: 'text-[#F5F0E8] font-bold' },
+    { message: '- Name          : Hazman Adanan', colorClass: 'text-[#F5F0E8]' },
+    { message: '- Current Status: Open for Software & IoT Engineering opportunities', colorClass: 'text-[#E8C976]' },
+    { message: '- Location      : Malaysia (Open to Hybrid / Remote / On-Site)', colorClass: 'text-[#F5F0E8]' },
+    { message: '- Email         : hazmanadanan@gmail.com', colorClass: 'text-[#64FFDA]' },
+    { message: '- LinkedIn      : linkedin.com/in/hazman-adanan', colorClass: 'text-[#64FFDA]' },
+    { message: '- Resume PDF    : Hazman_Adanan_Software_IoT_Engineer_Resume.pdf\n', colorClass: 'text-[#27C93F]' },
+    { message: '[SYSTEM] Triggering direct resume PDF download...', colorClass: 'text-[#E8C976]' },
+  ];
+  await typeLines(lines, 150);
+
+  const link = document.createElement('a');
+  link.href = '/Hazman_Adanan_Software_IoT_Engineer_Resume.pdf';
+  link.download = 'Hazman_Adanan_Software_IoT_Engineer_Resume';
+  link.click();
+};
+
+const handleCommandSubmit = () => {
+  if (isTyping.value) return;
+  const cmd = inputCommand.value.trim().toLowerCase();
+  inputCommand.value = '';
+
+  if (!cmd) return;
+
+  if (cmd === '1' || cmd.includes('tech') || cmd.includes('stack')) {
+    execTechStack();
+  } else if (cmd === '2' || cmd.includes('eval') || cmd.includes('metric')) {
+    execMetrics();
+  } else if (cmd === '3' || cmd.includes('live') || cmd.includes('telemetry')) {
+    execLiveStream();
+  } else if (cmd === '4' || cmd.includes('hire') || cmd.includes('resume') || cmd.includes('contact')) {
+    execHireContact();
+  } else if (cmd === 'clear' || cmd === 'reset') {
+    resetTerminal();
+  } else if (cmd === 'help') {
+    initInitialState();
+  } else {
+    pushLog({
+      message: `\n[HAZMAN-CLI ~]$ ${cmd}\nCommand not recognized. Try '1', '2', '3', '4', or 'help'.`,
+      colorClass: 'text-[#FF5F56]'
+    });
+  }
+};
+
+const resetTerminal = () => {
+  initInitialState();
 };
 
 onMounted(() => {
-  timer = window.setInterval(() => {
-    const randomEvent = Math.random();
-    if (randomEvent < 0.35) {
-      triggerPing();
-    } else if (randomEvent < 0.7) {
-      triggerGPS();
-    } else {
-      triggerMesh();
-    }
-  }, 6000);
-});
-
-onUnmounted(() => {
-  clearInterval(timer);
+  initInitialState();
 });
 </script>
