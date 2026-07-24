@@ -1,8 +1,8 @@
 # hazman5540 — Production Documentation Suite
 
 > [!NOTE]  
-> **Last Updated:** 2026-07-25T05:08:40+08:00  
-> **Codebase State:** Reflects code as of Portfolio v2 redesign (Whimsical Cozy Nocturnal theme, dual light/dark mode support, interactive IoT telemetry console widget, 18-project showcase, Cloudflare Workers Hono backend with Cloudflare D1 database).
+> **Last Updated:** 2026-07-25T06:08:37+08:00  
+> **Codebase State:** Reflects Portfolio v2 redesign, Recruiter Command Terminal v2.6, Project Tier Strategy (Tier 1/2/3), Node-Link Architecture Flowcharts, STAR method metrics, and smooth scrolling repairs.
 
 ---
 

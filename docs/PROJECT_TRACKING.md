@@ -1,8 +1,8 @@
 # Project Tracking, Audit Trail and Roadmap — hazman5540
 
 > [!NOTE]  
-> **Last Updated:** 2026-07-25T05:08:40+08:00  
-> **Codebase State:** Reflects complete Portfolio v2 redesign, Hono backend routes, D1 database integration, dual light/dark mode, and UI/UX design token polish.
+> **Last Updated:** 2026-07-25T06:08:37+08:00  
+> **Codebase State:** Reflects complete Portfolio v2 redesign, Recruiter Command Terminal v2.6 with live timestamps, Project Tier Strategy with Node-Link Architecture Flowcharts, STAR Experience metrics, and smooth scrolling fixes.
 
 ---
 
@@ -10,7 +10,9 @@
 
 | Timestamp | Scope | Diff Summary |
 | :--- | :--- | :--- |
-| **2026-07-25T05:08:40+08:00** | Docs Suite Sync | Fully synchronized the 7-file `/docs` suite with the active codebase state, Hono routes, D1 schemas, v2 UI components, and `AGENTS.md` rules. |
+| **2026-07-25T06:08:37+08:00** | Interactive CLI & Tier Strategy | Redesigned `IoTConsoleWidget.vue` to Recruiter Command Terminal v2.6 with 3.0s line-by-line typing animation & real-time timestamps. Tiered 18 projects in `ProjectCarousel.vue` (Tier 1/2/3) with system architecture flowcharts in Lightbox Modal. |
+| **2026-07-25T05:30:00+08:00** | Copywriting & STAR Metrics | Updated hero headline to "Full-Stack & IoT Systems Engineer", bio narrative to CS Degree + E&E Diploma hybrid superpower, experience bullets to STAR method metrics (<15ms latency, 500+ pkts/sec), and renamed resume PDF to `Hazman_Adanan_Software_IoT_Engineer_Resume.pdf`. |
+| **2026-07-25T05:08:40+08:00** | Docs Suite Sync | Synchronized `/docs` suite with active codebase state, Hono routes, D1 schemas, v2 UI components, and `AGENTS.md` rules. |
 | **2026-07-25T05:07:00+08:00** | UI/UX & Design Tokens | Conducted full design audit. Added `.focus-ring` accessibility utility in `index.css`, defined `v2` color palette tokens in `tailwind.config.js`, and fixed WCAG AA light mode contrast ratios. |
 | **2026-07-24T21:05:00+08:00** | Portfolio v2 & IoT Console | Built `IoTConsoleWidget.vue` live interactive terminal, updated `ProjectCarousel.vue` to feature all 18 projects with category tabs, and added dual light (`#FAF7F2`) and dark (`#0F0F0F`) theme support. |
 | **2026-07-24T20:30:00+08:00** | Portfolio v1 Snapshot Archive | Preserved classic v1 portfolio snapshot under route `/v1` wrapped in `.v1-layout-scope` with version dropdown switcher. |
