@@ -1,5 +1,5 @@
 <template>
-  <section id="experience" class="relative py-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+  <section id="experience" class="relative pt-20 pb-28 sm:pb-36 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
     <!-- Asymmetric Organic Doodle & Circuit Decorations -->
     <DoodleDecorations type="moon-sparkle" class="absolute top-10 right-[6%] hidden sm:block" />
     <DoodleDecorations type="circuit-node" class="absolute bottom-16 left-[4%] hidden md:block" />

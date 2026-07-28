@@ -20,7 +20,7 @@
 
       <!-- Role Headline & Sub-Headline -->
       <h2 class="text-xl sm:text-2xl md:text-3xl font-serif text-[#2A2421] dark:text-[#F5F0E8] font-bold mb-3 max-w-3xl mx-auto leading-tight">
-        Connecting Edge Hardware, Real-Time Telemetry & Modern Web Architecture
+        Specializing in edge computing, IoT telemetry, and high-performance full-stack web applications.
       </h2>
 
       <!-- Wavy Divider with Center Dot -->
@@ -29,11 +29,11 @@
       <!-- Story Body Text: High-Impact "Engineering Bridge" Narrative -->
       <div class="text-[#2A2421] dark:text-[#F5F0E8] text-base sm:text-lg font-sans leading-relaxed max-w-3xl mx-auto space-y-4 my-6">
         <p class="font-serif italic text-lg sm:text-xl text-[#B5502F] dark:text-[#E8C976] font-normal">
-          "Bridging the gap between physical hardware and cloud software."
+          "Delivering robust end-to-end engineering solutions from embedded hardware to cloud dashboards."
         </p>
 
         <p class="text-[#2A2421] dark:text-[#F5F0E8] text-sm sm:text-base leading-relaxed">
-          Grounded in both <span class="font-semibold text-[#B5502F] dark:text-[#E8C976]">Computer Science (B.Sc.)</span> and <span class="font-semibold text-[#B5502F] dark:text-[#E8C976]">Electrical & Electronics Engineering (Dip.)</span> — not just building UI, but engineering end-to-end telemetry platforms. From writing C++ firmware for ESP32 targets and parsing high-frequency TCP streams from vehicle terminals, to building mission-critical Vue 3 dashboards and deploying resilient mesh networks in field environments.
+          Proven track record in architecting real-time monitoring systems, mesh networks, and IoT integrations using Node.js, PostgreSQL, React, and embedded technologies. Grounded in both <span class="font-semibold text-[#B5502F] dark:text-[#E8C976]">Computer Science (B.Sc.)</span> and <span class="font-semibold text-[#B5502F] dark:text-[#E8C976]">Electrical & Electronics Engineering (Dip.)</span> — engineering resilient telemetry platforms, ESP32 firmware, and mission-critical web dashboards.
         </p>
       </div>
 
@@ -102,8 +102,8 @@ import IoTConsoleWidget from './IoTConsoleWidget.vue';
 
 const downloadResume = () => {
   const link = document.createElement('a');
-  link.href = '/Hazman_Adanan_Software_IoT_Engineer_Resume.pdf';
-  link.download = 'Hazman_Adanan_Software_IoT_Engineer_Resume';
+  link.href = "/Hazman's-resume-july-2026.pdf";
+  link.download = "Hazman's-resume-july-2026.pdf";
   link.click();
 };
 </script>

@@ -26,7 +26,7 @@
 
     <!-- Terminal Prompt Input Line -->
     <div class="px-4 py-2 bg-[#171717] border-t border-[#262626] flex items-center gap-2 text-xs font-mono">
-      <span class="text-[#27C93F] font-bold">[HAZMAN-CLI ~]$</span>
+      <span class="text-[#00FF66] font-bold">[HAZMAN-CLI ~]$</span>
       <input
         v-model="inputCommand"
         type="text"
@@ -65,7 +65,7 @@
         <button 
           @click="execLiveStream"
           :disabled="isTyping"
-          class="px-3 py-1.5 rounded-lg bg-[#242424] hover:bg-[#2D2D2D] text-[#27C93F] border border-[#333333] hover:border-[#27C93F]/50 transition-all text-[11px] font-medium flex items-center gap-1.5 cursor-pointer active:scale-95 focus-ring disabled:opacity-50"
+          class="px-3 py-1.5 rounded-lg bg-[#242424] hover:bg-[#2D2D2D] text-[#00FF66] border border-[#333333] hover:border-[#27C93F]/50 transition-all text-[11px] font-medium flex items-center gap-1.5 cursor-pointer active:scale-95 focus-ring disabled:opacity-50"
         >
           <span>📡 live-stream --telemetry</span>
         </button>
@@ -150,7 +150,7 @@ const initInitialState = async () => {
     { message: '[00:00:00] [SYSTEM] Type or click a command below to evaluate candidate:\n', colorClass: 'text-[#8A8A8A]' },
     { message: '  > 1. cat tech-stack.sh      -- View full technical capabilities & protocols', colorClass: 'text-[#E8C976]' },
     { message: '  > 2. ./eval-metrics.sh      -- Show key production systems & quantified metrics', colorClass: 'text-[#64FFDA]' },
-    { message: '  > 3. live-stream --telemetry-- Simulate real-time ESP32 & FMC920 TCP packet stream', colorClass: 'text-[#27C93F]' },
+    { message: '  > 3. live-stream --telemetry-- Simulate real-time ESP32 & FMC920 TCP packet stream', colorClass: 'text-[#00FF66]' },
     { message: '  > 4. cat hire-hazman.md     -- Direct contact info & download updated resume PDF\n', colorClass: 'text-[#F5F0E8]' },
   ];
   await typeLines(menuLines, 3000);
@@ -160,7 +160,7 @@ const initInitialState = async () => {
 const execTechStack = async () => {
   if (isTyping.value) return;
   const lines: LogLine[] = [
-    { message: '\n[HAZMAN-CLI ~]$ cat tech-stack.sh\n', colorClass: 'text-[#27C93F] font-bold' },
+    { message: '\n[HAZMAN-CLI ~]$ cat tech-stack.sh\n', colorClass: 'text-[#00FF66] font-bold' },
     { message: '[TECH STACK MATRIX]', colorClass: 'text-[#E8C976] font-bold' },
     { message: '+-------------------+---------------------------------------------------+', colorClass: 'text-[#E8C976]' },
     { message: '| Domain            | Technologies & Infrastructure                     |', colorClass: 'text-[#E8C976]' },
@@ -179,7 +179,7 @@ const execTechStack = async () => {
 const execMetrics = async () => {
   if (isTyping.value) return;
   const lines: LogLine[] = [
-    { message: '\n[HAZMAN-CLI ~]$ ./eval-metrics.sh\n', colorClass: 'text-[#27C93F] font-bold' },
+    { message: '\n[HAZMAN-CLI ~]$ ./eval-metrics.sh\n', colorClass: 'text-[#00FF66] font-bold' },
     { message: '[EXECUTING CORE SYSTEM METRICS EVALUATION...]', colorClass: 'text-[#64FFDA] font-bold' },
     { message: '[✔] Shooting Range System : WebSockets + ESP32 -> <15ms hit response latency achieved.', colorClass: 'text-[#64FFDA]' },
     { message: '[✔] MindGPS Telemetry Engine: Node.js TCP -> 500+ pkts/sec ingested into PostgreSQL (99.9% uptime).', colorClass: 'text-[#64FFDA]' },
@@ -193,9 +193,9 @@ const execMetrics = async () => {
 const execLiveStream = async () => {
   if (isTyping.value) return;
   const lines: LogLine[] = [
-    { message: '\n[HAZMAN-CLI ~]$ live-stream --telemetry\n', colorClass: 'text-[#27C93F] font-bold' },
+    { message: '\n[HAZMAN-CLI ~]$ live-stream --telemetry\n', colorClass: 'text-[#00FF66] font-bold' },
     { message: '[LIVE SIMULATION: TELTONIKA TCP STREAM + ESP32 TARGET WEBSOCKETS]', colorClass: 'text-[#E8C976] font-bold' },
-    { message: '[00:00:00] [ESP32-TARGET-01]  [WS] Hit detected! Piezo Sensor Signal -> Latency: 12ms [HIT CONFIRMED]', colorClass: 'text-[#27C93F]' },
+    { message: '[00:00:00] [ESP32-TARGET-01]  [WS] Hit detected! Piezo Sensor Signal -> Latency: 12ms [HIT CONFIRMED]', colorClass: 'text-[#00FF66]' },
     { message: '[00:00:00] [FMC920-GPS-092]  [TCP] Raw Binary Ingested -> 000f422414863492...', colorClass: 'text-[#64FFDA]' },
     { message: '                             └── Decoded: Lat 3.0729° N, Lon 101.5194° E | Speed: 46 km/h | Satellites: 14', colorClass: 'text-[#8A8A8A]' },
     { message: '[00:00:00] [SYSTEM] Pipeline Status: 524 pkts/sec | DB Ingestion: OK | Socket Connections: Active', colorClass: 'text-[#E8C976]' },
@@ -207,21 +207,21 @@ const execLiveStream = async () => {
 const execHireContact = async () => {
   if (isTyping.value) return;
   const lines: LogLine[] = [
-    { message: '\n[HAZMAN-CLI ~]$ cat hire-hazman.md\n', colorClass: 'text-[#27C93F] font-bold' },
+    { message: '\n[HAZMAN-CLI ~]$ cat hire-hazman.md\n', colorClass: 'text-[#00FF66] font-bold' },
     { message: '[CANDIDATE CONTACT DETAILS]', colorClass: 'text-[#F5F0E8] font-bold' },
     { message: '- Name          : Hazman Adanan', colorClass: 'text-[#F5F0E8]' },
     { message: '- Current Status: Open for Software & IoT Engineering opportunities', colorClass: 'text-[#E8C976]' },
     { message: '- Location      : Malaysia (Open to Hybrid / Remote / On-Site)', colorClass: 'text-[#F5F0E8]' },
     { message: '- Email         : hazmanadanan@gmail.com', colorClass: 'text-[#64FFDA]' },
     { message: '- LinkedIn      : linkedin.com/in/hazman-adanan', colorClass: 'text-[#64FFDA]' },
-    { message: '- Resume PDF    : Hazman_Adanan_Software_IoT_Engineer_Resume.pdf\n', colorClass: 'text-[#27C93F]' },
+    { message: "- Resume PDF    : Hazman's-resume-july-2026.pdf\n", colorClass: 'text-[#00FF66]' },
     { message: '[SYSTEM] Triggering direct resume PDF download...', colorClass: 'text-[#E8C976]' },
   ];
   await typeLines(lines, 150);
 
   const link = document.createElement('a');
-  link.href = '/Hazman_Adanan_Software_IoT_Engineer_Resume.pdf';
-  link.download = 'Hazman_Adanan_Software_IoT_Engineer_Resume';
+  link.href = "/Hazman's-resume-july-2026.pdf";
+  link.download = "Hazman's-resume-july-2026.pdf";
   link.click();
 };
 

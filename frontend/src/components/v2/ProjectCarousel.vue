@@ -7,7 +7,7 @@
     <!-- Section Header -->
     <div class="text-center mb-10 relative z-10">
       <h2 class="text-3xl sm:text-5xl font-serif text-[#B5502F] dark:text-[#E8C976] tracking-wide mb-3">
-        All Projects & Engineering Builds
+        Featured Systems & Engineering Builds
       </h2>
       <p class="text-[#6E655F] dark:text-[#8A8A8A] text-sm sm:text-base font-sans max-w-2xl mx-auto">
         Structured into Tier 1 Industrial IoT Systems, Tier 2 Full-Stack SaaS Apps, and Tier 3 Utilities.
@@ -359,20 +359,20 @@ const handleImgError = (e: Event) => {
 const allProjects: ProjectItem[] = [
   // --- TIER 1: Enterprise & Hardware Systems ---
   {
-    title: 'Shooting Range Target System',
+    title: 'Shooting Range Control Platform',
     tier: 'tier1',
     tierLabel: 'Tier 1 Industrial IoT',
     url: 'https://mindnrobotics.com/',
     image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&h=600&fit=crop',
     status: 'Mindnrobotics',
-    tag: 'IoT Robotics',
-    description: 'Engineered low-latency WebSockets communication protocol between Vue 3 frontend and custom ESP32 C++ target controllers over Rajant Kinetic Mesh & Starlink satellite backhaul.',
-    tech: ['ESP32 C++', 'WebSockets', 'Rajant Mesh', 'Starlink', 'Vue 3'],
-    architectureFlow: ['Piezo Sensor', 'ESP32 C++', 'WebSockets', 'Rajant Mesh / Starlink', 'Node.js Engine', 'Vue 3 Control UI'],
+    tag: 'Target Controls',
+    description: 'Range control platform for target management & counter controls. Features low-latency WebSockets communication between Vue 3 frontend and custom ESP32 C++ target controllers.',
+    tech: ['ESP32 C++', 'Target Controls', 'WebSockets', 'Rajant Mesh', 'Vue 3'],
+    architectureFlow: ['Piezo Sensors', 'ESP32 C++ MCU', 'WebSockets', 'Rajant Mesh / Starlink', 'Node.js Engine', 'Target Control UI'],
     highlights: [
-      'Reduced hardware-to-screen target hit detection latency to <15ms during field trials.',
-      'Maintained stable WebSocket telemetry links over high-speed Rajant Kinetic Mesh wireless nodes.',
-      'Custom C++ interrupt firmware running on ESP32 microcontrollers.'
+      'Comprehensive target management & counter controls platform for live range operations.',
+      'Reduced hardware-to-screen target hit response latency to <15ms during live field trials.',
+      'Custom C++ interrupt firmware running on ESP32 target microcontrollers.'
     ]
   },
   {
@@ -383,30 +383,30 @@ const allProjects: ProjectItem[] = [
     image: '/img/mindgps_tracker.png',
     status: 'Mindnrobotics',
     tag: 'Fleet Telemetry',
-    description: 'Designed high-throughput Node.js TCP socket server to parse raw binary/hex streams from Teltonika FMC920 GPS terminals into PostgreSQL.',
-    tech: ['Teltonika FMC920', 'TCP Raw Sockets', 'Node.js', 'PostgreSQL', 'Leaflet'],
-    architectureFlow: ['Teltonika FMC920', 'TCP Raw Socket', 'Node.js Byte Parser', 'Worker Ingestion', 'PostgreSQL', 'Leaflet GIS Frontend'],
+    description: 'Real-time fleet tracking platform with Teltonika FMC920 hardware integration. Custom Node.js TCP socket ingestion backend streaming telemetry into PostgreSQL.',
+    tech: ['Teltonika FMC920', 'Node.js TCP', 'PostgreSQL', 'Leaflet GIS', 'Real-Time Tracking'],
+    architectureFlow: ['Teltonika FMC920', 'TCP Raw Socket', 'Node.js Byte Parser', 'PostgreSQL Spatial', 'Leaflet GIS Frontend'],
     highlights: [
-      'Ingests 500+ telemetry packets/sec into PostgreSQL while maintaining 99.9% ingestion uptime.',
-      'Parses raw Teltonika FMC920 AVL binary frames (IMEI, speed, latitude, longitude, IO elements).',
-      'Real-time fleet location mapping on interactive Leaflet GIS dashboard.'
+      'Seamless integration with Teltonika FMC920 hardware via custom binary packet parser.',
+      'High-throughput Node.js TCP server ingesting 500+ telemetry pkts/sec into PostgreSQL.',
+      'Maintains 99.9% ingestion uptime with real-time GIS map tracking interface.'
     ]
   },
   {
-    title: 'CanopyNet UGV Dashboard',
+    title: 'CanopyNet Plantation Mesh Network',
     tier: 'tier1',
     tierLabel: 'Tier 1 Mobile Robotics',
     url: 'https://canopynet.mindnrobotics.com/',
     image: '/img/canopynet_dashboard.png',
     status: 'Mindnrobotics',
-    tag: 'IoT Platform',
-    description: 'Real-time plantation mobile robot management dashboard integrating Leaflet map tracking and Robot Operating System (ROS) telemetry feeds.',
-    tech: ['Vue 3', 'Leaflet GIS', 'ROS Bridge', 'WebSockets', 'IoT'],
-    architectureFlow: ['UGV Hardware Sensors', 'ROS Robot Engine', 'WebSocket Bridge', 'Vue 3 + Leaflet GIS Dashboard'],
+    tag: 'Plantation Mesh',
+    description: 'Plantation mesh network & fleet management dashboard. Integrates Leaflet spatial map tracking and Robot Operating System (ROS 2) telemetry feeds over field mesh networks.',
+    tech: ['Vue 3', 'Plantation Mesh', 'Leaflet GIS', 'ROS 2 Bridge', 'WebSockets'],
+    architectureFlow: ['UGV Hardware Sensors', 'ROS 2 Engine', 'Rajant Mesh Node', 'WebSocket Bridge', 'Vue 3 Fleet Dashboard'],
     highlights: [
-      'Real-time UGV path tracking and tree canopy coverage mapping in remote plantations.',
-      'Low-latency status telemetry monitoring battery, GPS fix, and motor health.',
-      'Designed for rugged field operations with offline fallback mapping.'
+      'Plantation mesh network & autonomous fleet management dashboard for remote agriculture.',
+      'Real-time UGV path tracking and tree canopy coverage spatial mapping.',
+      'Low-latency status telemetry monitoring battery, GPS fix, and motor health over Rajant Mesh.'
     ]
   },
   {

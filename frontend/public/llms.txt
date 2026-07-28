@@ -11,7 +11,7 @@
 - **GitHub**: [github.com/hazman5540](https://github.com/hazman5540)
 - **LinkedIn**: [linkedin.com/in/hazman-adanan](https://linkedin.com/in/hazman-adanan)
 - **Official Portfolio**: [https://hazman.dev](https://hazman.dev)
-- **Resume PDF Download**: [https://hazman.dev/Hazman_Adanan_Software_IoT_Engineer_Resume.pdf](https://hazman.dev/Hazman_Adanan_Software_IoT_Engineer_Resume.pdf)
+- **Resume PDF Download**: [https://hazman.dev/Hazman's-resume-july-2026.pdf](https://hazman.dev/Hazman's-resume-july-2026.pdf)
 - **Full Architecture Documentation**: [/docs/ARCHITECTURE_AND_FLOWS.md](https://hazman.dev/docs/ARCHITECTURE_AND_FLOWS.md)
 
 ---
@@ -108,11 +108,11 @@
   - Live bash terminal displaying interactive welcoming messages and quick recruiter query buttons:
     - `👋 Say Hi / Intro`: Displays summary bio and scrolls smooth to `#about`.
     - `🚀 View Top Builds`: Displays Tier 1 IoT builds and scrolls smooth to `#works`.
-    - `📄 Download Resume`: Triggers direct download of `Hazman_Adanan_Software_IoT_Engineer_Resume.pdf`.
+    - `📄 Download Resume`: Triggers direct download of `Hazman's-resume-july-2026.pdf`.
     - `⚡ Live Raw Packet Decoder`: Launches live simulated ESP32 target hit & Teltonika raw hex TCP packet stream.
 - **Call-to-Action Buttons**:
   - Primary: `Explore All 18 Works` (scrolls smooth to `#works`)
-  - Secondary: `Download Resume PDF` (downloads `Hazman_Adanan_Software_IoT_Engineer_Resume.pdf`)
+  - Secondary: `Download Resume PDF` (downloads `Hazman's-resume-july-2026.pdf`)
 
 ### Tab 2: `#about` — Software Engineer & IoT Practitioner
 - **Header Title**: `Software Engineer & IoT Practitioner`
@@ -170,7 +170,7 @@
 
 ---
 
-## 8. Complete Official Resume Transcript (Hazman_Adanan_Software_IoT_Engineer_Resume.pdf)
+## 8. Complete Official Resume Transcript (Hazman's-resume-july-2026.pdf)
 
 ### Executive Summary
 Motivated Full-Stack & IoT Systems Engineer holding a Bachelor of Computer Science (Maritime Informatics) from UMT and a Diploma in Electrical & Electronics Engineering from PIS. Proven track record in developing full-stack web applications (Vue.js, React, Node.js, Tailwind CSS), embedded target controllers (ESP32 C++ firmware), vehicle telemetry trackers (Teltonika FMC920 TCP ingestion + PostgreSQL), and industrial field network infrastructures (Rajant Kinetic Mesh + Starlink satellite uplinks). Fast learner with strong analytical skills, adept at building scalable full-stack solutions and field-ready IoT systems.

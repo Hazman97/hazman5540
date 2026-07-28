@@ -133,8 +133,8 @@ const commands: CommandItem[] = [
     badge: 'Download',
     action: () => {
       const link = document.createElement('a');
-      link.href = '/Hazman_Adanan_Software_IoT_Engineer_Resume.pdf';
-      link.download = 'Hazman_Adanan_Software_IoT_Engineer_Resume';
+      link.href = "/Hazman's-resume-july-2026.pdf";
+      link.download = "Hazman's-resume-july-2026.pdf";
       link.click();
     },
   },
