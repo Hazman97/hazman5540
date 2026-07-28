@@ -1,5 +1,5 @@
 <template>
-  <section id="story" class="relative min-h-screen flex items-center justify-center pt-28 pb-16 px-4 sm:px-6 lg:px-8">
+  <section id="story" class="relative min-h-screen print:min-h-0 flex items-center justify-center pt-28 print:pt-4 pb-16 print:pb-4 px-4 sm:px-6 lg:px-8">
     <!-- Asymmetric Organic Doodle & IoT Line-Art Decorations -->
     <DoodleDecorations type="chip-doodle" class="absolute top-24 right-[8%] sm:right-[14%] hidden sm:block opacity-60" />
     <DoodleDecorations type="antenna-wave" class="absolute bottom-24 left-[5%] sm:left-[8%] opacity-60" />

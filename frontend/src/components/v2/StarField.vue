@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+  <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden print:hidden">
     <!-- Star / Particle Canvas -->
     <canvas ref="canvasRef" class="w-full h-full block opacity-50 dark:opacity-50"></canvas>
     

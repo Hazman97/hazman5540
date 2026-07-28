@@ -1,6 +1,6 @@
 <template>
   <div 
-    class="pointer-events-none fixed inset-0 z-30 transition-opacity duration-300"
+    class="pointer-events-none fixed inset-0 z-30 transition-opacity duration-300 print:hidden"
     :style="{
       background: `radial-gradient(600px circle at ${mousePos.x}px ${mousePos.y}px, ${glowColor}, transparent 80%)`
     }"

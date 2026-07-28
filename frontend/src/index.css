@@ -248,3 +248,38 @@
 ::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(180deg, #0d9488, #0891b2);
 }
+
+/* Print Optimization Styles */
+@media print {
+  /* Hide non-printable interactive / decorative UI elements */
+  header,
+  footer div.mt-4,
+  button,
+  canvas,
+  .print-hide {
+    display: none !important;
+  }
+
+  /* Reset min-h-screen and viewport heights for print layout */
+  html, body, main, section {
+    min-height: auto !important;
+    height: auto !important;
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    position: static !important;
+  }
+
+  section {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Ensure proper text & background color rendering in print */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    box-shadow: none !important;
+  }
+}

@@ -55,7 +55,7 @@
       <button
         v-if="showBackToTop"
         @click="scrollToTop"
-        class="fixed bottom-6 right-6 p-3.5 bg-white/90 dark:bg-[#1A1A1A]/90 hover:bg-[#FAF7F2] dark:hover:bg-[#242424] text-[#B5502F] dark:text-[#E8C976] border border-[#E6E0D4] dark:border-[#2A2A2A] rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all z-40 cursor-pointer focus-ring"
+        class="fixed bottom-6 right-6 p-3.5 bg-white/90 dark:bg-[#1A1A1A]/90 hover:bg-[#FAF7F2] dark:hover:bg-[#242424] text-[#B5502F] dark:text-[#E8C976] border border-[#E6E0D4] dark:border-[#2A2A2A] rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all z-40 cursor-pointer focus-ring print:hidden"
         aria-label="Back to top"
       >
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
