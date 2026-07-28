@@ -75,7 +75,7 @@ const articles: Article[] = [
     title: 'Bridging Network Infrastructure with Embedded IoT Development',
     date: 'OCT 2025',
     readTime: '5 min read',
-    excerptBefore: 'How IT support and router diagnostics experience shaped my mindset towards building',
+    excerptBefore: 'How IT support and router diagnostics experience shaped the engineering mindset towards building',
     highlightText: 'resilient ESP32 targets & Teltonika GPS telemetry',
     excerptAfter: 'that remain reliable under extreme field conditions.',
     tags: ['iot-engineering', 'mindnrobotics', 'networking'],

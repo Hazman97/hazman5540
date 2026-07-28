@@ -9,7 +9,7 @@
         Let's Connect
       </h2>
       <p class="text-[#6E655F] dark:text-[#8A8A8A] text-sm sm:text-base font-sans max-w-xl mx-auto">
-        Whether you have a software project, IoT integration, or technical question, feel free to reach out.
+        For software projects, IoT integration inquiries, or technical discussions — feel free to reach out.
       </p>
       <WavyDivider />
     </div>
@@ -46,7 +46,7 @@
             v-model="form.message"
             rows="5"
             required
-            placeholder="Tell me about your software, IoT, or network project..."
+            placeholder="Describe the software, IoT, or networking project in mind..."
             class="w-full bg-[#FAF7F2] dark:bg-[#141414] border border-[#E6E0D4] dark:border-[#2A2A2A] rounded-xl px-4 py-3 text-sm text-[#2A2421] dark:text-[#F5F0E8] placeholder-[#6E655F]/50 dark:placeholder-[#8A8A8A]/50 focus:outline-none focus:border-[#B5502F] dark:focus:border-[#E8C976] focus-ring transition-colors resize-none"
           ></textarea>
         </div>

@@ -29,11 +29,11 @@
       <!-- Story Body Text: High-Impact "Engineering Bridge" Narrative -->
       <div class="text-[#2A2421] dark:text-[#F5F0E8] text-base sm:text-lg font-sans leading-relaxed max-w-3xl mx-auto space-y-4 my-6">
         <p class="font-serif italic text-lg sm:text-xl text-[#B5502F] dark:text-[#E8C976] font-normal">
-          "I bridge the gap between physical hardware and cloud software."
+          "Bridging the gap between physical hardware and cloud software."
         </p>
 
         <p class="text-[#2A2421] dark:text-[#F5F0E8] text-sm sm:text-base leading-relaxed">
-          With a formal foundation in both <span class="font-semibold text-[#B5502F] dark:text-[#E8C976]">Computer Science (B.Sc.)</span> and <span class="font-semibold text-[#B5502F] dark:text-[#E8C976]">Electrical & Electronics Engineering (Dip.)</span>, I don't just build UI—I engineer end-to-end telemetry platforms. My work ranges from writing C++ firmware for ESP32 targets and parsing high-frequency TCP streams from vehicle terminals, to building mission-critical Vue 3 dashboards and deploying resilient mesh networks in field environments.
+          Grounded in both <span class="font-semibold text-[#B5502F] dark:text-[#E8C976]">Computer Science (B.Sc.)</span> and <span class="font-semibold text-[#B5502F] dark:text-[#E8C976]">Electrical & Electronics Engineering (Dip.)</span> — not just building UI, but engineering end-to-end telemetry platforms. From writing C++ firmware for ESP32 targets and parsing high-frequency TCP streams from vehicle terminals, to building mission-critical Vue 3 dashboards and deploying resilient mesh networks in field environments.
         </p>
       </div>
 
