@@ -133,6 +133,19 @@ const routes = [
     component: () => import("@/views/birthday/BirthdayAdmin.vue"),
     meta: { title: "Birthday Admin" },
   },
+  // === Kad Kahwin Digital System ===
+  {
+    path: "/wedding",
+    name: "WeddingLanding",
+    component: () => import("@/views/wedding/WeddingLanding.vue"),
+    meta: { title: "Kad Kahwin Digital — Platform Demo", description: "Pilihan Kad Kahwin Digital Moden & Elegan" },
+  },
+  {
+    path: "/wedding/demo",
+    name: "WeddingCardDemo",
+    component: () => import("@/views/wedding/WeddingCardDemo.vue"),
+    meta: { title: "Kad Kahwin Digital — Preview Live", description: "Pengalaman Kad Kahwin Digital Interaktif" },
+  },
   // === Organization Chart ===
   {
     path: "/org-demo",
