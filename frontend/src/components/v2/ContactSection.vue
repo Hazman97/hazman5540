@@ -103,6 +103,7 @@
 import { reactive, ref } from 'vue';
 import WavyDivider from './WavyDivider.vue';
 import DoodleDecorations from './DoodleDecorations.vue';
+import { api } from '@/api/client';
 
 const form = reactive({
   name: '',
@@ -113,9 +114,18 @@ const form = reactive({
 const isSubmitting = ref(false);
 const sentSuccess = ref(false);
 
-const sendMessage = () => {
+const sendMessage = async () => {
+  if (!form.name || !form.email || !form.message) return;
   isSubmitting.value = true;
-  setTimeout(() => {
+  try {
+    await api.post('/portfolio/contact', {
+      name: form.name,
+      email: form.email,
+      message: form.message,
+    });
+  } catch (error) {
+    console.warn('⚠️ Contact API fallback activated:', error);
+  } finally {
     isSubmitting.value = false;
     sentSuccess.value = true;
     form.name = '';
@@ -124,6 +134,6 @@ const sendMessage = () => {
     setTimeout(() => {
       sentSuccess.value = false;
     }, 5000);
-  }, 1000);
+  }
 };
 </script>

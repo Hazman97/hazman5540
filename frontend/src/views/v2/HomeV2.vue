@@ -105,7 +105,37 @@ const trackVisitor = async () => {
   }
 };
 
+const setupMeta = () => {
+  document.title = 'Hazman Adanan — Full-Stack & IoT Systems Engineer';
+
+  const metaTags = [
+    { name: 'description', content: 'Specializing in edge computing, IoT telemetry, and high-performance full-stack web applications. Delivering robust end-to-end engineering solutions.' },
+    { property: 'og:title', content: 'Hazman Adanan — Full-Stack & IoT Systems Engineer' },
+    { property: 'og:description', content: 'Specializing in edge computing, IoT telemetry, and high-performance full-stack web applications.' },
+    { property: 'og:type', content: 'website' },
+    { property: 'og:url', content: 'https://hazman.dev/v2' },
+    { property: 'og:image', content: 'https://hazman.dev/img/mindgps_tracker.png' },
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:title', content: 'Hazman Adanan — Full-Stack & IoT Systems Engineer' },
+    { name: 'twitter:description', content: 'Specializing in edge computing, IoT telemetry, and high-performance full-stack web applications.' },
+  ];
+
+  metaTags.forEach((tag) => {
+    let el = tag.name
+      ? document.querySelector(`meta[name="${tag.name}"]`)
+      : document.querySelector(`meta[property="${tag.property}"]`);
+    if (!el) {
+      el = document.createElement('meta');
+      if (tag.name) el.setAttribute('name', tag.name);
+      if (tag.property) el.setAttribute('property', tag.property);
+      document.head.appendChild(el);
+    }
+    el.setAttribute('content', tag.content);
+  });
+};
+
 onMounted(() => {
+  setupMeta();
   window.addEventListener('scroll', handleScroll);
   trackVisitor();
 });

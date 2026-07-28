@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full bg-[#141414] border border-[#E6E0D4] dark:border-[#2A2A2A] rounded-2xl shadow-2xl overflow-hidden font-mono text-xs text-[#F5F0E8] my-8 transition-colors">
+  <div class="w-full bg-[#141414] border border-[#E6E0D4] dark:border-[#2A2A2A] rounded-2xl shadow-2xl overflow-hidden font-mono text-xs text-[#F5F0E8] my-8 transition-colors print:hidden">
     <!-- Terminal Window Top Bar -->
     <div class="flex items-center justify-between px-4 py-3 bg-[#1D1D1D] border-b border-[#2A2A2A]">
       <div class="flex items-center gap-2">
@@ -77,6 +77,15 @@
           class="px-3 py-1.5 rounded-lg bg-[#242424] hover:bg-[#2D2D2D] text-[#F5F0E8] border border-[#333333] hover:border-[#F5F0E8]/50 transition-all text-[11px] font-medium flex items-center gap-1.5 cursor-pointer active:scale-95 focus-ring disabled:opacity-50"
         >
           <span>📄 cat hire-hazman.md</span>
+        </button>
+
+        <!-- Command 5: Copy Email -->
+        <button 
+          @click="copyEmail"
+          :disabled="isTyping"
+          class="px-3 py-1.5 rounded-lg bg-[#242424] hover:bg-[#2D2D2D] text-[#E8C976] border border-[#333333] hover:border-[#E8C976]/50 transition-all text-[11px] font-medium flex items-center gap-1.5 cursor-pointer active:scale-95 focus-ring disabled:opacity-50"
+        >
+          <span>📋 Copy Email</span>
         </button>
       </div>
 
@@ -225,6 +234,22 @@ const execHireContact = async () => {
   link.click();
 };
 
+const copyEmail = async () => {
+  if (isTyping.value) return;
+  try {
+    await navigator.clipboard.writeText('hazmanadanan@gmail.com');
+    pushLog({
+      message: '\n[HAZMAN-CLI ~]$ copy email\n[✔] SUCCESS: Email address "hazmanadanan@gmail.com" copied to clipboard!',
+      colorClass: 'text-[#00FF66] font-bold'
+    });
+  } catch (err) {
+    pushLog({
+      message: '\n[HAZMAN-CLI ~]$ copy email\n[!] Email: hazmanadanan@gmail.com',
+      colorClass: 'text-[#E8C976]'
+    });
+  }
+};
+
 const handleCommandSubmit = () => {
   if (isTyping.value) return;
   const cmd = inputCommand.value.trim().toLowerCase();
@@ -232,21 +257,23 @@ const handleCommandSubmit = () => {
 
   if (!cmd) return;
 
-  if (cmd === '1' || cmd.includes('tech') || cmd.includes('stack')) {
+  if (cmd === '1' || cmd.includes('tech') || cmd.includes('stack') || cmd.includes('skills')) {
     execTechStack();
-  } else if (cmd === '2' || cmd.includes('eval') || cmd.includes('metric')) {
+  } else if (cmd === '2' || cmd.includes('eval') || cmd.includes('metric') || cmd.includes('status')) {
     execMetrics();
   } else if (cmd === '3' || cmd.includes('live') || cmd.includes('telemetry')) {
     execLiveStream();
-  } else if (cmd === '4' || cmd.includes('hire') || cmd.includes('resume') || cmd.includes('contact')) {
+  } else if (cmd === '4' || cmd.includes('hire') || cmd.includes('resume') || cmd.includes('whoami')) {
     execHireContact();
+  } else if (cmd === 'copy' || cmd.includes('email')) {
+    copyEmail();
   } else if (cmd === 'clear' || cmd === 'reset') {
     resetTerminal();
   } else if (cmd === 'help') {
     initInitialState();
   } else {
     pushLog({
-      message: `\n[HAZMAN-CLI ~]$ ${cmd}\nCommand not recognized. Try '1', '2', '3', '4', or 'help'.`,
+      message: `\n[HAZMAN-CLI ~]$ ${cmd}\nCommand not recognized. Try '1', '2', '3', '4', 'copy', or 'help'.`,
       colorClass: 'text-[#FF5F56]'
     });
   }

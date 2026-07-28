@@ -179,17 +179,32 @@
 
           <!-- Modal Scrollable Content -->
           <div class="overflow-y-auto p-6 space-y-6">
-            <!-- High-Res Preview Banner -->
-            <div class="relative h-52 sm:h-60 rounded-xl overflow-hidden bg-[#FAF7F2] dark:bg-[#0F0F0F] border border-[#E6E0D4] dark:border-[#2A2A2A]">
-              <img 
-                :src="selectedProject.image" 
-                :alt="selectedProject.title"
-                class="w-full h-full object-cover"
-                @error="handleImgError"
-              />
-              <span class="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-mono font-semibold bg-white/90 dark:bg-[#1A1A1A]/90 text-[#B5502F] dark:text-[#E8C976] border border-[#E6E0D4] dark:border-[#2A2A2A] shadow-md">
-                {{ selectedProject.tierLabel }}
-              </span>
+            <!-- High-Res Preview Banner & Gallery Switcher -->
+            <div class="space-y-2">
+              <div class="relative h-52 sm:h-64 rounded-xl overflow-hidden bg-[#FAF7F2] dark:bg-[#0F0F0F] border border-[#E6E0D4] dark:border-[#2A2A2A]">
+                <img 
+                  :src="activeModalImage" 
+                  :alt="selectedProject.title"
+                  class="w-full h-full object-cover transition-all duration-300"
+                  @error="handleImgError"
+                />
+                <span class="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-mono font-semibold bg-white/90 dark:bg-[#1A1A1A]/90 text-[#B5502F] dark:text-[#E8C976] border border-[#E6E0D4] dark:border-[#2A2A2A] shadow-md">
+                  {{ selectedProject.tierLabel }}
+                </span>
+              </div>
+
+              <!-- Gallery Image Thumbnails (if available) -->
+              <div v-if="selectedProject.galleryImages && selectedProject.galleryImages.length > 1" class="flex items-center gap-2 overflow-x-auto py-1">
+                <button
+                  v-for="(img, idx) in selectedProject.galleryImages"
+                  :key="idx"
+                  @click="activeImageIndex = idx"
+                  class="w-16 h-12 rounded-lg overflow-hidden border-2 transition-all cursor-pointer shrink-0"
+                  :class="activeImageIndex === idx ? 'border-[#B5502F] dark:border-[#E8C976] scale-105 shadow-md' : 'border-transparent opacity-60 hover:opacity-100'"
+                >
+                  <img :src="img" :alt="'Gallery item ' + (idx + 1)" class="w-full h-full object-cover" @error="handleImgError" />
+                </button>
+              </div>
             </div>
 
             <!-- Title & Status -->
@@ -298,6 +313,7 @@ interface ProjectItem {
   description: string;
   url: string;
   image: string;
+  galleryImages?: string[];
   tag: string;
   tier: 'tier1' | 'tier2' | 'tier3';
   tierLabel: string;
@@ -310,6 +326,15 @@ interface ProjectItem {
 const scrollContainer = ref<HTMLElement | null>(null);
 const activeCategory = ref<string>('all');
 const selectedProject = ref<ProjectItem | null>(null);
+const activeImageIndex = ref<number>(0);
+
+const activeModalImage = computed(() => {
+  if (!selectedProject.value) return '';
+  if (selectedProject.value.galleryImages && selectedProject.value.galleryImages[activeImageIndex.value]) {
+    return selectedProject.value.galleryImages[activeImageIndex.value];
+  }
+  return selectedProject.value.image;
+});
 
 const categories = [
   { id: 'all', label: 'All Builds' },
@@ -326,10 +351,12 @@ const defaultHighlights = [
 
 const openModal = (project: ProjectItem) => {
   selectedProject.value = project;
+  activeImageIndex.value = 0;
 };
 
 const closeModal = () => {
   selectedProject.value = null;
+  activeImageIndex.value = 0;
 };
 
 const handleKeyDown = (e: KeyboardEvent) => {
@@ -364,6 +391,11 @@ const allProjects: ProjectItem[] = [
     tierLabel: 'Tier 1 Industrial IoT',
     url: 'https://mindnrobotics.com/',
     image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&h=600&fit=crop',
+    galleryImages: [
+      'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&h=600&fit=crop'
+    ],
     status: 'Mindnrobotics',
     tag: 'Target Controls',
     description: 'Range control platform for target management & counter controls. Features low-latency WebSockets communication between Vue 3 frontend and custom ESP32 C++ target controllers.',
@@ -381,6 +413,10 @@ const allProjects: ProjectItem[] = [
     tierLabel: 'Tier 1 Fleet Telemetry',
     url: 'https://gps.mindnrobotics.com/',
     image: '/img/mindgps_tracker.png',
+    galleryImages: [
+      '/img/mindgps_tracker.png',
+      'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&h=600&fit=crop'
+    ],
     status: 'Mindnrobotics',
     tag: 'Fleet Telemetry',
     description: 'Real-time fleet tracking platform with Teltonika FMC920 hardware integration. Custom Node.js TCP socket ingestion backend streaming telemetry into PostgreSQL.',
@@ -398,6 +434,10 @@ const allProjects: ProjectItem[] = [
     tierLabel: 'Tier 1 Mobile Robotics',
     url: 'https://canopynet.mindnrobotics.com/',
     image: '/img/canopynet_dashboard.png',
+    galleryImages: [
+      '/img/canopynet_dashboard.png',
+      'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&h=600&fit=crop'
+    ],
     status: 'Mindnrobotics',
     tag: 'Plantation Mesh',
     description: 'Plantation mesh network & fleet management dashboard. Integrates Leaflet spatial map tracking and Robot Operating System (ROS 2) telemetry feeds over field mesh networks.',
