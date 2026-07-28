@@ -16,7 +16,7 @@
     </div>
 
     <!-- 2 Column Grid for Work vs Education -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 relative z-10">
+    <div class="grid grid-cols-1 lg:grid-cols-2 print:grid-cols-2 gap-12 lg:gap-16 print:gap-6 relative z-10">
       <!-- Work Experience Column -->
       <div>
         <div class="flex items-center gap-3 mb-8">

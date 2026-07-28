@@ -55,14 +55,14 @@
       <!-- Horizontal Scrollable Cards Container -->
       <div 
         ref="scrollContainer"
-        class="flex gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-none py-4 px-2 scroll-smooth"
+        class="flex print:grid print:grid-cols-2 gap-6 print:gap-4 overflow-x-auto print:overflow-visible snap-x snap-mandatory scrollbar-none py-4 px-2 scroll-smooth"
         style="scrollbar-width: none; -ms-overflow-style: none;"
       >
         <!-- Project Card -->
         <div 
           v-for="project in filteredProjects"
           :key="project.title"
-          class="snap-start shrink-0 w-[290px] sm:w-[350px] md:w-[380px] bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] rounded-xl overflow-hidden shadow-xl hover:border-[#B5502F]/40 dark:hover:border-[#E8C976]/40 transition-all duration-300 flex flex-col group/card cursor-pointer"
+          class="snap-start shrink-0 print:shrink print:w-full w-[290px] sm:w-[350px] md:w-[380px] bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] rounded-xl overflow-hidden shadow-xl hover:border-[#B5502F]/40 dark:hover:border-[#E8C976]/40 transition-all duration-300 flex flex-col group/card cursor-pointer"
           @click="openModal(project)"
         >
           <!-- Browser Window Top Bar -->

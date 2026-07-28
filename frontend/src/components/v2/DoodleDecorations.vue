@@ -1,6 +1,6 @@
 <template>
   <!-- Asymmetric Organic Doodle & IoT/Circuit Line-Art Decorations -->
-  <div class="pointer-events-none select-none text-[#B5502F] opacity-75">
+  <div class="pointer-events-none select-none text-[#B5502F] opacity-75 print:hidden">
     <!-- Moon & Stars Doodle -->
     <svg 
       v-if="type === 'moon-sparkle'"

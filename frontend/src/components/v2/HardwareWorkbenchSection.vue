@@ -15,7 +15,7 @@
     </div>
 
     <!-- 4 Hardware Cards Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
+    <div class="grid grid-cols-1 md:grid-cols-2 print:grid-cols-2 gap-8 print:gap-4 relative z-10">
       <!-- Card 1: ESP32 Target System -->
       <div class="bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] p-6 rounded-2xl shadow-xl hover:border-[#B5502F]/40 dark:hover:border-[#E8C976]/40 transition-all duration-300 flex flex-col justify-between group">
         <div>

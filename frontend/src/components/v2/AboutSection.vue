@@ -31,7 +31,7 @@
     </div>
 
     <!-- 4-Column Technical Matrix with Explicit Protocols & Database Paradigms -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 print:grid-cols-2 gap-6 print:gap-4 relative z-10">
       <!-- Col 1: Frontend & UI -->
       <div class="bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] p-6 rounded-2xl shadow-lg hover:border-[#B5502F]/40 dark:hover:border-[#E8C976]/40 transition-colors">
         <div class="w-10 h-10 rounded-xl bg-[#B5502F]/10 dark:bg-[#E8C976]/10 text-[#B5502F] dark:text-[#E8C976] flex items-center justify-center font-bold mb-4 text-lg">
