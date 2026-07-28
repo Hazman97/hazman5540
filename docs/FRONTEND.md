@@ -1,8 +1,8 @@
 # Frontend Architecture and Styling Specifications — hazman5540
 
 > [!NOTE]  
-> **Last Updated:** 2026-07-25T06:08:37+08:00  
-> **Codebase State:** Reflects Vue 3 SPA architecture, dual light/dark mode system, Tailwind CSS design tokens, Recruiter Command Terminal v2.6, Project Tier Strategy (Tier 1/2/3), and Node-Link Architecture Flowcharts.
+> **Last Updated:** 2026-07-28T19:55:00+08:00  
+> **Codebase State:** Reflects Vue 3 SPA architecture, dual light/dark mode system, Tailwind CSS design tokens, Recruiter Command Terminal v2.6 with neon green contrast & copy actions, Technical Notes Lightbox Reader Modal, Multi-Image Lightbox Gallery, and SEO Open Graph meta tags.
 
 ---
 
@@ -13,15 +13,16 @@ graph TD
     App["App.vue (Root Layout Container)"] --> RouterView["<router-view />"]
     
     subgraph V2Route ["Route: /portfolio & / (v2 Whimsical Cozy Nocturnal)"]
-        HomeV2["HomeV2.vue"] --> Navbar["Navbar.vue (Floating Pill + Theme Toggle + IntersectionObserver Active Tracking)"]
+        HomeV2["HomeV2.vue (Dynamic Title & Open Graph Meta Tags Injection)"] --> Navbar["Navbar.vue (Floating Pill + Theme Toggle + IntersectionObserver Active Tracking)"]
         HomeV2 --> StarField["StarField.vue (Canvas Particles)"]
-        HomeV2 --> Hero["HeroSection.vue"]
-        Hero --> IoTWidget["IoTConsoleWidget.vue (Recruiter Command Terminal v2.6)"]
+        HomeV2 --> Hero["HeroSection.vue (Action-Oriented Headline & Bio)"]
+        Hero --> IoTWidget["IoTConsoleWidget.vue (Terminal v2.6 + Neon Green #00FF66 + Copy Email Button)"]
         HomeV2 --> About["AboutSection.vue (CS + E&E Hybrid Positioning & Protocol Specs)"]
-        HomeV2 --> Experience["ExperienceSection.vue (STAR Quantified Metrics Cards)"]
-        HomeV2 --> Projects["ProjectCarousel.vue (18 Projects Categorized Tier 1 / 2 / 3 + Architecture Flowcharts)"]
-        HomeV2 --> Writing["WritingSection.vue"]
-        HomeV2 --> Contact["ContactSection.vue"]
+        HomeV2 --> Experience["ExperienceSection.vue (STAR Quantified Metrics Cards + Visual Breathing Room)"]
+        HomeV2 --> Workbench["HardwareWorkbenchSection.vue (Core Tech Showcase Pills & Equipment Cards)"]
+        HomeV2 --> Projects["ProjectCarousel.vue (18 Projects + Multi-Image Lightbox Gallery + Architecture Flowcharts)"]
+        HomeV2 --> Writing["WritingSection.vue (Technical Notes + Lightbox Reader Modal)"]
+        HomeV2 --> Contact["ContactSection.vue (Async API Submission + Success Feedback)"]
     end
 
     subgraph V1Route ["Route: /v1 (v1 Classic Preserved Snapshot)"]

@@ -1,8 +1,8 @@
 # Project Tracking, Audit Trail and Roadmap — hazman5540
 
 > [!NOTE]  
-> **Last Updated:** 2026-07-25T06:08:37+08:00  
-> **Codebase State:** Reflects complete Portfolio v2 redesign, Recruiter Command Terminal v2.6 with live timestamps, Project Tier Strategy with Node-Link Architecture Flowcharts, STAR Experience metrics, and smooth scrolling fixes.
+> **Last Updated:** 2026-07-28T19:55:00+08:00  
+> **Codebase State:** Reflects Portfolio v2 polish, action-oriented copywriting, neon green terminal contrast, Technical Notes Lightbox Reader Modal, Multi-Image Lightbox Gallery, CLI Copy Email button, SEO Open Graph meta tags, clean print stylesheet, and latest resume file (`Hazman's-resume-july-2026.pdf`).
 
 ---
 
@@ -10,6 +10,7 @@
 
 | Timestamp | Scope | Diff Summary |
 | :--- | :--- | :--- |
+| **2026-07-28T19:55:00+08:00** | Portfolio v2 Polish & Resume Update | Refactored v2 copywriting to action-oriented phrasing avoiding first-person pronouns. Upgraded terminal green text to neon green (`#00FF66`) for WCAG AA+ contrast. Added interactive Article Reader Modal in `WritingSection.vue`, multi-image gallery in `ProjectCarousel.vue`, copy email button in `IoTConsoleWidget.vue`, dynamic OG meta tags in `HomeV2.vue`, clean print stylesheet, and updated resume file to `Hazman's-resume-july-2026.pdf`. |
 | **2026-07-25T06:08:37+08:00** | Interactive CLI & Tier Strategy | Redesigned `IoTConsoleWidget.vue` to Recruiter Command Terminal v2.6 with 3.0s line-by-line typing animation & real-time timestamps. Tiered 18 projects in `ProjectCarousel.vue` (Tier 1/2/3) with system architecture flowcharts in Lightbox Modal. |
 | **2026-07-25T05:30:00+08:00** | Copywriting & STAR Metrics | Updated hero headline to "Full-Stack & IoT Systems Engineer", bio narrative to CS Degree + E&E Diploma hybrid superpower, experience bullets to STAR method metrics (<15ms latency, 500+ pkts/sec), and renamed resume PDF to `Hazman_Adanan_Software_IoT_Engineer_Resume.pdf`. |
 | **2026-07-25T05:08:40+08:00** | Docs Suite Sync | Synchronized `/docs` suite with active codebase state, Hono routes, D1 schemas, v2 UI components, and `AGENTS.md` rules. |
@@ -27,9 +28,7 @@
 - **Rule 4 (Verify before declaring done)**: Enforced. Every code modification pass is verified with production builds (`npm run build`).
 - **Rule 9 (Never hardcode secrets)**: Enforced. Environment variables use standard key references in `.env` and `wrangler.toml`.
 - **Rule 12 (Prefer edit existing files over sprawl)**: Enforced. Standardized components are edited directly inside `src/components/v2/`.
-- **Rule 17 (LEARNINGS.md records)**: Enforced. Learnings recorded for version layout scoping and sliding pill navbar indicator calculation.
-- **Potential Flag / Observation**:
-  - *Observation*: `src/views/family/FamilyView.vue` has an unused import warning (`setDoc` from `firebase/firestore`). Does not break build, but flagged for cleanup during Phase 2 stabilization.
+- **Rule 17 (LEARNINGS.md records)**: Enforced. Learnings recorded for version layout scoping, sliding pill navbar indicator calculation, and v2 copywriting/CLI contrast.
 
 ---
 
@@ -40,11 +39,11 @@
 | 1 | Portfolio v1 | Archive classic design under `/v1` route with isolated styles | `[DONE]` | Served at `/v1` with scoped wrapper. |
 | 2 | Portfolio v2 | Build Whimsical Cozy Nocturnal theme (`#0F0F0F`, `#E8C976`, doodle art) | `[DONE]` | Served at `/portfolio` & `/`. |
 | 3 | Theme Toggle | Support seamless Dark Mode (🌙) and Light Mode (☀️) switching | `[DONE]` | Toggle button in Navbar with `useTheme.js`. |
-| 4 | IoT Telemetry Console | Interactive live terminal widget for ESP32, GPS, and Mesh signals | `[DONE]` | `IoTConsoleWidget.vue` embedded in Hero section. |
-| 5 | All Projects Showcase | Display all 18 projects from v1 with category filter tabs | `[DONE]` | Featured in `ProjectCarousel.vue`. |
-| 6 | Resume Data Integration | Showcase Mindnrobotics, PKT, UMT, PIS & Dean's List honors | `[DONE]` | Highlighted in `AboutSection.vue` & `ExperienceSection.vue`. |
-| 7 | Hono v4 Backend API | Edge backend API routes backed by Cloudflare D1 | `[DONE]` | Routes in `backend/src/routes/`. |
-| 8 | Version Selector Dropdown | Instant switcher between v1 and v2 in both headers | `[DONE]` | Embedded in Navbar v2 and Header v1. |
+| 4 | IoT Telemetry Console | Interactive live terminal widget with neon green contrast & copy email button | `[DONE]` | `IoTConsoleWidget.vue` embedded in Hero section. |
+| 5 | All Projects Showcase | Display 18 projects with multi-image gallery & architecture flowcharts | `[DONE]` | Featured in `ProjectCarousel.vue`. |
+| 6 | Technical Notes Modal | Interactive Lightbox Reader Modal for Technical Thoughts & Learnings | `[DONE]` | Embedded in `WritingSection.vue`. |
+| 7 | Resume Integration | Latest resume PDF download link (`Hazman's-resume-july-2026.pdf`) | `[DONE]` | Download buttons in Hero, CLI, and Command Palette. |
+| 8 | SEO & Open Graph | Dynamic page title and Open Graph meta tag injection on route load | `[DONE]` | Setup in `HomeV2.vue` onMounted. |
 
 ---
 

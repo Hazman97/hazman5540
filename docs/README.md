@@ -1,8 +1,8 @@
 # hazman5540 — Production Documentation Suite
 
 > [!NOTE]  
-> **Last Updated:** 2026-07-25T06:08:37+08:00  
-> **Codebase State:** Reflects Portfolio v2 redesign, Recruiter Command Terminal v2.6, Project Tier Strategy (Tier 1/2/3), Node-Link Architecture Flowcharts, STAR method metrics, and smooth scrolling repairs.
+> **Last Updated:** 2026-07-28T19:55:00+08:00  
+> **Codebase State:** Reflects Portfolio v2 polish, action-oriented copywriting, neon green terminal contrast, Technical Notes reader modal, multi-image lightbox gallery, CLI copy email button, SEO Open Graph meta tags, clean print stylesheet, and updated resume PDF (`Hazman's-resume-july-2026.pdf`).
 
 ---
 

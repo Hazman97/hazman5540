@@ -1,8 +1,8 @@
 # Architecture and Flow Specifications — hazman5540
 
 > [!NOTE]  
-> **Last Updated:** 2026-07-25T05:08:40+08:00  
-> **Codebase State:** Reflects codebase state as of Portfolio v2 redesign, Hono v4 backend routes, Cloudflare D1 integration, and dual light/dark mode system.
+> **Last Updated:** 2026-07-28T19:55:00+08:00  
+> **Codebase State:** Reflects codebase state as of Portfolio v2 polish, action-oriented copywriting, Technical Notes Reader Modal, Hono v4 backend routes, Cloudflare D1 integration, and dual light/dark mode system.
 
 ---
 
