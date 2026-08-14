@@ -806,7 +806,7 @@ export default {
       return this.allClaims.reduce((s, c) => s + c.amount, 0);
     },
     avgClaimAmount() {
-      return this.totalClaimAmount / this.allClaims.length;
+      return this.allClaims.length ? this.totalClaimAmount / this.allClaims.length : 0;
     },
     claimsByCategory() {
       return this.allClaims.reduce((a, c) => {

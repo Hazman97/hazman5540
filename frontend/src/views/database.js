@@ -22,27 +22,44 @@ export async function initDatabase() {
 }
 
 export function getNodeData(id) {
-  const stmt = db.prepare('SELECT * FROM nodes WHERE id = ?');
-  stmt.bind([id]);
-  const result = stmt.getAsObject();
-  stmt.free();
-  return result;
+  if (!db) {
+    console.warn("Database not initialized yet.");
+    return {};
+  }
+  try {
+    const stmt = db.prepare('SELECT * FROM nodes WHERE id = ?');
+    stmt.bind([id]);
+    const result = stmt.getAsObject();
+    stmt.free();
+    return result;
+  } catch (e) {
+    console.error("getNodeData error:", e);
+    return {};
+  }
 }
 
 export function saveNodeData(nodeData) {
-  const stmt = db.prepare(`
-    INSERT INTO nodes (name, positionName, phone, email, department, imageUrl, address, positionCode)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `);
-  stmt.run([
-    nodeData.name,
-    nodeData.positionName,
-    nodeData.phone,
-    nodeData.email,
-    nodeData.department,
-    nodeData.imageUrl,
-    nodeData.address,
-    nodeData.positionCode,
-  ]);
-  stmt.free();
+  if (!db) {
+    console.warn("Database not initialized yet.");
+    return;
+  }
+  try {
+    const stmt = db.prepare(`
+      INSERT INTO nodes (name, positionName, phone, email, department, imageUrl, address, positionCode)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    stmt.run([
+      nodeData.name,
+      nodeData.positionName,
+      nodeData.phone,
+      nodeData.email,
+      nodeData.department,
+      nodeData.imageUrl,
+      nodeData.address,
+      nodeData.positionCode,
+    ]);
+    stmt.free();
+  } catch (e) {
+    console.error("saveNodeData error:", e);
+  }
 }

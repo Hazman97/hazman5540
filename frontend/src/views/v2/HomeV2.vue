@@ -24,9 +24,9 @@
     <footer class="relative z-10 py-10 border-t border-[#E6E0D4] dark:border-[#2A2A2A] text-center font-sans">
       <div class="max-w-4xl mx-auto px-4">
         <p class="text-xs sm:text-sm font-serif text-[#2A2421]/80 dark:text-[#F5F0E8]/80">
-          Designed & Built with warm care by <span class="text-[#B5502F] dark:text-[#E8C976] font-semibold">Hazman Adanan</span>
+          Built by <span class="text-[#B5502F] dark:text-[#E8C976] font-semibold">Hazman Adanan</span> • Software & IoT Engineer
         </p>
-        <p class="text-[11px] font-mono text-[#6E655F] dark:text-[#8A8A8A] mt-2">
+        <p class="text-[11px] font-mono text-[#524A45] dark:text-[#9E9E9E] mt-2">
           © {{ currentYear }} All rights reserved. (Portfolio v2)
         </p>
 
@@ -37,7 +37,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
             </svg>
-            <span>{{ visitorCount !== null ? visitorCount.toLocaleString() : '...' }} visitors</span>
+            <span>{{ visitorCount !== null ? `${visitorCount.toLocaleString()} ${visitorCount === 1 ? 'visitor' : 'visitors'}` : '...' }}</span>
           </div>
         </div>
       </div>

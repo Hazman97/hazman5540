@@ -1,5 +1,5 @@
 <template>
-  <section id="contact" class="relative py-20 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+  <section id="contact" class="relative py-20 sm:py-28 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
     <!-- Asymmetric Organic Doodle Decorations -->
     <DoodleDecorations type="coffee-doodle" class="absolute top-12 right-[8%] hidden sm:block" />
 
@@ -8,7 +8,7 @@
       <h2 class="text-3xl sm:text-5xl font-serif text-[#B5502F] dark:text-[#E8C976] tracking-wide mb-3">
         Let's Connect
       </h2>
-      <p class="text-[#6E655F] dark:text-[#8A8A8A] text-sm sm:text-base font-sans max-w-xl mx-auto">
+      <p class="text-[#524A45] dark:text-[#9E9E9E] text-sm sm:text-base font-sans max-w-xl mx-auto">
         For software projects, IoT integration inquiries, or technical discussions — feel free to reach out.
       </p>
       <WavyDivider />
@@ -24,7 +24,7 @@
               type="text" 
               required
               placeholder="Hazman Adanan"
-              class="w-full bg-[#FAF7F2] dark:bg-[#141414] border border-[#E6E0D4] dark:border-[#2A2A2A] rounded-xl px-4 py-3 text-sm text-[#2A2421] dark:text-[#F5F0E8] placeholder-[#6E655F]/50 dark:placeholder-[#8A8A8A]/50 focus:outline-none focus:border-[#B5502F] dark:focus:border-[#E8C976] focus-ring transition-colors"
+              class="w-full bg-[#FAF7F2] dark:bg-[#141414] border border-[#E6E0D4] dark:border-[#2A2A2A] rounded-xl px-4 py-3 text-sm text-[#2A2421] dark:text-[#F5F0E8] placeholder-[#524A45]/60 dark:placeholder-[#9E9E9E]/60 focus:outline-none focus:border-[#B5502F] dark:focus:border-[#E8C976] focus-ring transition-colors"
             />
           </div>
 
@@ -35,7 +35,7 @@
               type="email" 
               required
               placeholder="hazman5001@gmail.com"
-              class="w-full bg-[#FAF7F2] dark:bg-[#141414] border border-[#E6E0D4] dark:border-[#2A2A2A] rounded-xl px-4 py-3 text-sm text-[#2A2421] dark:text-[#F5F0E8] placeholder-[#6E655F]/50 dark:placeholder-[#8A8A8A]/50 focus:outline-none focus:border-[#B5502F] dark:focus:border-[#E8C976] focus-ring transition-colors"
+              class="w-full bg-[#FAF7F2] dark:bg-[#141414] border border-[#E6E0D4] dark:border-[#2A2A2A] rounded-xl px-4 py-3 text-sm text-[#2A2421] dark:text-[#F5F0E8] placeholder-[#524A45]/60 dark:placeholder-[#9E9E9E]/60 focus:outline-none focus:border-[#B5502F] dark:focus:border-[#E8C976] focus-ring transition-colors"
             />
           </div>
         </div>
@@ -47,7 +47,7 @@
             rows="5"
             required
             placeholder="Describe the software, IoT, or networking project in mind..."
-            class="w-full bg-[#FAF7F2] dark:bg-[#141414] border border-[#E6E0D4] dark:border-[#2A2A2A] rounded-xl px-4 py-3 text-sm text-[#2A2421] dark:text-[#F5F0E8] placeholder-[#6E655F]/50 dark:placeholder-[#8A8A8A]/50 focus:outline-none focus:border-[#B5502F] dark:focus:border-[#E8C976] focus-ring transition-colors resize-none"
+            class="w-full bg-[#FAF7F2] dark:bg-[#141414] border border-[#E6E0D4] dark:border-[#2A2A2A] rounded-xl px-4 py-3 text-sm text-[#2A2421] dark:text-[#F5F0E8] placeholder-[#524A45]/60 dark:placeholder-[#9E9E9E]/60 focus:outline-none focus:border-[#B5502F] dark:focus:border-[#E8C976] focus-ring transition-colors resize-none"
           ></textarea>
         </div>
 
@@ -59,8 +59,8 @@
             class="w-full sm:w-auto px-8 py-3.5 rounded-full bg-[#B5502F] dark:bg-[#E8C976] text-white dark:text-[#0F0F0F] font-sans font-semibold text-sm sm:text-base hover:opacity-90 hover:scale-105 active:scale-95 transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 focus-ring"
           >
             <span v-if="isSubmitting">Sending...</span>
-            <span v-else class="flex items-center gap-2">
-              Send Message ✦
+            <span v-else class="flex items-center gap-2 font-semibold">
+              Send Message →
             </span>
           </button>
 
@@ -70,7 +70,7 @@
               href="https://github.com/hazman97" 
               target="_blank" 
               rel="noopener noreferrer"
-              class="p-2.5 rounded-full bg-[#F0EBE1] dark:bg-[#242424] text-[#2A2421] dark:text-[#F5F0E8] border border-[#E6E0D4] dark:border-[#333333] hover:text-[#B5502F] dark:hover:text-[#E8C976] transition-all"
+              class="p-2.5 rounded-full bg-[#F0EBE1] dark:bg-[#242424] text-[#2A2421] dark:text-[#F5F0E8] border border-[#E6E0D4] dark:border-[#333333] hover:text-[#B5502F] dark:hover:text-[#E8C976] transition-all focus-ring"
               aria-label="GitHub Profile"
             >
               <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
@@ -81,7 +81,7 @@
               href="https://www.linkedin.com/in/hazman-adanan" 
               target="_blank" 
               rel="noopener noreferrer"
-              class="p-2.5 rounded-full bg-[#F0EBE1] dark:bg-[#242424] text-[#2A2421] dark:text-[#F5F0E8] border border-[#E6E0D4] dark:border-[#333333] hover:text-[#B5502F] dark:hover:text-[#E8C976] transition-all"
+              class="p-2.5 rounded-full bg-[#F0EBE1] dark:bg-[#242424] text-[#2A2421] dark:text-[#F5F0E8] border border-[#E6E0D4] dark:border-[#333333] hover:text-[#B5502F] dark:hover:text-[#E8C976] transition-all focus-ring"
               aria-label="LinkedIn Profile"
             >
               <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">

@@ -657,7 +657,9 @@ export default {
       if (userRaw) {
         this.userEmail = JSON.parse(userRaw)?.email || JSON.parse(userRaw)?.username || "User";
       }
-    } catch (e) {}
+    } catch (e) {
+      console.warn("Failed to load user session in OrgChartCreate:", e);
+    }
   },
   beforeUnmount() {
     window.removeEventListener("resize", this.handleResize);
@@ -731,7 +733,9 @@ export default {
         try {
           const userRaw = localStorage.getItem('hazman_user');
           if (userRaw) userEmail = JSON.parse(userRaw)?.email;
-        } catch (e) {}
+        } catch (e) {
+          console.warn("Failed to parse user email in OrgChartCreate:", e);
+        }
 
         const ownerToken = userEmail || (Math.random().toString(36).substring(2) + Date.now().toString(36));
 

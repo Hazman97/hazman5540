@@ -630,7 +630,9 @@ export default {
         try {
           const userRaw = localStorage.getItem('hazman_user');
           if (userRaw) userEmail = JSON.parse(userRaw)?.email;
-        } catch (e) {}
+        } catch (e) {
+          console.warn("Failed to parse user session in OrgChartEdit:", e);
+        }
 
         const isAuthenticated = (this.token && this.token === data.owner_token) || (userEmail && userEmail === data.owner_token);
 

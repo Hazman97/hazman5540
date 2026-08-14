@@ -6,15 +6,18 @@
 
 @layer base {
   html, body {
-    @apply bg-white dark:bg-primary text-slate-800 dark:text-text font-sans transition-colors duration-300;
+    @apply bg-[#FAF7F2] dark:bg-[#0F0F0F] text-[#2A2421] dark:text-[#F5F0E8] font-sans transition-colors duration-300;
     overflow-x: hidden;
     scroll-behavior: smooth;
+  }
+  .v1-layout-scope {
+    @apply bg-white dark:bg-primary text-slate-800 dark:text-text;
   }
   section {
     scroll-margin-top: 100px;
   }
   h1, h2, h3, h4, h5, h6 {
-    @apply dark:text-heading font-bold;
+    @apply dark:text-[#F5F0E8] font-bold;
   }
 }
 

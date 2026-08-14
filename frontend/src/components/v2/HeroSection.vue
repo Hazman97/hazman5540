@@ -19,36 +19,38 @@
       </h1>
 
       <!-- Role Headline & Sub-Headline -->
-      <h2 class="text-xl sm:text-2xl md:text-3xl font-serif text-[#2A2421] dark:text-[#F5F0E8] font-bold mb-3 max-w-3xl mx-auto leading-tight">
-        Specializing in edge computing, IoT telemetry, and high-performance full-stack web applications.
+      <h2 class="text-2xl sm:text-4xl font-serif text-[#2A2421] dark:text-[#F5F0E8] font-bold mb-4 max-w-3xl mx-auto leading-tight">
+        Full-Stack & IoT Engineer bridging embedded hardware with real-time web cloud platforms.
       </h2>
+
+      <p class="text-sm sm:text-base text-[#524A45] dark:text-[#9E9E9E] font-sans max-w-2xl mx-auto leading-relaxed mb-6">
+        B.Sc. Computer Science & Dip. Electrical Engineering. Architecting low-latency telemetry systems, Node.js TCP ingestion servers, and modern Vue/React dashboards.
+      </p>
 
       <!-- Wavy Divider with Center Dot -->
       <WavyDivider />
 
-      <!-- Story Body Text: High-Impact "Engineering Bridge" Narrative -->
-      <div class="text-[#2A2421] dark:text-[#F5F0E8] text-base sm:text-lg font-sans leading-relaxed max-w-3xl mx-auto space-y-4 my-6">
-        <p class="font-serif italic text-lg sm:text-xl text-[#B5502F] dark:text-[#E8C976] font-normal">
-          "Delivering robust end-to-end engineering solutions from embedded hardware to cloud dashboards."
-        </p>
-
-        <p class="text-[#2A2421] dark:text-[#F5F0E8] text-sm sm:text-base leading-relaxed">
-          Proven track record in architecting real-time monitoring systems, mesh networks, and IoT integrations using Node.js, PostgreSQL, React, and embedded technologies. Grounded in both <span class="font-semibold text-[#B5502F] dark:text-[#E8C976]">Computer Science (B.Sc.)</span> and <span class="font-semibold text-[#B5502F] dark:text-[#E8C976]">Electrical & Electronics Engineering (Dip.)</span> — engineering resilient telemetry platforms, ESP32 firmware, and mission-critical web dashboards.
-        </p>
-      </div>
-
       <!-- Core Engineering Capabilities Micro-Badges -->
-      <div class="my-6 inline-flex flex-wrap items-center justify-center gap-3 px-4 py-2.5 rounded-2xl bg-white dark:bg-[#141414] border border-[#E6E0D4] dark:border-[#2A2A2A] font-mono text-xs text-[#6E655F] dark:text-[#8A8A8A] shadow-md">
+      <div class="my-6 inline-flex flex-wrap items-center justify-center gap-3 px-4 py-2.5 rounded-2xl bg-white dark:bg-[#141414] border border-[#E6E0D4] dark:border-[#2A2A2A] font-mono text-xs text-[#524A45] dark:text-[#9E9E9E] shadow-md">
         <div class="flex items-center gap-1.5 text-[#B5502F] dark:text-[#E8C976] font-semibold">
-          <span>⚡ Sub-15ms Real-Time WebSockets</span>
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          <span>Sub-15ms Real-Time WebSockets</span>
         </div>
         <span class="text-[#E6E0D4] dark:text-[#2A2A2A]">|</span>
         <div class="flex items-center gap-1.5 text-[#27C93F] font-semibold">
-          <span>📡 High-Throughput TCP Telemetry</span>
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071a10 10 0 0114.142 0M1.05 6.879a16 16 0 0121.9 0" />
+          </svg>
+          <span>High-Throughput TCP Telemetry</span>
         </div>
         <span class="text-[#E6E0D4] dark:text-[#2A2A2A]">|</span>
         <div class="flex items-center gap-1.5 text-[#B5502F] dark:text-[#E8C976] font-semibold">
-          <span>🌐 Industrial Field & Mesh Networks</span>
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+          </svg>
+          <span>Industrial Field & Mesh Networks</span>
         </div>
       </div>
 
@@ -71,7 +73,7 @@
         <!-- Secondary Outlined Pill Button -->
         <button
           @click="downloadResume"
-          class="px-7 py-3 rounded-full bg-transparent text-[#2A2421] dark:text-[#F5F0E8] border border-[#B5502F]/40 dark:border-[#F5F0E8]/30 hover:border-[#B5502F] dark:hover:border-[#E8C976] hover:text-[#B5502F] dark:hover:text-[#E8C976] font-sans font-medium text-sm sm:text-base transition-all flex items-center gap-2 cursor-pointer focus-ring"
+          class="px-7 py-3 rounded-full bg-transparent text-[#2A2421] dark:text-[#F5F0E8] border border-[#B5502F]/40 dark:border-[#F5F0E8]/30 hover:border-[#B5502F] dark:hover:border-[#E8C976] hover:text-[#B5502F] dark:hover:text-[#E8C976] hover:scale-105 active:scale-95 font-sans font-medium text-sm sm:text-base transition-all flex items-center gap-2 cursor-pointer focus-ring"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -82,7 +84,7 @@
 
       <!-- Quick Tech Stack Tags -->
       <div class="mt-12 pt-8 border-t border-[#E6E0D4] dark:border-[#2A2A2A]/60 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
-        <span class="text-xs font-mono text-[#6E655F] dark:text-[#8A8A8A] mr-2">tech domain:</span>
+        <span class="text-xs font-mono text-[#524A45] dark:text-[#9E9E9E] mr-2">tech domain:</span>
         <span 
           v-for="tech in ['ESP32 / Embedded C++', 'Vue 3 & TypeScript', 'Teltonika FMC920', 'Node.js & PostgreSQL', 'Rajant Mesh & Starlink', 'Cisco Packet Tracer']"
           :key="tech"

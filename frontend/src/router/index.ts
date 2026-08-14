@@ -282,7 +282,21 @@ const routes = [
     path: "/todolist",
     name: "todolist",
     component: () => import("@/views/project/todolist.vue"),
-    meta: { title: "Todo List" },
+    meta: { title: "MyKad Information Extractor", description: "Extract birth date, age, gender, and state of birth from Malaysian MyKad" },
+  },
+  {
+    path: "/mykad",
+    name: "mykad",
+    component: () => import("@/views/project/todolist.vue"),
+    meta: { title: "MyKad Information Extractor", description: "Extract birth date, age, gender, and state of birth from Malaysian MyKad" },
+  },
+  {
+    path: "/admin/login",
+    name: "AdminLoginAlias",
+    redirect: (to) => {
+      const redirect = to.query.redirect;
+      return redirect ? `/attendance/admin/login?redirect=${encodeURIComponent(redirect as string)}` : "/attendance/admin/login";
+    },
   },
   {
     path: "/converter",
@@ -359,7 +373,7 @@ router.beforeEach((to, from, next) => {
 
   if (to.meta.requiresSuperadmin) {
     if (!session || !session.is_superadmin) {
-      next(`/admin/login?redirect=${to.fullPath}`);
+      next(`/attendance/admin/login?redirect=${encodeURIComponent(to.fullPath)}`);
     } else {
       next();
     }
@@ -371,7 +385,7 @@ router.beforeEach((to, from, next) => {
     else if (to.path.startsWith('/birthday/admin')) requiredProject = 'birthday_admin';
 
     if (!session) {
-      next(`/admin/login?redirect=${to.fullPath}`);
+      next(`/attendance/admin/login?redirect=${encodeURIComponent(to.fullPath)}`);
     } else if (session.is_superadmin || (session.permissions && session.permissions.includes(requiredProject))) {
       next(); // Superadmin can access everything, or user has specific permission
     } else {

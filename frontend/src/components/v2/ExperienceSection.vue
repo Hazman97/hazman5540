@@ -1,5 +1,5 @@
 <template>
-  <section id="experience" class="relative pt-20 pb-28 sm:pb-36 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+  <section id="experience" class="relative py-20 sm:py-28 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
     <!-- Asymmetric Organic Doodle & Circuit Decorations -->
     <DoodleDecorations type="moon-sparkle" class="absolute top-10 right-[6%] hidden sm:block" />
     <DoodleDecorations type="circuit-node" class="absolute bottom-16 left-[4%] hidden md:block" />
@@ -9,7 +9,7 @@
       <h2 class="text-3xl sm:text-5xl font-serif text-[#B5502F] dark:text-[#E8C976] tracking-wide mb-3">
         Experience & Education Journey
       </h2>
-      <p class="text-[#6E655F] dark:text-[#8A8A8A] text-sm sm:text-base font-sans max-w-xl mx-auto">
+      <p class="text-[#524A45] dark:text-[#9E9E9E] text-sm sm:text-base font-sans max-w-xl mx-auto">
         STAR metric-driven history at Mindnrobotics & PKT Logistics, alongside academic background.
       </p>
       <WavyDivider />
@@ -33,24 +33,24 @@
           <div class="relative group">
             <div class="absolute -left-[31px] top-1.5 w-3.5 h-3.5 rounded-full bg-[#B5502F] dark:bg-[#E8C976] border-4 border-[#FAF7F2] dark:border-[#0F0F0F] shadow-[0_0_8px_#B5502F] dark:shadow-[0_0_8px_#E8C976] group-hover:scale-125 transition-transform"></div>
             
-            <div class="bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] p-6 rounded-2xl shadow-xl hover:border-[#B5502F]/40 dark:hover:border-[#E8C976]/40 transition-colors">
+            <div class="bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] p-6 rounded-2xl shadow-md hover:shadow-xl hover:border-[#B5502F]/40 dark:hover:border-[#E8C976]/40 transition-all">
               <div class="flex items-center justify-between gap-2 mb-2">
                 <span class="inline-block px-3 py-1 bg-[#B5502F]/10 dark:bg-[#E8C976]/10 text-[#B5502F] dark:text-[#E8C976] text-xs font-mono rounded-full border border-[#B5502F]/30 dark:border-[#E8C976]/30 font-semibold">May 2024 - Present</span>
-                <span class="text-[10px] font-mono text-[#6E655F] dark:text-[#8A8A8A]">Shah Alam, MY</span>
+                <span class="text-[10px] font-mono text-[#524A45] dark:text-[#9E9E9E]">Shah Alam, MY</span>
               </div>
               <h4 class="text-lg font-serif text-[#2A2421] dark:text-[#F5F0E8] font-semibold">Software Engineer</h4>
               <p class="text-xs font-mono text-[#B5502F] dark:text-[#E8C976] mb-4 font-semibold">Mindnrobotics (K-Youth Programme → Software Engineer)</p>
-              <ul class="text-xs sm:text-sm text-[#6E655F] dark:text-[#8A8A8A] font-sans space-y-3 leading-relaxed">
+              <ul class="text-xs sm:text-sm text-[#524A45] dark:text-[#9E9E9E] font-sans space-y-3 leading-relaxed">
                 <li class="flex items-start gap-2">
-                  <span class="text-[#B5502F] dark:text-[#E8C976] shrink-0">✦</span>
+                  <span class="text-[#B5502F] dark:text-[#E8C976] shrink-0 font-bold">•</span>
                   <span><strong>Architected low-latency WebSockets protocol</strong> between a Vue 3 dashboard and ESP32 C++ target microcontrollers over Rajant Mesh & Starlink uplinks, achieving &lt;15ms end-to-end hit detection latency in field operations.</span>
                 </li>
                 <li class="flex items-start gap-2">
-                  <span class="text-[#27C93F] shrink-0">✦</span>
+                  <span class="text-[#27C93F] shrink-0 font-bold">•</span>
                   <span><strong>Designed scalable Node.js TCP ingestion engine</strong> to parse raw binary telemetry streams from Teltonika FMC920 GPS devices, maintaining steady 500+ pkts/sec ingestion into PostgreSQL with 99.9% pipeline uptime.</span>
                 </li>
                 <li class="flex items-start gap-2">
-                  <span class="text-[#B5502F] dark:text-[#E8C976] shrink-0">✦</span>
+                  <span class="text-[#B5502F] dark:text-[#E8C976] shrink-0 font-bold">•</span>
                   <span><strong>Engineered interactive mobile robot fleet dashboard</strong> using Vue 3 and Leaflet.js, integrating ROS 2 telemetry feeds to deliver real-time spatial positioning for autonomous plantation UGVs.</span>
                 </li>
               </ul>
@@ -61,34 +61,20 @@
           <div class="relative group">
             <div class="absolute -left-[31px] top-1.5 w-3.5 h-3.5 rounded-full bg-[#E6E0D4] dark:bg-[#2A2A2A] border-4 border-[#FAF7F2] dark:border-[#0F0F0F] group-hover:bg-[#B5502F] dark:group-hover:bg-[#E8C976] transition-all"></div>
             
-            <div class="bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] p-6 rounded-2xl shadow-xl hover:border-[#B5502F]/40 dark:hover:border-[#E8C976]/40 transition-colors">
-              <span class="inline-block px-3 py-1 bg-[#F0EBE1] dark:bg-[#242424] text-[#6E655F] dark:text-[#8A8A8A] text-xs font-mono rounded-full mb-3 border border-[#E6E0D4] dark:border-[#2D2D2D]">Aug 2023 - Mar 2024</span>
+            <div class="bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] p-6 rounded-2xl shadow-md hover:shadow-xl hover:border-[#B5502F]/40 dark:hover:border-[#E8C976]/40 transition-all">
+              <span class="inline-block px-3 py-1 bg-[#F0EBE1] dark:bg-[#242424] text-[#524A45] dark:text-[#9E9E9E] text-xs font-mono rounded-full mb-3 border border-[#E6E0D4] dark:border-[#2D2D2D]">Aug 2023 - Mar 2024</span>
               <h4 class="text-lg font-serif text-[#2A2421] dark:text-[#F5F0E8] font-semibold">Programmer (Prev. IT Security Intern)</h4>
-              <p class="text-xs font-mono text-[#6E655F] dark:text-[#8A8A8A] mb-4">PKT Logistics Group Sdn Bhd</p>
-              <ul class="text-xs sm:text-sm text-[#6E655F] dark:text-[#8A8A8A] font-sans space-y-3 leading-relaxed">
+              <p class="text-xs font-mono text-[#524A45] dark:text-[#9E9E9E] mb-4">PKT Logistics Group Sdn Bhd</p>
+              <ul class="text-xs sm:text-sm text-[#524A45] dark:text-[#9E9E9E] font-sans space-y-3 leading-relaxed">
                 <li class="flex items-start gap-2">
-                  <span class="text-[#B5502F] dark:text-[#E8C976] shrink-0">✦</span>
+                  <span class="text-[#B5502F] dark:text-[#E8C976] shrink-0 font-bold">•</span>
                   <span><strong>Developed & integrated enterprise internal portals</strong> (Security Access, E-Claim, WMS Vendor API) using Vue.js and Tailwind CSS, streamlining operational workflows for over 1,000 active employees and logistics partners.</span>
                 </li>
                 <li class="flex items-start gap-2">
-                  <span class="text-[#6E655F] dark:text-[#8A8A8A] shrink-0">✦</span>
+                  <span class="text-[#524A45] dark:text-[#9E9E9E] shrink-0 font-bold">•</span>
                   <span>Partnered with external vendors on Warehouse Management System (WMS) front-end modules and CCTV access control feeds.</span>
                 </li>
               </ul>
-            </div>
-          </div>
-
-          <!-- Item 3: MAIK -->
-          <div class="relative group">
-            <div class="absolute -left-[31px] top-1.5 w-3.5 h-3.5 rounded-full bg-[#E6E0D4] dark:bg-[#2A2A2A] border-4 border-[#FAF7F2] dark:border-[#0F0F0F] group-hover:bg-[#B5502F] dark:group-hover:bg-[#E8C976] transition-all"></div>
-            
-            <div class="bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] p-6 rounded-2xl shadow-xl hover:border-[#B5502F]/40 dark:hover:border-[#E8C976]/40 transition-colors">
-              <span class="inline-block px-3 py-1 bg-[#F0EBE1] dark:bg-[#242424] text-[#6E655F] dark:text-[#8A8A8A] text-xs font-mono rounded-full mb-3 border border-[#E6E0D4] dark:border-[#2D2D2D]">Nov 2017 - Apr 2018</span>
-              <h4 class="text-lg font-serif text-[#2A2421] dark:text-[#F5F0E8] font-semibold">Part-Time Administrative Assistant</h4>
-              <p class="text-xs font-mono text-[#6E655F] dark:text-[#8A8A8A] mb-2">Majlis Agama Islam (Maik)</p>
-              <p class="text-xs sm:text-sm text-[#6E655F] dark:text-[#8A8A8A] font-sans leading-relaxed">
-                Supported Unit Agihan handling customer service at counter, public phone inquiries, data entry, and record management.
-              </p>
             </div>
           </div>
         </div>
@@ -97,13 +83,13 @@
       <!-- Education Column -->
       <div>
         <div class="flex items-center gap-3 mb-8">
-          <div class="p-2 rounded-xl bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] text-[#B5502F] dark:text-[#E8C976] shadow-sm">
+          <div class="w-10 h-10 rounded-xl bg-[#B5502F]/10 dark:bg-[#E8C976]/10 text-[#B5502F] dark:text-[#E8C976] flex items-center justify-center font-bold">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path d="M12 14l9-5-9-5-9 5 9 5z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0112 20.055a11.952 11.952 0 01-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
             </svg>
           </div>
-          <h3 class="text-xl font-serif text-[#2A2421] dark:text-[#F5F0E8]">Academic Education</h3>
+          <h3 class="text-2xl font-serif text-[#2A2421] dark:text-[#F5F0E8] font-bold">Education & Qualifications</h3>
         </div>
 
         <div class="relative border-l border-[#E6E0D4] dark:border-[#2A2A2A] ml-4 pl-6 space-y-10">
@@ -111,12 +97,12 @@
           <div class="relative group">
             <div class="absolute -left-[31px] top-1.5 w-3.5 h-3.5 rounded-full bg-[#B5502F] dark:bg-[#E8C976] border-4 border-[#FAF7F2] dark:border-[#0F0F0F] shadow-[0_0_8px_#B5502F] dark:shadow-[0_0_8px_#E8C976] group-hover:scale-125 transition-transform"></div>
             
-            <div class="bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] p-6 rounded-2xl shadow-xl hover:border-[#B5502F]/40 dark:hover:border-[#E8C976]/40 transition-colors">
+            <div class="bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] p-6 rounded-2xl shadow-md hover:shadow-xl hover:border-[#B5502F]/40 dark:hover:border-[#E8C976]/40 transition-all">
               <span class="inline-block px-3 py-1 bg-[#B5502F]/10 dark:bg-[#E8C976]/10 text-[#B5502F] dark:text-[#E8C976] text-xs font-mono rounded-full mb-3 border border-[#B5502F]/30 dark:border-[#E8C976]/30 font-semibold">2019 - 2024</span>
               <h4 class="text-lg font-serif text-[#2A2421] dark:text-[#F5F0E8] font-semibold">Bachelor of Computer Science with Maritime Informatics</h4>
-              <p class="text-xs font-mono text-[#6E655F] dark:text-[#8A8A8A] mb-3">Universiti Malaysia Terengganu (UMT)</p>
-              <div class="text-xs font-mono text-[#B5502F] dark:text-[#E8C976] mb-2 font-semibold">✦ Dean's List for Semesters 2, 3, and 4</div>
-              <p class="text-xs sm:text-sm text-[#6E655F] dark:text-[#8A8A8A] font-sans leading-relaxed mb-3">
+              <p class="text-xs font-mono text-[#524A45] dark:text-[#9E9E9E] mb-3">Universiti Malaysia Terengganu (UMT)</p>
+              <div class="text-xs font-mono text-[#B5502F] dark:text-[#E8C976] mb-2 font-semibold">Dean's List for Semesters 2, 3, and 4</div>
+              <p class="text-xs sm:text-sm text-[#524A45] dark:text-[#9E9E9E] font-sans leading-relaxed mb-3">
                 Coursework: Object-Oriented Programming, Cyber Security, Networking, Database Systems, IoT Computing, Web-Based Application Development, Intelligent Systems, System Analysis & Design.
               </p>
               <div class="p-2.5 rounded-lg bg-[#FAF7F2] dark:bg-[#141414] border border-[#E6E0D4] dark:border-[#2A2A2A] text-xs font-mono text-[#2A2421]/90 dark:text-[#F5F0E8]/90">
@@ -129,11 +115,11 @@
           <div class="relative group">
             <div class="absolute -left-[31px] top-1.5 w-3.5 h-3.5 rounded-full bg-[#E6E0D4] dark:bg-[#2A2A2A] border-4 border-[#FAF7F2] dark:border-[#0F0F0F] group-hover:bg-[#B5502F] dark:group-hover:bg-[#E8C976] transition-all"></div>
             
-            <div class="bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] p-6 rounded-2xl shadow-xl hover:border-[#B5502F]/40 dark:hover:border-[#E8C976]/40 transition-colors">
-              <span class="inline-block px-3 py-1 bg-[#F0EBE1] dark:bg-[#242424] text-[#6E655F] dark:text-[#8A8A8A] text-xs font-mono rounded-full mb-3 border border-[#E6E0D4] dark:border-[#2D2D2D]">2015 - 2018</span>
+            <div class="bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] p-6 rounded-2xl shadow-md hover:shadow-xl hover:border-[#B5502F]/40 dark:hover:border-[#E8C976]/40 transition-all">
+              <span class="inline-block px-3 py-1 bg-[#F0EBE1] dark:bg-[#242424] text-[#524A45] dark:text-[#9E9E9E] text-xs font-mono rounded-full mb-3 border border-[#E6E0D4] dark:border-[#2D2D2D]">2015 - 2018</span>
               <h4 class="text-lg font-serif text-[#2A2421] dark:text-[#F5F0E8] font-semibold">Diploma in Electrical & Electronics Engineering</h4>
-              <p class="text-xs font-mono text-[#6E655F] dark:text-[#8A8A8A] mb-3">Politeknik Ibrahim Sultan (PIS)</p>
-              <p class="text-xs sm:text-sm text-[#6E655F] dark:text-[#8A8A8A] font-sans leading-relaxed">
+              <p class="text-xs font-mono text-[#524A45] dark:text-[#9E9E9E] mb-3">Politeknik Ibrahim Sultan (PIS)</p>
+              <p class="text-xs sm:text-sm text-[#524A45] dark:text-[#9E9E9E] font-sans leading-relaxed">
                 Solid foundation in circuit theory, embedded microcontrollers, digital logic design, programmable logic controllers (PLC), and hardware troubleshooting.
               </p>
             </div>

@@ -60,11 +60,22 @@ const rsvpForm = ref({
   message: ''
 })
 
-const rsvpSubmitted = ref(false)
-
 const handleRsvpSubmit = () => {
   if (!rsvpForm.value.name) return
   rsvpSubmitted.value = true
+  
+  try {
+    const existingRsvps = JSON.parse(localStorage.getItem('wedding_demo_rsvps') || '[]')
+    existingRsvps.unshift({ ...rsvpForm.value, timestamp: new Date().toISOString() })
+    localStorage.setItem('wedding_demo_rsvps', JSON.stringify(existingRsvps))
+  } catch (e) {
+    console.warn('Failed to persist RSVP:', e)
+  }
+
+  if (rsvpForm.value.message) {
+    addWish()
+  }
+
   setTimeout(() => {
     showRsvpModal.value = false
   }, 2000)
@@ -79,17 +90,31 @@ const wishes = ref([
 
 const addWish = () => {
   if (rsvpForm.value.message && rsvpForm.value.name) {
-    wishes.value.unshift({
+    const newWish = {
       name: rsvpForm.value.name,
       message: rsvpForm.value.message,
       time: 'Baru sahaja'
-    })
+    }
+    wishes.value.unshift(newWish)
+    try {
+      localStorage.setItem('wedding_demo_wishes', JSON.stringify(wishes.value))
+    } catch (e) {
+      console.warn('Failed to persist wishes:', e)
+    }
   }
 }
 
 onMounted(() => {
   updateCountdown()
   timerInterval = setInterval(updateCountdown, 1000)
+  try {
+    const savedWishes = localStorage.getItem('wedding_demo_wishes')
+    if (savedWishes) {
+      wishes.value = JSON.parse(savedWishes)
+    }
+  } catch (e) {
+    console.warn('Failed to load saved wishes:', e)
+  }
 })
 
 onUnmounted(() => {

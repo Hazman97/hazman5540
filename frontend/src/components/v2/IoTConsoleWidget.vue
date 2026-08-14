@@ -6,11 +6,20 @@
         <span class="w-3 h-3 rounded-full bg-[#FF5F56] inline-block"></span>
         <span class="w-3 h-3 rounded-full bg-[#FFBD2E] inline-block"></span>
         <span class="w-3 h-3 rounded-full bg-[#27C93F] inline-block"></span>
-        <span class="ml-2 text-[11px] text-[#8A8A8A] font-semibold">hazman-recruiter-cli ~ bash v2.6</span>
+        <span class="ml-2 text-[11px] text-[#9E9E9E] font-semibold">hazman-recruiter-cli ~ bash v2.6</span>
       </div>
-      <div class="flex items-center gap-2 text-[10px] text-[#E8C976]">
-        <span class="w-2 h-2 rounded-full bg-[#27C93F] animate-pulse"></span>
-        <span>OPEN FOR OPPORTUNITIES</span>
+      <div class="flex items-center gap-3 text-[10px] text-[#E8C976]">
+        <button 
+          @click="toggleSound" 
+          class="px-2 py-0.5 rounded bg-[#242424] hover:bg-[#333333] text-[#E8C976] border border-[#333333] transition-colors focus-ring cursor-pointer font-mono"
+          :title="isSoundEnabled ? 'Mute Terminal Audio FX' : 'Enable Mechanical Keyboard Audio FX'"
+        >
+          {{ isSoundEnabled ? 'Audio: ON' : 'Audio: OFF' }}
+        </button>
+        <div class="flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-[#27C93F] animate-pulse"></span>
+          <span>OPEN FOR OPPORTUNITIES</span>
+        </div>
       </div>
     </div>
 
@@ -31,11 +40,11 @@
         v-model="inputCommand"
         type="text"
         placeholder="Type command (1-4, 'help', 'clear')..."
-        class="flex-1 bg-transparent text-[#F5F0E8] focus:outline-none font-mono text-xs placeholder-[#6E655F]"
+        class="flex-1 bg-transparent text-[#F5F0E8] focus:outline-none font-mono text-xs placeholder-[#9E9E9E]"
         :disabled="isTyping"
         @keydown.enter.prevent="handleCommandSubmit"
       />
-      <kbd class="hidden sm:inline-block px-2 py-0.5 text-[10px] bg-[#242424] text-[#8A8A8A] rounded border border-[#333333]">
+      <kbd class="hidden sm:inline-block px-2 py-0.5 text-[10px] bg-[#242424] text-[#9E9E9E] rounded border border-[#333333]">
         ENTER ↵
       </kbd>
     </div>
@@ -47,51 +56,51 @@
         <button 
           @click="execTechStack"
           :disabled="isTyping"
-          class="px-3 py-1.5 rounded-lg bg-[#242424] hover:bg-[#2D2D2D] text-[#E8C976] border border-[#333333] hover:border-[#E8C976]/50 transition-all text-[11px] font-medium flex items-center gap-1.5 cursor-pointer active:scale-95 focus-ring disabled:opacity-50"
+          class="px-3 py-1.5 rounded-lg bg-[#242424] hover:bg-[#2D2D2D] text-[#E8C976] border border-[#333333] hover:border-[#E8C976]/50 transition-all text-[11px] font-medium flex items-center gap-1.5 cursor-pointer active:scale-95 focus-ring disabled:opacity-50 font-mono"
         >
-          <span>🛠️ cat tech-stack.sh</span>
+          <span>cat tech-stack.sh</span>
         </button>
 
         <!-- Command 2: Metrics -->
         <button 
           @click="execMetrics"
           :disabled="isTyping"
-          class="px-3 py-1.5 rounded-lg bg-[#242424] hover:bg-[#2D2D2D] text-[#64FFDA] border border-[#333333] hover:border-[#64FFDA]/50 transition-all text-[11px] font-medium flex items-center gap-1.5 cursor-pointer active:scale-95 focus-ring disabled:opacity-50"
+          class="px-3 py-1.5 rounded-lg bg-[#242424] hover:bg-[#2D2D2D] text-[#64FFDA] border border-[#333333] hover:border-[#64FFDA]/50 transition-all text-[11px] font-medium flex items-center gap-1.5 cursor-pointer active:scale-95 focus-ring disabled:opacity-50 font-mono"
         >
-          <span>⚡ ./eval-metrics.sh</span>
+          <span>./eval-metrics.sh</span>
         </button>
 
         <!-- Command 3: Live Telemetry Stream -->
         <button 
           @click="execLiveStream"
           :disabled="isTyping"
-          class="px-3 py-1.5 rounded-lg bg-[#242424] hover:bg-[#2D2D2D] text-[#00FF66] border border-[#333333] hover:border-[#27C93F]/50 transition-all text-[11px] font-medium flex items-center gap-1.5 cursor-pointer active:scale-95 focus-ring disabled:opacity-50"
+          class="px-3 py-1.5 rounded-lg bg-[#242424] hover:bg-[#2D2D2D] text-[#00FF66] border border-[#333333] hover:border-[#27C93F]/50 transition-all text-[11px] font-medium flex items-center gap-1.5 cursor-pointer active:scale-95 focus-ring disabled:opacity-50 font-mono"
         >
-          <span>📡 live-stream --telemetry</span>
+          <span>live-stream --telemetry</span>
         </button>
 
         <!-- Command 4: Hire & Resume PDF -->
         <button 
           @click="execHireContact"
           :disabled="isTyping"
-          class="px-3 py-1.5 rounded-lg bg-[#242424] hover:bg-[#2D2D2D] text-[#F5F0E8] border border-[#333333] hover:border-[#F5F0E8]/50 transition-all text-[11px] font-medium flex items-center gap-1.5 cursor-pointer active:scale-95 focus-ring disabled:opacity-50"
+          class="px-3 py-1.5 rounded-lg bg-[#242424] hover:bg-[#2D2D2D] text-[#F5F0E8] border border-[#333333] hover:border-[#F5F0E8]/50 transition-all text-[11px] font-medium flex items-center gap-1.5 cursor-pointer active:scale-95 focus-ring disabled:opacity-50 font-mono"
         >
-          <span>📄 cat hire-hazman.md</span>
+          <span>cat hire-hazman.md</span>
         </button>
 
         <!-- Command 5: Copy Email -->
         <button 
           @click="copyEmail"
           :disabled="isTyping"
-          class="px-3 py-1.5 rounded-lg bg-[#242424] hover:bg-[#2D2D2D] text-[#E8C976] border border-[#333333] hover:border-[#E8C976]/50 transition-all text-[11px] font-medium flex items-center gap-1.5 cursor-pointer active:scale-95 focus-ring disabled:opacity-50"
+          class="px-3 py-1.5 rounded-lg bg-[#242424] hover:bg-[#2D2D2D] text-[#E8C976] border border-[#333333] hover:border-[#E8C976]/50 transition-all text-[11px] font-medium flex items-center gap-1.5 cursor-pointer active:scale-95 focus-ring disabled:opacity-50 font-mono"
         >
-          <span>📋 Copy Email</span>
+          <span>Copy Email</span>
         </button>
       </div>
 
       <button 
         @click="resetTerminal"
-        class="px-2.5 py-1.5 rounded-lg bg-[#242424] hover:bg-[#2D2D2D] text-[#8A8A8A] hover:text-[#F5F0E8] transition-colors text-[10px] focus-ring self-end sm:self-auto"
+        class="px-2.5 py-1.5 rounded-lg bg-[#242424] hover:bg-[#2D2D2D] text-[#9E9E9E] hover:text-[#F5F0E8] transition-colors text-[10px] focus-ring self-end sm:self-auto cursor-pointer"
       >
         Reset Screen
       </button>
@@ -110,6 +119,36 @@ interface LogLine {
 const logContainer = ref<HTMLElement | null>(null);
 const inputCommand = ref('');
 const isTyping = ref(false);
+const isSoundEnabled = ref(false);
+let audioCtx: AudioContext | null = null;
+
+const playClickSound = (freq = 800, type: OscillatorType = 'sine', duration = 0.04) => {
+  if (!isSoundEnabled.value) return;
+  try {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+  } catch {
+    // Ignore audio context autoplay policy restrictions
+  }
+};
+
+const toggleSound = () => {
+  isSoundEnabled.value = !isSoundEnabled.value;
+  if (isSoundEnabled.value) {
+    playClickSound(900, 'triangle', 0.08);
+  }
+};
 
 const getTime = () => {
   const d = new Date();
@@ -131,6 +170,7 @@ const pushLog = (line: LogLine) => {
   if (logs.value.length > 60) {
     logs.value.shift();
   }
+  playClickSound(600, 'sine', 0.02);
   scrollToBottom();
 };
 
@@ -150,19 +190,18 @@ const typeLines = async (linesToType: LogLine[], delayMs = 3000) => {
   isTyping.value = false;
 };
 
-// Initial State: Each menu line appears one by one with a 3.0s delay and LIVE timestamp for each line
+// Initial State: Boot sequence appears instantly so recruiters see full summary without waiting or clicking
 const initInitialState = async () => {
-  logs.value = [];
-  const menuLines: LogLine[] = [
-    { message: '[00:00:00] [SYSTEM] Hazman Interactive Terminal v2.6 Ready.', colorClass: 'text-[#E8C976] font-semibold' },
-    { message: '[00:00:00] [HAZMAN] Software & IoT Engineer | CS Degree + E&E Diploma', colorClass: 'text-[#64FFDA] font-semibold' },
-    { message: '[00:00:00] [SYSTEM] Type or click a command below to evaluate candidate:\n', colorClass: 'text-[#8A8A8A]' },
-    { message: '  > 1. cat tech-stack.sh      -- View full technical capabilities & protocols', colorClass: 'text-[#E8C976]' },
-    { message: '  > 2. ./eval-metrics.sh      -- Show key production systems & quantified metrics', colorClass: 'text-[#64FFDA]' },
-    { message: '  > 3. live-stream --telemetry-- Simulate real-time ESP32 & FMC920 TCP packet stream', colorClass: 'text-[#00FF66]' },
-    { message: '  > 4. cat hire-hazman.md     -- Direct contact info & download updated resume PDF\n', colorClass: 'text-[#F5F0E8]' },
+  logs.value = [
+    { message: '[SYSTEM] Hazman Interactive Terminal v2.6 Ready.', colorClass: 'text-[#E8C976] font-semibold' },
+    { message: '[HAZMAN] Software & IoT Engineer | CS Degree (UMT) + E&E Diploma (PIS)', colorClass: 'text-[#64FFDA] font-semibold' },
+    { message: '--------------------------------------------------------------------------------', colorClass: 'text-[#333333]' },
+    { message: 'CORE TECH: Node.js • Vue 3 • React • Express TCP • PostgreSQL • ESP32 • WebSockets', colorClass: 'text-[#F5F0E8] font-bold' },
+    { message: 'METRICS:   <15ms hit response | 500+ pkts/sec TCP ingestion | 1,000+ users onboarded', colorClass: 'text-[#27C93F]' },
+    { message: '--------------------------------------------------------------------------------', colorClass: 'text-[#333333]' },
+    { message: 'Click any quick action button below or type a command to inspect details:\n', colorClass: 'text-[#9E9E9E]' },
   ];
-  await typeLines(menuLines, 3000);
+  scrollToBottom();
 };
 
 // Command 1: cat tech-stack.sh

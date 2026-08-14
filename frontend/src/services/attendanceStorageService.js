@@ -68,8 +68,8 @@ export async function uploadAttendancePhoto(blob, type, studentId) {
 export async function uploadLeaveAttachment(file, type, studentId) {
   try {
     const timestamp = Date.now();
-    const extension = file.name.split(".").pop();
-    const filename = `${type}_${studentId}_${timestamp}.${extension}`;
+    const extension = (file && file.name && file.name.includes('.')) ? file.name.split('.').pop().replace(/[^a-zA-Z0-9]/g, '') : 'bin';
+    const filename = `${type}_${studentId}_${timestamp}.${extension || 'bin'}`;
 
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();

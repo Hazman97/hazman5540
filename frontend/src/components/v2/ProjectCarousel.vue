@@ -1,5 +1,5 @@
 <template>
-  <section id="works" class="relative py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+  <section id="works" class="relative py-20 sm:py-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
     <!-- Asymmetric Organic Doodle & Circuit Decorations -->
     <DoodleDecorations type="chip-doodle" class="absolute -top-6 left-[6%]" />
     <DoodleDecorations type="antenna-wave" class="absolute bottom-10 right-[5%] hidden md:block" />
@@ -9,7 +9,7 @@
       <h2 class="text-3xl sm:text-5xl font-serif text-[#B5502F] dark:text-[#E8C976] tracking-wide mb-3">
         Featured Systems & Engineering Builds
       </h2>
-      <p class="text-[#6E655F] dark:text-[#8A8A8A] text-sm sm:text-base font-sans max-w-2xl mx-auto">
+      <p class="text-[#524A45] dark:text-[#9E9E9E] text-sm sm:text-base font-sans max-w-2xl mx-auto">
         Structured into Tier 1 Industrial IoT Systems, Tier 2 Full-Stack SaaS Apps, and Tier 3 Utilities.
       </p>
       <WavyDivider />
@@ -24,7 +24,7 @@
         class="px-4 py-1.5 rounded-full text-xs font-mono transition-all cursor-pointer focus-ring"
         :class="activeCategory === cat.id
           ? 'bg-[#B5502F] dark:bg-[#E8C976] text-white dark:text-[#0F0F0F] font-semibold shadow-md'
-          : 'bg-white dark:bg-[#1A1A1A] text-[#6E655F] dark:text-[#8A8A8A] border border-[#E6E0D4] dark:border-[#2A2A2A] hover:text-[#2A2421] dark:hover:text-[#F5F0E8]'"
+          : 'bg-white dark:bg-[#1A1A1A] text-[#524A45] dark:text-[#9E9E9E] border border-[#E6E0D4] dark:border-[#2A2A2A] hover:text-[#2A2421] dark:hover:text-[#F5F0E8]'"
       >
         {{ cat.label }} ({{ getCategoryCount(cat.id) }})
       </button>
@@ -62,7 +62,7 @@
         <div 
           v-for="project in filteredProjects"
           :key="project.title"
-          class="snap-start shrink-0 print:shrink print:w-full w-[290px] sm:w-[350px] md:w-[380px] bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] rounded-xl overflow-hidden shadow-xl hover:border-[#B5502F]/40 dark:hover:border-[#E8C976]/40 transition-all duration-300 flex flex-col group/card cursor-pointer"
+          class="snap-start shrink-0 print:shrink print:w-full w-[300px] sm:w-[360px] md:w-[380px] bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] rounded-2xl overflow-hidden shadow-md hover:shadow-xl hover:border-[#B5502F]/40 dark:hover:border-[#E8C976]/40 transition-all duration-300 flex flex-col group/card cursor-pointer"
           @click="openModal(project)"
         >
           <!-- Browser Window Top Bar -->
@@ -72,7 +72,7 @@
               <span class="w-3 h-3 rounded-full bg-[#FFBD2E] inline-block"></span>
               <span class="w-3 h-3 rounded-full bg-[#27C93F] inline-block"></span>
             </div>
-            <div class="text-[10px] font-mono text-[#6E655F] dark:text-[#8A8A8A] truncate max-w-[170px]">
+            <div class="text-[10px] font-mono text-[#524A45] dark:text-[#9E9E9E] truncate max-w-[170px]">
               {{ project.url }}
             </div>
             <div class="w-4"></div>
@@ -97,7 +97,7 @@
             <!-- Quick View Overlay Hint -->
             <div class="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity duration-300 flex items-center justify-center z-20">
               <span class="px-4 py-2 rounded-full bg-white/90 dark:bg-[#1A1A1A]/90 text-[#B5502F] dark:text-[#E8C976] font-mono text-xs font-semibold shadow-xl border border-[#E6E0D4] dark:border-[#2A2A2A] transform translate-y-2 group-hover/img:translate-y-0 transition-transform">
-                ✦ Click for Architecture Topology
+                View Architecture Topology
               </span>
             </div>
 
@@ -120,12 +120,12 @@
                 </span>
               </div>
 
-              <p class="text-[#6E655F] dark:text-[#8A8A8A] text-xs sm:text-sm font-sans line-clamp-2 mb-4 leading-relaxed">
+              <p class="text-[#524A45] dark:text-[#9E9E9E] text-xs sm:text-sm font-sans line-clamp-2 mb-4 leading-relaxed">
                 {{ project.description }}
               </p>
             </div>
 
-            <!-- Tech Stack Tags -->
+          <!-- Tech Stack Tags -->
             <div class="flex flex-wrap gap-1.5 pt-3 border-t border-[#E6E0D4] dark:border-[#2A2A2A]">
               <span 
                 v-for="t in project.tech"
@@ -140,133 +140,106 @@
       </div>
     </div>
 
-    <!-- Interactive Project Detail Lightbox Modal with Visual Architecture Flowchart -->
-    <Transition
-      enter-active-class="transition duration-200 ease-out"
+    <!-- View All Projects Toggle Control -->
+    <div class="mt-8 text-center relative z-10">
+      <button 
+        @click="showAllProjects = !showAllProjects"
+        class="px-6 py-2.5 rounded-full bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] text-[#B5502F] dark:text-[#E8C976] hover:bg-[#FAF7F2] dark:hover:bg-[#242424] font-mono text-xs font-semibold shadow-md transition-all cursor-pointer focus-ring"
+      >
+        {{ showAllProjects ? '← Show Top Featured Builds Only' : `View All ${allProjects.length} Engineering Builds (${allProjects.length - 5} More) →` }}
+      </button>
+    </div>
+
+    <!-- Lightbox Detail Modal -->
+    <Transition 
+      enter-active-class="transition duration-300 ease-out"
       enter-from-class="opacity-0 scale-95"
       enter-to-class="opacity-100 scale-100"
-      leave-active-class="transition duration-150 ease-in"
+      leave-active-class="transition duration-200 ease-in"
       leave-from-class="opacity-100 scale-100"
       leave-to-class="opacity-0 scale-95"
     >
       <div 
         v-if="selectedProject" 
-        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-md overflow-y-auto"
         @click.self="closeModal"
       >
-        <div class="relative w-full max-w-2xl bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-          <!-- Modal Top Bar -->
-          <div class="flex items-center justify-between px-4 py-3 bg-[#F5F0E8] dark:bg-[#141414] border-b border-[#E6E0D4] dark:border-[#2A2A2A]">
-            <div class="flex items-center gap-2">
-              <span class="w-3 h-3 rounded-full bg-[#FF5F56] inline-block cursor-pointer" @click="closeModal"></span>
-              <span class="w-3 h-3 rounded-full bg-[#FFBD2E] inline-block"></span>
-              <span class="w-3 h-3 rounded-full bg-[#27C93F] inline-block"></span>
-              <span class="ml-2 text-xs font-mono text-[#6E655F] dark:text-[#8A8A8A] truncate max-w-[220px]">
-                {{ selectedProject.url }}
+        <div class="bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] rounded-2xl max-w-3xl w-full overflow-hidden shadow-2xl flex flex-col my-auto max-h-[90vh]">
+          <!-- Modal Header -->
+          <div class="flex items-center justify-between px-6 py-4 bg-[#F5F0E8] dark:bg-[#141414] border-b border-[#E6E0D4] dark:border-[#2A2A2A]">
+            <div class="flex items-center gap-3">
+              <span class="px-3 py-1 rounded-full text-xs font-mono font-semibold bg-[#B5502F]/10 dark:bg-[#E8C976]/10 text-[#B5502F] dark:text-[#E8C976] border border-[#B5502F]/20 dark:border-[#E8C976]/20">
+                {{ selectedProject.tierLabel }}
               </span>
+              <h3 class="text-lg font-serif font-bold text-[#2A2421] dark:text-[#F5F0E8] truncate max-w-xs sm:max-w-md">
+                {{ selectedProject.title }}
+              </h3>
             </div>
-
             <button 
               @click="closeModal"
-              class="p-1 rounded-full text-[#6E655F] dark:text-[#8A8A8A] hover:text-[#B5502F] dark:hover:text-[#E8C976] focus-ring"
-              aria-label="Close Modal"
+              class="w-8 h-8 rounded-full bg-white dark:bg-[#242424] text-[#524A45] dark:text-[#9E9E9E] hover:text-[#2A2421] dark:hover:text-[#F5F0E8] flex items-center justify-center transition-colors focus-ring"
+              aria-label="Close modal"
             >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              ✕
             </button>
           </div>
 
-          <!-- Modal Scrollable Content -->
-          <div class="overflow-y-auto p-6 space-y-6">
-            <!-- High-Res Preview Banner & Gallery Switcher -->
-            <div class="space-y-2">
-              <div class="relative h-52 sm:h-64 rounded-xl overflow-hidden bg-[#FAF7F2] dark:bg-[#0F0F0F] border border-[#E6E0D4] dark:border-[#2A2A2A]">
-                <img 
-                  :src="activeModalImage" 
-                  :alt="selectedProject.title"
-                  class="w-full h-full object-cover transition-all duration-300"
-                  @error="handleImgError"
-                />
-                <span class="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-mono font-semibold bg-white/90 dark:bg-[#1A1A1A]/90 text-[#B5502F] dark:text-[#E8C976] border border-[#E6E0D4] dark:border-[#2A2A2A] shadow-md">
-                  {{ selectedProject.tierLabel }}
-                </span>
-              </div>
-
-              <!-- Gallery Image Thumbnails (if available) -->
-              <div v-if="selectedProject.galleryImages && selectedProject.galleryImages.length > 1" class="flex items-center gap-2 overflow-x-auto py-1">
-                <button
-                  v-for="(img, idx) in selectedProject.galleryImages"
-                  :key="idx"
-                  @click="activeImageIndex = idx"
-                  class="w-16 h-12 rounded-lg overflow-hidden border-2 transition-all cursor-pointer shrink-0"
-                  :class="activeImageIndex === idx ? 'border-[#B5502F] dark:border-[#E8C976] scale-105 shadow-md' : 'border-transparent opacity-60 hover:opacity-100'"
-                >
-                  <img :src="img" :alt="'Gallery item ' + (idx + 1)" class="w-full h-full object-cover" @error="handleImgError" />
-                </button>
-              </div>
+          <!-- Modal Scrollable Content Body -->
+          <div class="p-6 overflow-y-auto space-y-6 flex-1">
+            <!-- Featured Topology Diagram / Preview Image -->
+            <div class="relative rounded-xl overflow-hidden bg-[#FAF7F2] dark:bg-[#0F0F0F] border border-[#E6E0D4] dark:border-[#2A2A2A]">
+              <img 
+                :src="activeModalImage" 
+                :alt="selectedProject.title" 
+                class="w-full h-64 sm:h-80 object-cover"
+                @error="handleImgError"
+              />
             </div>
 
-            <!-- Title & Status -->
-            <div>
-              <div class="flex items-center justify-between gap-2 mb-2">
-                <h3 class="text-2xl font-serif font-bold text-[#2A2421] dark:text-[#F5F0E8]">
-                  {{ selectedProject.title }}
-                </h3>
-                <span class="px-2.5 py-0.5 rounded text-xs font-mono bg-[#B5502F]/10 dark:bg-[#E8C976]/10 text-[#B5502F] dark:text-[#E8C976] border border-[#B5502F]/30 dark:border-[#E8C976]/30 font-semibold">
-                  {{ selectedProject.status || 'Active' }}
-                </span>
-              </div>
+            <!-- Gallery Thumbnails (if multiple exist) -->
+            <div v-if="selectedProject.galleryImages && selectedProject.galleryImages.length > 1" class="flex gap-2 overflow-x-auto pb-2">
+              <button 
+                v-for="(img, idx) in selectedProject.galleryImages"
+                :key="idx"
+                @click="activeImageIndex = idx"
+                class="w-20 h-14 rounded-lg overflow-hidden border-2 transition-all shrink-0 cursor-pointer focus-ring"
+                :class="activeImageIndex === idx ? 'border-[#B5502F] dark:border-[#E8C976] scale-105' : 'border-transparent opacity-60 hover:opacity-100'"
+              >
+                <img :src="img" :alt="`Thumbnail ${idx + 1}`" class="w-full h-full object-cover" />
+              </button>
+            </div>
 
-              <p class="text-sm sm:text-base text-[#6E655F] dark:text-[#8A8A8A] font-sans leading-relaxed">
+            <!-- Description -->
+            <div>
+              <h4 class="text-xs font-mono uppercase tracking-wider text-[#B5502F] dark:text-[#E8C976] mb-2 font-semibold">
+                Overview & Problem Statement
+              </h4>
+              <p class="text-sm sm:text-base text-[#2A2421] dark:text-[#F5F0E8] leading-relaxed font-sans">
                 {{ selectedProject.description }}
               </p>
             </div>
 
-            <!-- System Architecture Flowchart Diagram Box (For Tier 1 & Selected Builds) -->
-            <div v-if="selectedProject.architectureFlow" class="p-4 rounded-xl bg-[#0F0F0F] border border-[#2A2A2A] space-y-3 shadow-inner">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-mono text-[#E8C976] uppercase tracking-wider font-semibold flex items-center gap-2">
-                  <span>📐</span> Visual System Architecture Flowchart
-                </span>
-                <span class="text-[10px] font-mono text-[#64FFDA]">PROTOCOL PIPELINE</span>
-              </div>
-
-              <!-- Node Link Pipeline Diagram -->
-              <div class="flex flex-wrap items-center justify-center gap-2 py-3 px-2 bg-[#171717] rounded-lg border border-[#262626] font-mono text-xs">
-                <div 
-                  v-for="(step, idx) in selectedProject.architectureFlow" 
-                  :key="idx" 
-                  class="flex items-center gap-2"
-                >
-                  <span class="px-2.5 py-1 rounded bg-[#242424] text-[#F5F0E8] border border-[#333333] text-[11px] font-medium text-center">
-                    {{ step }}
-                  </span>
-                  <span v-if="idx < selectedProject.architectureFlow.length - 1" class="text-[#E8C976] font-bold">
-                    ➔
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Impact Metrics & Highlights Breakdown -->
-            <div class="p-4 rounded-xl bg-[#FAF7F2] dark:bg-[#141414] border border-[#E6E0D4] dark:border-[#2A2A2A] space-y-2">
-              <div class="text-xs font-mono text-[#B5502F] dark:text-[#E8C976] uppercase tracking-wider font-semibold">
-                // Measured Impact & Engineering Highlights
-              </div>
-              <ul class="text-xs sm:text-sm text-[#2A2421] dark:text-[#F5F0E8] space-y-1.5 list-disc list-inside font-sans">
-                <li v-for="highlight in (selectedProject.highlights || defaultHighlights)" :key="highlight">
-                  {{ highlight }}
+            <!-- Highlights -->
+            <div>
+              <h4 class="text-xs font-mono uppercase tracking-wider text-[#B5502F] dark:text-[#E8C976] mb-2 font-semibold">
+                Key Engineering Deliverables
+              </h4>
+              <ul class="space-y-2 text-xs sm:text-sm font-sans text-[#524A45] dark:text-[#9E9E9E]">
+                <li v-for="(h, idx) in (selectedProject.highlights || defaultHighlights)" :key="idx" class="flex items-start gap-2">
+                  <span class="text-[#B5502F] dark:text-[#E8C976] shrink-0">•</span>
+                  <span>{{ h }}</span>
                 </li>
               </ul>
             </div>
 
-            <!-- Full Tech Stack Tags -->
+            <!-- Tech Stack -->
             <div>
-              <div class="text-xs font-mono text-[#6E655F] dark:text-[#8A8A8A] uppercase tracking-wider mb-2">Technologies Used</div>
+              <h4 class="text-xs font-mono uppercase tracking-wider text-[#B5502F] dark:text-[#E8C976] mb-2 font-semibold">
+                Technologies & Frameworks
+              </h4>
               <div class="flex flex-wrap gap-2">
                 <span 
-                  v-for="tech in selectedProject.tech" 
+                  v-for="tech in selectedProject.tech"
                   :key="tech"
                   class="px-3 py-1 text-xs font-mono bg-[#F0EBE1] dark:bg-[#242424] text-[#2A2421] dark:text-[#F5F0E8] rounded-md border border-[#E6E0D4] dark:border-[#2D2D2D] font-medium"
                 >
@@ -277,19 +250,30 @@
           </div>
 
           <!-- Modal Bottom Actions -->
-          <div class="p-4 bg-[#F5F0E8] dark:bg-[#141414] border-t border-[#E6E0D4] dark:border-[#2A2A2A] flex items-center justify-between gap-3">
-            <button 
-              @click="closeModal"
-              class="px-5 py-2 rounded-full bg-transparent text-[#6E655F] dark:text-[#8A8A8A] hover:text-[#2A2421] dark:hover:text-[#F5F0E8] font-sans text-xs font-medium cursor-pointer focus-ring"
-            >
-              Close
-            </button>
+          <div class="p-4 bg-[#F5F0E8] dark:bg-[#141414] border-t border-[#E6E0D4] dark:border-[#2A2A2A] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-2">
+              <button 
+                @click="closeModal"
+                class="px-5 py-2 rounded-full bg-transparent text-[#524A45] dark:text-[#9E9E9E] hover:text-[#2A2421] dark:hover:text-[#F5F0E8] font-sans text-xs font-medium cursor-pointer focus-ring"
+              >
+                Close
+              </button>
+              <button 
+                @click="copyShareLink(selectedProject)"
+                class="px-4 py-2 rounded-full bg-[#F0EBE1] dark:bg-[#242424] text-[#B5502F] dark:text-[#E8C976] border border-[#E6E0D4] dark:border-[#333333] font-mono text-xs hover:bg-[#E6E0D4] dark:hover:bg-[#2D2D2D] transition-all cursor-pointer focus-ring flex items-center gap-1.5"
+              >
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                </svg>
+                <span>{{ copySuccess ? 'Link Copied' : 'Share Link' }}</span>
+              </button>
+            </div>
 
             <a 
               :href="selectedProject.url"
               target="_blank"
               rel="noopener noreferrer"
-              class="px-6 py-2.5 rounded-full bg-[#B5502F] dark:bg-[#E8C976] text-white dark:text-[#0F0F0F] font-sans font-semibold text-xs sm:text-sm hover:opacity-90 hover:scale-105 active:scale-95 transition-all shadow-md flex items-center gap-2 cursor-pointer focus-ring"
+              class="px-6 py-2.5 rounded-full bg-[#B5502F] dark:bg-[#E8C976] text-white dark:text-[#0F0F0F] font-sans font-semibold text-xs sm:text-sm hover:opacity-90 hover:scale-105 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer focus-ring"
             >
               <span>Launch Live App / Demo</span>
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -305,6 +289,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { useRoute } from 'vue-router';
 import WavyDivider from './WavyDivider.vue';
 import DoodleDecorations from './DoodleDecorations.vue';
 
@@ -323,10 +308,12 @@ interface ProjectItem {
   highlights?: string[];
 }
 
+const route = useRoute();
 const scrollContainer = ref<HTMLElement | null>(null);
 const activeCategory = ref<string>('all');
 const selectedProject = ref<ProjectItem | null>(null);
 const activeImageIndex = ref<number>(0);
+const copySuccess = ref(false);
 
 const activeModalImage = computed(() => {
   if (!selectedProject.value) return '';
@@ -357,6 +344,19 @@ const openModal = (project: ProjectItem) => {
 const closeModal = () => {
   selectedProject.value = null;
   activeImageIndex.value = 0;
+};
+
+const copyShareLink = async (project: ProjectItem) => {
+  const url = `${window.location.origin}${window.location.pathname}#works?project=${encodeURIComponent(project.title)}`;
+  try {
+    await navigator.clipboard.writeText(url);
+    copySuccess.value = true;
+    setTimeout(() => {
+      copySuccess.value = false;
+    }, 3000);
+  } catch {
+    // Fallback
+  }
 };
 
 const handleKeyDown = (e: KeyboardEvent) => {
@@ -626,9 +626,16 @@ const allProjects: ProjectItem[] = [
   },
 ];
 
+const showAllProjects = ref(false);
+
 const filteredProjects = computed(() => {
-  if (activeCategory.value === 'all') return allProjects;
-  return allProjects.filter((p) => p.tier === activeCategory.value);
+  let list = allProjects;
+  if (activeCategory.value !== 'all') {
+    list = allProjects.filter((p) => p.tier === activeCategory.value);
+  } else if (!showAllProjects.value) {
+    list = allProjects.slice(0, 5);
+  }
+  return list;
 });
 
 const getCategoryCount = (catId: string) => {
@@ -638,6 +645,15 @@ const getCategoryCount = (catId: string) => {
 
 onMounted(() => {
   window.addEventListener('keydown', handleKeyDown);
+  const rawQuery = window.location.search || (window.location.hash.includes('?') ? window.location.hash.split('?')[1] : '');
+  const params = new URLSearchParams(rawQuery);
+  const projectParam = params.get('project');
+  if (projectParam) {
+    const matched = allProjects.find((p) => p.title.toLowerCase() === decodeURIComponent(projectParam).toLowerCase());
+    if (matched) {
+      openModal(matched);
+    }
+  }
 });
 
 onUnmounted(() => {

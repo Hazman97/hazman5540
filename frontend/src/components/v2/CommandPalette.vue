@@ -23,12 +23,12 @@
             v-model="searchQuery"
             type="text"
             placeholder="Type a command or search portfolio (e.g. resume, projects, theme, v1)..."
-            class="w-full bg-transparent text-sm text-[#2A2421] dark:text-[#F5F0E8] placeholder-[#6E655F] dark:placeholder-[#8A8A8A] focus:outline-none font-sans"
+            class="w-full bg-transparent text-sm text-[#2A2421] dark:text-[#F5F0E8] placeholder-[#524A45] dark:placeholder-[#9E9E9E] focus:outline-none font-sans"
             @keydown.down.prevent="navigateDown"
             @keydown.up.prevent="navigateUp"
             @keydown.enter.prevent="selectCurrent"
           />
-          <kbd class="hidden sm:inline-block px-2 py-0.5 text-[10px] font-mono bg-[#F0EBE1] dark:bg-[#242424] text-[#6E655F] dark:text-[#8A8A8A] rounded border border-[#E6E0D4] dark:border-[#2D2D2D]">
+          <kbd class="hidden sm:inline-block px-2 py-0.5 text-[10px] font-mono bg-[#F0EBE1] dark:bg-[#242424] text-[#524A45] dark:text-[#9E9E9E] rounded border border-[#E6E0D4] dark:border-[#2D2D2D]">
             ESC
           </kbd>
         </div>
@@ -37,7 +37,7 @@
         <div class="max-h-80 overflow-y-auto p-2 space-y-1">
           <div 
             v-if="filteredCommands.length === 0" 
-            class="p-4 text-center text-xs font-mono text-[#6E655F] dark:text-[#8A8A8A]"
+            class="p-4 text-center text-xs font-mono text-[#524A45] dark:text-[#9E9E9E]"
           >
             No matching commands found for "{{ searchQuery }}"
           </div>
@@ -53,20 +53,20 @@
               : 'text-[#2A2421] dark:text-[#F5F0E8] hover:bg-[#FAF7F2] dark:hover:bg-[#242424]'"
           >
             <div class="flex items-center gap-3">
-              <span class="text-base leading-none">{{ cmd.icon }}</span>
+              <span class="w-7 h-7 rounded-lg bg-[#F0EBE1] dark:bg-[#242424] text-[#B5502F] dark:text-[#E8C976] flex items-center justify-center shrink-0" v-html="cmd.iconSvg"></span>
               <div>
                 <div class="font-semibold">{{ cmd.title }}</div>
-                <div class="text-[10px] text-[#6E655F] dark:text-[#8A8A8A] font-normal">{{ cmd.description }}</div>
+                <div class="text-[10px] text-[#524A45] dark:text-[#9E9E9E] font-normal">{{ cmd.description }}</div>
               </div>
             </div>
-            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-[#F0EBE1] dark:bg-[#242424] text-[#6E655F] dark:text-[#8A8A8A]">
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-[#F0EBE1] dark:bg-[#242424] text-[#524A45] dark:text-[#9E9E9E]">
               {{ cmd.badge }}
             </span>
           </div>
         </div>
 
         <!-- Palette Footer Navigation Hint -->
-        <div class="px-4 py-2 bg-[#F5F0E8] dark:bg-[#141414] border-t border-[#E6E0D4] dark:border-[#2A2A2A] flex items-center justify-between text-[10px] font-mono text-[#6E655F] dark:text-[#8A8A8A]">
+        <div class="px-4 py-2 bg-[#F5F0E8] dark:bg-[#141414] border-t border-[#E6E0D4] dark:border-[#2A2A2A] flex items-center justify-between text-[10px] font-mono text-[#524A45] dark:text-[#9E9E9E]">
           <div class="flex items-center gap-3">
             <span><kbd class="px-1 bg-white dark:bg-[#242424] rounded border border-[#E6E0D4] dark:border-[#2D2D2D]">↑↓</kbd> navigate</span>
             <span><kbd class="px-1 bg-white dark:bg-[#242424] rounded border border-[#E6E0D4] dark:border-[#2D2D2D]">↵</kbd> select</span>
@@ -85,7 +85,7 @@ import { useTheme } from '@/composables/useTheme';
 
 interface CommandItem {
   id: string;
-  icon: string;
+  iconSvg: string;
   title: string;
   description: string;
   badge: string;
@@ -124,10 +124,10 @@ const scrollToSection = (id: string) => {
   }
 };
 
-const commands: CommandItem[] = [
+const commands = computed<CommandItem[]>(() => [
   {
     id: 'resume',
-    icon: '📄',
+    iconSvg: `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>`,
     title: 'Download Resume PDF',
     description: 'Get Hazman\'s latest official curriculum vitae',
     badge: 'Download',
@@ -140,7 +140,7 @@ const commands: CommandItem[] = [
   },
   {
     id: 'projects',
-    icon: '📦',
+    iconSvg: `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>`,
     title: 'Browse All 18 Projects',
     description: 'Jump to filterable project carousel & lightbox preview',
     badge: '#works',
@@ -148,7 +148,7 @@ const commands: CommandItem[] = [
   },
   {
     id: 'hardware',
-    icon: '🛠️',
+    iconSvg: `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" /></svg>`,
     title: 'View Hardware Workbench',
     description: 'ESP32 targets, Teltonika FMC920, and Rajant mesh gear',
     badge: '#hardware',
@@ -156,7 +156,7 @@ const commands: CommandItem[] = [
   },
   {
     id: 'about',
-    icon: '👤',
+    iconSvg: `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>`,
     title: 'About Hazman & Education',
     description: 'Universiti Malaysia Terengganu & Politeknik background',
     badge: '#about',
@@ -164,7 +164,7 @@ const commands: CommandItem[] = [
   },
   {
     id: 'experience',
-    icon: '💼',
+    iconSvg: `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>`,
     title: 'Work Experience & History',
     description: 'Mindnrobotics & PKT Logistics Group career milestones',
     badge: '#experience',
@@ -172,7 +172,9 @@ const commands: CommandItem[] = [
   },
   {
     id: 'theme',
-    icon: isDark.value ? '☀️' : '🌙',
+    iconSvg: isDark.value
+      ? `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>`
+      : `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>`,
     title: `Switch to ${isDark.value ? 'Light' : 'Dark'} Mode`,
     description: 'Toggle dual parchment / nocturnal color theme',
     badge: 'Theme',
@@ -180,7 +182,7 @@ const commands: CommandItem[] = [
   },
   {
     id: 'v1',
-    icon: '🔄',
+    iconSvg: `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>`,
     title: 'Switch to Classic v1 Portfolio',
     description: 'View preserved legacy v1 portfolio snapshot',
     badge: '/v1',
@@ -188,13 +190,13 @@ const commands: CommandItem[] = [
   },
   {
     id: 'contact',
-    icon: '✉️',
+    iconSvg: `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>`,
     title: 'Send Contact Message',
     description: 'Jump directly to contact form and email details',
     badge: '#contact',
     action: () => scrollToSection('contact'),
   },
-];
+]);
 
 const filteredCommands = computed(() => {
   if (!searchQuery.value.trim()) return commands;

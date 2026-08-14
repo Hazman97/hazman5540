@@ -1,5 +1,5 @@
 <template>
-  <section id="writing" class="relative py-20 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+  <section id="writing" class="relative py-20 sm:py-28 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
     <!-- Asymmetric Organic Doodle Decorations -->
     <DoodleDecorations type="code-sparkle" class="absolute top-10 left-[4%] hidden sm:block" />
 
@@ -8,7 +8,7 @@
       <h2 class="text-3xl sm:text-5xl font-serif text-[#B5502F] dark:text-[#E8C976] tracking-wide mb-3">
         Notes & Technical Thoughts
       </h2>
-      <p class="text-[#6E655F] dark:text-[#8A8A8A] text-sm sm:text-base font-sans max-w-xl mx-auto">
+      <p class="text-[#524A45] dark:text-[#9E9E9E] text-sm sm:text-base font-sans max-w-xl mx-auto">
         Reflections on software architecture, networking, and personal learnings.
       </p>
       <WavyDivider />
@@ -20,15 +20,15 @@
         v-for="article in articles" 
         :key="article.title"
         @click="openModal(article)"
-        class="bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] rounded-2xl p-6 sm:p-8 hover:border-[#B5502F]/40 dark:hover:border-[#E8C976]/40 transition-all duration-300 shadow-xl group cursor-pointer"
+        class="bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] rounded-2xl p-6 sm:p-8 hover:border-[#B5502F]/40 dark:hover:border-[#E8C976]/40 transition-all duration-300 shadow-md hover:shadow-xl group cursor-pointer"
       >
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
           <span class="text-xs font-mono text-[#B5502F] dark:text-[#E8C976] bg-[#B5502F]/10 dark:bg-[#E8C976]/10 px-3 py-1 rounded-full border border-[#B5502F]/20 dark:border-[#E8C976]/20 self-start font-semibold">
             {{ article.date }}
           </span>
-          <span class="text-xs font-mono text-[#6E655F] dark:text-[#8A8A8A] flex items-center gap-1">
+          <span class="text-xs font-mono text-[#524A45] dark:text-[#9E9E9E] flex items-center gap-1">
             <span>{{ article.readTime }}</span>
-            <span class="text-[#B5502F] dark:text-[#E8C976]">✦ Read Note</span>
+            <span class="text-[#B5502F] dark:text-[#E8C976] font-semibold">Read Note →</span>
           </span>
         </div>
 
@@ -37,7 +37,7 @@
         </h3>
 
         <!-- Snippet with Sticky-Note Highlight Marker -->
-        <p class="text-[#6E655F] dark:text-[#8A8A8A] text-sm sm:text-base font-sans leading-relaxed mb-4">
+        <p class="text-[#524A45] dark:text-[#9E9E9E] text-sm sm:text-base font-sans leading-relaxed mb-4">
           {{ article.excerptBefore }}
           <span class="inline-block border-2 border-[#B5502F]/80 dark:border-[#F5F0E8]/80 bg-[#B5502F]/10 dark:bg-[#F5F0E8]/5 px-2 py-0.5 rounded text-[#B5502F] dark:text-[#F5F0E8] font-medium my-0.5 shadow-sm">
             {{ article.highlightText }}
@@ -50,7 +50,7 @@
           <span 
             v-for="tag in article.tags" 
             :key="tag"
-            class="text-xs font-mono text-[#6E655F] dark:text-[#8A8A8A] hover:text-[#B5502F] dark:hover:text-[#E8C976] transition-colors"
+            class="text-xs font-mono text-[#524A45] dark:text-[#9E9E9E] hover:text-[#B5502F] dark:hover:text-[#E8C976] transition-colors"
           >
             #{{ tag }}
           </span>

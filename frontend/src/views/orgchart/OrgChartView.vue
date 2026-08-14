@@ -310,7 +310,9 @@ export default {
               this.isOwner = true;
             }
           }
-        } catch (e) {}
+        } catch (e) {
+          console.warn("Failed to check owner token from session:", e);
+        }
 
         console.log("Loaded nodes:", this.nodes);
         console.log("Theme:", this.selectedTheme, "Style:", this.selectedStyle);

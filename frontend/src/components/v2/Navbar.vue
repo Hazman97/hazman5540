@@ -42,7 +42,7 @@
           class="relative z-10 px-2 sm:px-3 py-1 text-[11px] sm:text-xs font-sans font-medium tracking-wide lowercase transition-colors duration-200 focus-ring rounded-full"
           :class="activeTab === item.id 
             ? 'text-white dark:text-[#0F0F0F] font-semibold' 
-            : 'text-[#6E655F] dark:text-[#F5F0E8]/70 hover:text-[#2A2421] dark:hover:text-[#F5F0E8]'"
+            : 'text-[#524A45] dark:text-[#9E9E9E] hover:text-[#2A2421] dark:hover:text-[#F5F0E8]'"
         >
           {{ item.label }}
         </button>
@@ -63,12 +63,16 @@
         <!-- Light / Dark Mode Toggle Button -->
         <button
           @click="toggleTheme"
-          class="p-1.5 rounded-full bg-[#F0EBE1] dark:bg-[#242424] text-[#B5502F] dark:text-[#E8C976] border border-[#E6E0D4] dark:border-[#333333] hover:scale-110 active:scale-95 transition-all cursor-pointer focus-ring"
+          class="p-2 rounded-full bg-[#F0EBE1] dark:bg-[#242424] text-[#B5502F] dark:text-[#E8C976] border border-[#E6E0D4] dark:border-[#333333] hover:scale-110 active:scale-95 transition-all cursor-pointer focus-ring"
           :title="isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
           aria-label="Toggle Theme"
         >
-          <span v-if="isDark" class="text-xs block">☀️</span>
-          <span v-else class="text-xs block">🌙</span>
+          <svg v-if="isDark" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+          <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
         </button>
 
         <!-- Version Selector Dropdown -->
@@ -103,14 +107,14 @@
               v-if="isDropdownOpen"
               class="absolute right-0 mt-2 w-48 bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] rounded-xl shadow-2xl py-1.5 z-50 text-xs font-sans backdrop-blur-lg"
             >
-              <div class="px-3 py-1 text-[10px] uppercase font-mono tracking-wider text-[#6E655F] dark:text-[#8A8A8A]">
+              <div class="px-3 py-1 text-[10px] uppercase font-mono tracking-wider text-[#524A45] dark:text-[#9E9E9E]">
                 Switch Version
               </div>
 
               <!-- v2 Item -->
               <button
                 @click="switchVersion('v2')"
-                class="w-full flex items-center justify-between px-3 py-2 text-left hover:bg-[#FAF7F2] dark:hover:bg-[#262626] transition-colors cursor-pointer"
+                class="w-full flex items-center justify-between px-3 py-2 text-left hover:bg-[#FAF7F2] dark:hover:bg-[#262626] transition-colors cursor-pointer focus-ring rounded-lg"
                 :class="currentVersion === 'v2' ? 'text-[#B5502F] dark:text-[#E8C976] font-medium' : 'text-[#2A2421] dark:text-[#F5F0E8]'"
               >
                 <div class="flex items-center gap-2">
@@ -125,12 +129,12 @@
               <!-- v1 Item -->
               <button
                 @click="switchVersion('v1')"
-                class="w-full flex items-center justify-between px-3 py-2 text-left hover:bg-[#FAF7F2] dark:hover:bg-[#262626] transition-colors cursor-pointer"
-                :class="currentVersion === 'v1' ? 'text-[#B5502F] dark:text-[#E8C976] font-medium' : 'text-[#6E655F] dark:text-[#8A8A8A]'"
+                class="w-full flex items-center justify-between px-3 py-2 text-left hover:bg-[#FAF7F2] dark:hover:bg-[#262626] transition-colors cursor-pointer focus-ring rounded-lg"
+                :class="currentVersion === 'v1' ? 'text-[#B5502F] dark:text-[#E8C976] font-medium' : 'text-[#524A45] dark:text-[#9E9E9E]'"
               >
                 <div class="flex items-center gap-2">
                   <span class="font-semibold">v1</span>
-                  <span class="text-[10px] text-[#6E655F] dark:text-[#8A8A8A]">(Classic)</span>
+                  <span class="text-[10px] text-[#524A45] dark:text-[#9E9E9E]">(Classic)</span>
                 </div>
                 <svg v-if="currentVersion === 'v1'" class="w-4 h-4 text-[#B5502F] dark:text-[#E8C976]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
