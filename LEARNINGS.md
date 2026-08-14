@@ -53,3 +53,11 @@
 🔍 **Root cause:** Mismatch nama route dalam router guard, pembahagian dengan kosong (division by zero), andaian parsing string `split('.').pop()` tanpa validation, dan ketiadaan storan persisten untuk borang RSVP demo.
 ✅ **Fix:** Menyelaraskan RBAC guard redirect ke `/attendance/admin/login` dengan alias `/admin/login`, menambah `length` check pada `avgClaimAmount`, menapis sanitasi ekstensi fail muat naik, dan menyimpan data RSVP serta ucapan Kad Kahwin Digital ke `localStorage`.
 📌 **Elak lagi:** Sentiasa sahkan route destination wujud dalam router manifest, lindungi operasi pembahagian matematik dari `length === 0`, dan sediakan mekanisme simpanan tempatan (*storage fallback*) untuk semua borang interaktif.
+
+---
+
+## [2026-08-14] — Vue Router RouteRecordRaw Redirect Parameter Mismatch
+❌ **Silap:** Type error `null is not assignable to RouteRecordNameGeneric` apabila menggunakan `redirect: (to: RouteLocationNormalized) => ...` dalam manifest route.
+🔍 **Root cause:** `RouteLocationNormalized` tidak menerima `name: null` manakala `RouteRecordRedirectOption` melepaskan `RouteLocationGeneric` (yang membenarkan `name` bernilai `null`).
+✅ **Fix:** Import `RouteRecordRaw`, taip `const routes: RouteRecordRaw[]`, dan padamkan anotasi spesifik `RouteLocationNormalized` pada callback `redirect: (to) => ...` supaya type diinferred secara tepat oleh Vue Router.
+📌 **Elak lagi:** Taip tatasusunan route sebagai `RouteRecordRaw[]` dan biarkan TypeScript infer parameter callback `redirect: (to) => ...` secara kontekstual.
