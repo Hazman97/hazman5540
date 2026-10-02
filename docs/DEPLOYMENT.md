@@ -16,7 +16,7 @@ This document contains all the deployment details, URLs, and environment variabl
 | Service | URL | Notes |
 |---------|-----|-------|
 | **Frontend (Production)** | [https://hazman5540.pages.dev](https://hazman5540.pages.dev) | The main portfolio and portal. |
-| **Backend API (Production)** | `https://hazman5540.hazman5001.workers.dev` | Handles all `/api/*` requests. *Note: `.workers.dev` domains may be blocked by some local adblockers or antivirus.* |
+| **Backend API (Production)** | `https://portfolio-hazman5540.hazman5001.workers.dev` | Handles all `/api/*` requests. *Note: `.workers.dev` domains may be blocked by some local adblockers or antivirus.* |
 
 ---
 
@@ -49,7 +49,7 @@ npx wrangler d1 studio hazman5540db --local
 These are used during the `npm run build` step for Cloudflare Pages.
 
 ```env
-VITE_API_URL=https://hazman5540.hazman5001.workers.dev
+VITE_API_URL=https://portfolio-hazman5540.hazman5001.workers.dev
 VITE_GOOGLE_CLIENT_ID=YOUR_GOOGLE_CLIENT_ID_HERE
 ```
 
@@ -86,7 +86,7 @@ npx wrangler deploy
 
 ## 6. Known Issues / Important Notes
 
-1. **Local DNS Blocking**: If the backend API `https://hazman5540.hazman5001.workers.dev` returns `ERR_CONNECTION_REFUSED` on your local network, it is because security software or DNS adblockers (like Pi-hole, AdGuard) often block the `workers.dev` domain. 
+1. **Local DNS Blocking**: If the backend API `https://portfolio-hazman5540.hazman5001.workers.dev` returns `ERR_CONNECTION_REFUSED` on your local network, it is because security software or DNS adblockers (like Pi-hole, AdGuard) often block the `workers.dev` domain. 
    - **Solution**: Bind a custom domain (e.g., `api.yourdomain.com`) to the Worker in the Cloudflare Dashboard.
 
 2. **Google OAuth Configuration**: For Google Sign-In to work, you must add `https://hazman5540.pages.dev` and `http://localhost:8080` to your **Authorized JavaScript origins** in the Google Cloud Console.

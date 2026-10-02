@@ -1,6 +1,6 @@
 // Centralized API client for hazman5540
 // In dev, Vite proxies /api/* → http://localhost:8787
-// In production, VITE_API_URL = https://hazman5540.{account}.workers.dev
+// In production, VITE_API_URL = https://portfolio-hazman5540.{account}.workers.dev
 
 const BASE_URL = import.meta.env.VITE_API_URL || ''
 

@@ -8,4 +8,4 @@ destination = "dist"
 
 [build.environment]
 NODE_VERSION = "20"
-VITE_API_URL = "https://hazman5540.hazman5001.workers.dev"
+VITE_API_URL = "https://portfolio-hazman5540.hazman5001.workers.dev"
