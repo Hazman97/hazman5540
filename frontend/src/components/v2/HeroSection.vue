@@ -20,11 +20,11 @@
 
       <!-- Role Headline & Sub-Headline -->
       <h2 class="text-2xl sm:text-4xl font-serif text-[#2A2421] dark:text-[#F5F0E8] font-bold mb-4 max-w-3xl mx-auto leading-tight">
-        Full-Stack & IoT Engineer bridging embedded hardware with real-time web cloud platforms.
+        I build the web platforms that control real hardware.
       </h2>
 
       <p class="text-sm sm:text-base text-[#524A45] dark:text-[#9E9E9E] font-sans max-w-2xl mx-auto leading-relaxed mb-6">
-        B.Sc. Computer Science & Dip. Electrical Engineering. Architecting low-latency telemetry systems, Node.js TCP ingestion servers, and modern Vue/React dashboards.
+        Computer Science degree (UMT) plus an Electrical &amp; Electronics diploma. I work across Vue / Node.js dashboards, ESP32 firmware and the field networks that connect them.
       </p>
 
       <!-- Wavy Divider with Center Dot -->
@@ -36,35 +36,32 @@
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
           </svg>
-          <span>Sub-15ms Real-Time WebSockets</span>
+          <span>Real-time WebSockets</span>
         </div>
         <span class="text-[#E6E0D4] dark:text-[#2A2A2A]">|</span>
         <div class="flex items-center gap-1.5 text-[#27C93F] font-semibold">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071a10 10 0 0114.142 0M1.05 6.879a16 16 0 0121.9 0" />
           </svg>
-          <span>High-Throughput TCP Telemetry</span>
+          <span>GPS Telemetry</span>
         </div>
         <span class="text-[#E6E0D4] dark:text-[#2A2A2A]">|</span>
         <div class="flex items-center gap-1.5 text-[#B5502F] dark:text-[#E8C976] font-semibold">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
           </svg>
-          <span>Industrial Field & Mesh Networks</span>
+          <span>Mesh &amp; Starlink Networks</span>
         </div>
       </div>
 
-      <!-- Interactive Live IoT Telemetry Console -->
-      <IoTConsoleWidget />
-
       <!-- Pill Buttons -->
-      <div class="flex flex-wrap items-center justify-center gap-4 mt-8">
+      <div class="flex flex-wrap items-center justify-center gap-4 mb-8">
         <!-- Primary Solid Pill Button -->
         <a 
           href="#works"
           class="px-7 py-3 rounded-full bg-[#B5502F] dark:bg-[#E8C976] text-white dark:text-[#0F0F0F] font-sans font-semibold text-sm sm:text-base hover:opacity-90 hover:scale-105 active:scale-95 transition-all shadow-lg flex items-center gap-2 cursor-pointer focus-ring"
         >
-          <span>Explore All 18 Works</span>
+          <span>View Projects</span>
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
           </svg>
@@ -82,17 +79,9 @@
         </button>
       </div>
 
-      <!-- Quick Tech Stack Tags -->
-      <div class="mt-12 pt-8 border-t border-[#E6E0D4] dark:border-[#2A2A2A]/60 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
-        <span class="text-xs font-mono text-[#524A45] dark:text-[#9E9E9E] mr-2">tech domain:</span>
-        <span 
-          v-for="tech in ['ESP32 / Embedded C++', 'Vue 3 & TypeScript', 'Teltonika FMC920', 'Node.js & PostgreSQL', 'Rajant Mesh & Starlink', 'Cisco Packet Tracer']"
-          :key="tech"
-          class="px-3 py-1 text-xs font-mono bg-white dark:bg-[#1A1A1A] text-[#2A2421] dark:text-[#F5F0E8] border border-[#E6E0D4] dark:border-[#2A2A2A] rounded-full hover:border-[#B5502F] dark:hover:border-[#E8C976] hover:text-[#B5502F] dark:hover:text-[#E8C976] transition-colors"
-        >
-          {{ tech }}
-        </span>
-      </div>
+      <!-- Interactive Live IoT Telemetry Console -->
+      <IoTConsoleWidget />
+
     </div>
   </section>
 </template>

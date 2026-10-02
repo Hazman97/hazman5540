@@ -332,8 +332,7 @@ const categories = [
 
 const defaultHighlights = [
   'Built with modular component architecture adhering to separation of concerns.',
-  'Optimized data structure caching for fast edge routing.',
-  'Production verified with 99.9% uptime deployment strategy.'
+  'Optimized data structure caching for fast edge routing.'
 ];
 
 const openModal = (project: ProjectItem) => {
@@ -403,7 +402,7 @@ const allProjects: ProjectItem[] = [
     architectureFlow: ['Piezo Sensors', 'ESP32 C++ MCU', 'WebSockets', 'Rajant Mesh / Starlink', 'Node.js Engine', 'Target Control UI'],
     highlights: [
       'Comprehensive target management & counter controls platform for live range operations.',
-      'Reduced hardware-to-screen target hit response latency to <15ms during live field trials.',
+      'Real-time hit detection streamed from the targets to the control screen over WebSockets.',
       'Custom C++ interrupt firmware running on ESP32 target microcontrollers.'
     ]
   },
@@ -424,8 +423,8 @@ const allProjects: ProjectItem[] = [
     architectureFlow: ['Teltonika FMC920', 'TCP Raw Socket', 'Node.js Byte Parser', 'PostgreSQL Spatial', 'Leaflet GIS Frontend'],
     highlights: [
       'Seamless integration with Teltonika FMC920 hardware via custom binary packet parser.',
-      'High-throughput Node.js TCP server ingesting 500+ telemetry pkts/sec into PostgreSQL.',
-      'Maintains 99.9% ingestion uptime with real-time GIS map tracking interface.'
+      'Node.js TCP server that ingests device telemetry into PostgreSQL.',
+      'Live GIS map tracking interface built with Leaflet.'
     ]
   },
   {
@@ -440,11 +439,11 @@ const allProjects: ProjectItem[] = [
     ],
     status: 'Mindnrobotics',
     tag: 'Plantation Mesh',
-    description: 'Plantation mesh network & fleet management dashboard. Integrates Leaflet spatial map tracking and Robot Operating System (ROS 2) telemetry feeds over field mesh networks.',
+    description: 'Teleoperation web system and fleet dashboard for plantation UGVs, built with a robotics teammate who handled the ROS 2 stack. Leaflet map tracking and live telemetry over field mesh networks.',
     tech: ['Vue 3', 'Plantation Mesh', 'Leaflet GIS', 'ROS 2 Bridge', 'WebSockets'],
     architectureFlow: ['UGV Hardware Sensors', 'ROS 2 Engine', 'Rajant Mesh Node', 'WebSocket Bridge', 'Vue 3 Fleet Dashboard'],
     highlights: [
-      'Plantation mesh network & autonomous fleet management dashboard for remote agriculture.',
+      'Built the browser-based teleoperation system; a teammate built the ROS 2 side on the robots.',
       'Real-time UGV path tracking and tree canopy coverage spatial mapping.',
       'Low-latency status telemetry monitoring battery, GPS fix, and motor health over Rajant Mesh.'
     ]
@@ -461,7 +460,7 @@ const allProjects: ProjectItem[] = [
     tech: ['Vue.js', 'Tailwind CSS', 'WMS API', 'CCTV Access', 'REST API'],
     architectureFlow: ['CCTV Access / WMS API', 'Express Backend', 'PostgreSQL', 'Vue.js + Tailwind Enterprise Portal'],
     highlights: [
-      'Onboarded 1,000+ internal staff and logistics vendors across multiple warehouse facilities.',
+      'Internal portals used by PKT staff and logistics vendors.',
       'Automated employee expense claim workflows with audit trails and PDF export.',
       'Integrated live CCTV access control monitoring feeds for warehouse security.'
     ]

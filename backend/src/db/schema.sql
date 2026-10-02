@@ -185,6 +185,17 @@ CREATE TABLE IF NOT EXISTS portfolio_visitors (
   last_visit TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+CREATE TABLE IF NOT EXISTS portfolio_messages (
+  id         TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+  name       TEXT NOT NULL,
+  email      TEXT NOT NULL,
+  message    TEXT NOT NULL,
+  ip_hash    TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_portfolio_messages_ip ON portfolio_messages(ip_hash, created_at);
+
 -- ============================================================
 -- FINANCIAL TRACKER (3-BUCKET SYSTEM)
 -- ============================================================

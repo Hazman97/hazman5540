@@ -10,7 +10,7 @@
         Experience & Education Journey
       </h2>
       <p class="text-[#524A45] dark:text-[#9E9E9E] text-sm sm:text-base font-sans max-w-xl mx-auto">
-        STAR metric-driven history at Mindnrobotics & PKT Logistics, alongside academic background.
+        Where I've worked and what I've built, from logistics systems to field robotics.
       </p>
       <WavyDivider />
     </div>
@@ -35,7 +35,7 @@
             
             <div class="bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] p-6 rounded-2xl shadow-md hover:shadow-xl hover:border-[#B5502F]/40 dark:hover:border-[#E8C976]/40 transition-all">
               <div class="flex items-center justify-between gap-2 mb-2">
-                <span class="inline-block px-3 py-1 bg-[#B5502F]/10 dark:bg-[#E8C976]/10 text-[#B5502F] dark:text-[#E8C976] text-xs font-mono rounded-full border border-[#B5502F]/30 dark:border-[#E8C976]/30 font-semibold">May 2024 - Present</span>
+                <span class="inline-block px-3 py-1 bg-[#B5502F]/10 dark:bg-[#E8C976]/10 text-[#B5502F] dark:text-[#E8C976] text-xs font-mono rounded-full border border-[#B5502F]/30 dark:border-[#E8C976]/30 font-semibold">May 2025 - Present</span>
                 <span class="text-[10px] font-mono text-[#524A45] dark:text-[#9E9E9E]">Shah Alam, MY</span>
               </div>
               <h4 class="text-lg font-serif text-[#2A2421] dark:text-[#F5F0E8] font-semibold">Software Engineer</h4>
@@ -43,15 +43,19 @@
               <ul class="text-xs sm:text-sm text-[#524A45] dark:text-[#9E9E9E] font-sans space-y-3 leading-relaxed">
                 <li class="flex items-start gap-2">
                   <span class="text-[#B5502F] dark:text-[#E8C976] shrink-0 font-bold">•</span>
-                  <span><strong>Architected low-latency WebSockets protocol</strong> between a Vue 3 dashboard and ESP32 C++ target microcontrollers over Rajant Mesh & Starlink uplinks, achieving &lt;15ms end-to-end hit detection latency in field operations.</span>
+                  <span><strong>Built a full-stack shooting range control system</strong>: the web control platform plus ESP32 / Node.js target controllers communicating in real time over WebSockets.</span>
                 </li>
                 <li class="flex items-start gap-2">
                   <span class="text-[#27C93F] shrink-0 font-bold">•</span>
-                  <span><strong>Designed scalable Node.js TCP ingestion engine</strong> to parse raw binary telemetry streams from Teltonika FMC920 GPS devices, maintaining steady 500+ pkts/sec ingestion into PostgreSQL with 99.9% pipeline uptime.</span>
+                  <span><strong>Built the teleoperation web system for ROS 2 UGVs</strong>, working with a robotics teammate who handled the ROS 2 stack. Operators get live position and control from the browser.</span>
                 </li>
                 <li class="flex items-start gap-2">
                   <span class="text-[#B5502F] dark:text-[#E8C976] shrink-0 font-bold">•</span>
-                  <span><strong>Engineered interactive mobile robot fleet dashboard</strong> using Vue 3 and Leaflet.js, integrating ROS 2 telemetry feeds to deliver real-time spatial positioning for autonomous plantation UGVs.</span>
+                  <span><strong>Built a Node.js TCP server for Teltonika FMC920 GPS trackers</strong> that parses device telemetry into PostgreSQL for the MindGPS fleet tracker.</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-[#27C93F] shrink-0 font-bold">•</span>
+                  <span><strong>Extended field network coverage</strong> using MP2P links, Rajant mesh nodes and Starlink.</span>
                 </li>
               </ul>
             </div>
@@ -68,11 +72,15 @@
               <ul class="text-xs sm:text-sm text-[#524A45] dark:text-[#9E9E9E] font-sans space-y-3 leading-relaxed">
                 <li class="flex items-start gap-2">
                   <span class="text-[#B5502F] dark:text-[#E8C976] shrink-0 font-bold">•</span>
-                  <span><strong>Developed & integrated enterprise internal portals</strong> (Security Access, E-Claim, WMS Vendor API) using Vue.js and Tailwind CSS, streamlining operational workflows for over 1,000 active employees and logistics partners.</span>
+                  <span><strong>Primary front-end developer for internal systems</strong>: built the security portal and e-claim platform with Vue.js and Tailwind CSS.</span>
                 </li>
                 <li class="flex items-start gap-2">
                   <span class="text-[#524A45] dark:text-[#9E9E9E] shrink-0 font-bold">•</span>
-                  <span>Partnered with external vendors on Warehouse Management System (WMS) front-end modules and CCTV access control feeds.</span>
+                  <span><strong>Built front-end modules for the warehouse management system (WMS)</strong> together with an external vendor.</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-[#524A45] dark:text-[#9E9E9E] shrink-0 font-bold">•</span>
+                  <span><strong>Started as IT Security Intern</strong>, managing CCTV and access control systems before moving into development.</span>
                 </li>
               </ul>
             </div>

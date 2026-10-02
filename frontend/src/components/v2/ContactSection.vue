@@ -23,7 +23,7 @@
               v-model="form.name"
               type="text" 
               required
-              placeholder="Hazman Adanan"
+              placeholder="Your name"
               class="w-full bg-[#FAF7F2] dark:bg-[#141414] border border-[#E6E0D4] dark:border-[#2A2A2A] rounded-xl px-4 py-3 text-sm text-[#2A2421] dark:text-[#F5F0E8] placeholder-[#524A45]/60 dark:placeholder-[#9E9E9E]/60 focus:outline-none focus:border-[#B5502F] dark:focus:border-[#E8C976] focus-ring transition-colors"
             />
           </div>
@@ -34,7 +34,7 @@
               v-model="form.email"
               type="email" 
               required
-              placeholder="hazman5001@gmail.com"
+              placeholder="you@company.com"
               class="w-full bg-[#FAF7F2] dark:bg-[#141414] border border-[#E6E0D4] dark:border-[#2A2A2A] rounded-xl px-4 py-3 text-sm text-[#2A2421] dark:text-[#F5F0E8] placeholder-[#524A45]/60 dark:placeholder-[#9E9E9E]/60 focus:outline-none focus:border-[#B5502F] dark:focus:border-[#E8C976] focus-ring transition-colors"
             />
           </div>
@@ -46,7 +46,7 @@
             v-model="form.message"
             rows="5"
             required
-            placeholder="Describe the software, IoT, or networking project in mind..."
+            placeholder="Tell me about the project or role..."
             class="w-full bg-[#FAF7F2] dark:bg-[#141414] border border-[#E6E0D4] dark:border-[#2A2A2A] rounded-xl px-4 py-3 text-sm text-[#2A2421] dark:text-[#F5F0E8] placeholder-[#524A45]/60 dark:placeholder-[#9E9E9E]/60 focus:outline-none focus:border-[#B5502F] dark:focus:border-[#E8C976] focus-ring transition-colors resize-none"
           ></textarea>
         </div>
@@ -94,6 +94,9 @@
         <p v-if="sentSuccess" class="text-xs font-mono text-[#B5502F] dark:text-[#E8C976] text-center pt-2 font-semibold">
           ✨ Thank you! Your message has been received.
         </p>
+        <p v-if="sendError" role="alert" class="text-xs font-mono text-rose-600 dark:text-rose-400 text-center pt-2 font-semibold">
+          {{ sendError }} You can also email me at hazman5001@gmail.com.
+        </p>
       </form>
     </div>
   </section>
@@ -113,20 +116,19 @@ const form = reactive({
 
 const isSubmitting = ref(false);
 const sentSuccess = ref(false);
+const sendError = ref('');
 
 const sendMessage = async () => {
   if (!form.name || !form.email || !form.message) return;
   isSubmitting.value = true;
+  sendError.value = '';
   try {
     await api.post('/portfolio/contact', {
       name: form.name,
       email: form.email,
       message: form.message,
     });
-  } catch (error) {
-    console.warn('⚠️ Contact API fallback activated:', error);
-  } finally {
-    isSubmitting.value = false;
+    // Only confirm and clear the form once the message is actually stored
     sentSuccess.value = true;
     form.name = '';
     form.email = '';
@@ -134,6 +136,10 @@ const sendMessage = async () => {
     setTimeout(() => {
       sentSuccess.value = false;
     }, 5000);
+  } catch (error) {
+    sendError.value = error instanceof Error ? error.message : 'Failed to send message.';
+  } finally {
+    isSubmitting.value = false;
   }
 };
 </script>

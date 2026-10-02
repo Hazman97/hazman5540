@@ -109,15 +109,15 @@ const setupMeta = () => {
   document.title = 'Hazman Adanan — Full-Stack & IoT Systems Engineer';
 
   const metaTags = [
-    { name: 'description', content: 'Specializing in edge computing, IoT telemetry, and high-performance full-stack web applications. Delivering robust end-to-end engineering solutions.' },
+    { name: 'description', content: 'Software & IoT engineer building the web platforms that control real hardware: ESP32 targets, GPS fleet telemetry, robots and field mesh networks.' },
     { property: 'og:title', content: 'Hazman Adanan — Full-Stack & IoT Systems Engineer' },
-    { property: 'og:description', content: 'Specializing in edge computing, IoT telemetry, and high-performance full-stack web applications.' },
+    { property: 'og:description', content: 'Software & IoT engineer building the web platforms that control real hardware: ESP32 targets, GPS fleet telemetry, robots and field mesh networks.' },
     { property: 'og:type', content: 'website' },
     { property: 'og:url', content: 'https://hazman.dev/v2' },
     { property: 'og:image', content: 'https://hazman.dev/img/mindgps_tracker.png' },
     { name: 'twitter:card', content: 'summary_large_image' },
     { name: 'twitter:title', content: 'Hazman Adanan — Full-Stack & IoT Systems Engineer' },
-    { name: 'twitter:description', content: 'Specializing in edge computing, IoT telemetry, and high-performance full-stack web applications.' },
+    { name: 'twitter:description', content: 'Software & IoT engineer building the web platforms that control real hardware: ESP32 targets, GPS fleet telemetry, robots and field mesh networks.' },
   ];
 
   metaTags.forEach((tag) => {

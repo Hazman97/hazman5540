@@ -57,10 +57,10 @@
 
       <div class="text-sm sm:text-base text-[#2A2421] dark:text-[#F5F0E8] leading-relaxed font-normal space-y-2">
         <p>
-          Software & IoT Engineer with a rare hybrid background combining a <span class="font-semibold text-[#B5502F] dark:text-[#E8C976]">Computer Science B.Sc. (UMT, Dean's List)</span> with an <span class="font-semibold text-[#B5502F] dark:text-[#E8C976]">Electrical & Electronics Engineering Diploma (PIS)</span>.
+          Software & IoT engineer with a <span class="font-semibold text-[#B5502F] dark:text-[#E8C976]">Computer Science B.Sc. (UMT, Dean's List)</span> with an <span class="font-semibold text-[#B5502F] dark:text-[#E8C976]">Electrical & Electronics Engineering Diploma (PIS)</span>.
         </p>
         <p class="text-[#524A45] dark:text-[#9E9E9E]">
-          Specialized in engineering mission-critical full-stack applications that bridge physical hardware, telemetry protocols, and high-performance cloud networks.
+          I build full-stack systems that talk to physical hardware: sensors, GPS trackers, robots and the networks between them.
         </p>
       </div>
     </div>

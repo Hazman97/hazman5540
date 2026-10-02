@@ -197,7 +197,7 @@ const initInitialState = async () => {
     { message: '[HAZMAN] Software & IoT Engineer | CS Degree (UMT) + E&E Diploma (PIS)', colorClass: 'text-[#64FFDA] font-semibold' },
     { message: '--------------------------------------------------------------------------------', colorClass: 'text-[#333333]' },
     { message: 'CORE TECH: Node.js • Vue 3 • React • Express TCP • PostgreSQL • ESP32 • WebSockets', colorClass: 'text-[#F5F0E8] font-bold' },
-    { message: 'METRICS:   <15ms hit response | 500+ pkts/sec TCP ingestion | 1,000+ users onboarded', colorClass: 'text-[#27C93F]' },
+    { message: 'FOCUS:     Range control systems | GPS fleet telemetry | Field mesh networks', colorClass: 'text-[#27C93F]' },
     { message: '--------------------------------------------------------------------------------', colorClass: 'text-[#333333]' },
     { message: 'Click any quick action button below or type a command to inspect details:\n', colorClass: 'text-[#9E9E9E]' },
   ];
@@ -229,10 +229,10 @@ const execMetrics = async () => {
   const lines: LogLine[] = [
     { message: '\n[HAZMAN-CLI ~]$ ./eval-metrics.sh\n', colorClass: 'text-[#00FF66] font-bold' },
     { message: '[EXECUTING CORE SYSTEM METRICS EVALUATION...]', colorClass: 'text-[#64FFDA] font-bold' },
-    { message: '[✔] Shooting Range System : WebSockets + ESP32 -> <15ms hit response latency achieved.', colorClass: 'text-[#64FFDA]' },
-    { message: '[✔] MindGPS Telemetry Engine: Node.js TCP -> 500+ pkts/sec ingested into PostgreSQL (99.9% uptime).', colorClass: 'text-[#64FFDA]' },
-    { message: '[✔] CanopyNet Dashboard   : Vue 3 + ROS 2 Telemetry -> Real-time field UGV spatial mapping.', colorClass: 'text-[#64FFDA]' },
-    { message: '[✔] PKT Enterprise Portal : Vue + WMS API -> Onboarded 1,000+ logistics users & vendors.', colorClass: 'text-[#64FFDA]' },
+    { message: '[✔] Shooting Range System : WebSockets + ESP32 -> real-time hit detection to the control screen.', colorClass: 'text-[#64FFDA]' },
+    { message: '[✔] MindGPS Telemetry Engine: Node.js TCP -> Teltonika telemetry parsed into PostgreSQL.', colorClass: 'text-[#64FFDA]' },
+    { message: '[✔] CanopyNet Dashboard   : Vue 3 teleops UI -> live UGV control (ROS 2 by teammate).', colorClass: 'text-[#64FFDA]' },
+    { message: '[✔] PKT Enterprise Portal : Vue + Tailwind -> security portal & e-claim for internal staff.', colorClass: 'text-[#64FFDA]' },
   ];
   await typeLines(lines, 200);
 };
@@ -260,7 +260,7 @@ const execHireContact = async () => {
     { message: '- Name          : Hazman Adanan', colorClass: 'text-[#F5F0E8]' },
     { message: '- Current Status: Open for Software & IoT Engineering opportunities', colorClass: 'text-[#E8C976]' },
     { message: '- Location      : Malaysia (Open to Hybrid / Remote / On-Site)', colorClass: 'text-[#F5F0E8]' },
-    { message: '- Email         : hazmanadanan@gmail.com', colorClass: 'text-[#64FFDA]' },
+    { message: '- Email         : hazman5001@gmail.com', colorClass: 'text-[#64FFDA]' },
     { message: '- LinkedIn      : linkedin.com/in/hazman-adanan', colorClass: 'text-[#64FFDA]' },
     { message: "- Resume PDF    : Hazman's-resume-july-2026.pdf\n", colorClass: 'text-[#00FF66]' },
     { message: '[SYSTEM] Triggering direct resume PDF download...', colorClass: 'text-[#E8C976]' },
@@ -276,14 +276,14 @@ const execHireContact = async () => {
 const copyEmail = async () => {
   if (isTyping.value) return;
   try {
-    await navigator.clipboard.writeText('hazmanadanan@gmail.com');
+    await navigator.clipboard.writeText('hazman5001@gmail.com');
     pushLog({
-      message: '\n[HAZMAN-CLI ~]$ copy email\n[✔] SUCCESS: Email address "hazmanadanan@gmail.com" copied to clipboard!',
+      message: '\n[HAZMAN-CLI ~]$ copy email\n[✔] SUCCESS: Email address "hazman5001@gmail.com" copied to clipboard!',
       colorClass: 'text-[#00FF66] font-bold'
     });
   } catch (err) {
     pushLog({
-      message: '\n[HAZMAN-CLI ~]$ copy email\n[!] Email: hazmanadanan@gmail.com',
+      message: '\n[HAZMAN-CLI ~]$ copy email\n[!] Email: hazman5001@gmail.com',
       colorClass: 'text-[#E8C976]'
     });
   }

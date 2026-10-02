@@ -192,18 +192,17 @@ const articles: Article[] = [
     title: 'Optimizing Real-time Telemetry Data with Node.js & PostgreSQL',
     date: 'OCT 2025',
     readTime: '5 min read',
-    excerptBefore: 'Architecting high-frequency TCP stream ingestion servers to achieve 500+ pkts/sec throughput while maintaining',
-    highlightText: 'sub-15ms database indexing & zero packet loss',
-    excerptAfter: 'under intense fleet telemetry workloads.',
+    excerptBefore: 'Notes on building a TCP ingestion server for Teltonika GPS trackers, and keeping',
+    highlightText: 'raw binary telemetry flowing into PostgreSQL',
+    excerptAfter: 'without slowing down the map UI.',
     tags: ['telemetry', 'nodejs', 'postgresql', 'performance'],
     takeaways: [
       'Implemented raw binary TCP frame parsing using Node.js Buffer streams to eliminate JSON serialization overhead.',
-      'Configured PostgreSQL COPY bulk ingestion worker pools for efficient spatial indexing.',
-      'Achieved 99.9% uptime over high-throughput vehicle telemetry connections.'
+      'Configured PostgreSQL COPY bulk ingestion worker pools for efficient spatial indexing.'
     ],
     contentParagraphs: [
-      'Handling real-time telemetry streaming from hundreds of vehicle GPS terminals requires shifting away from traditional HTTP REST paradigms towards raw TCP socket ingestion. Standard JSON payloads add unnecessary overhead when processing location fixes at sub-second intervals.',
-      'By implementing a dedicated Node.js TCP socket server that directly decodes binary Teltonika AVL frames, memory overhead dropped significantly while throughput surged past 500 packets per second.',
+      'Handling real-time telemetry streaming from vehicle GPS terminals requires shifting away from traditional HTTP REST paradigms towards raw TCP socket ingestion. Standard JSON payloads add unnecessary overhead when processing location fixes at sub-second intervals.',
+      'By implementing a dedicated Node.js TCP socket server that directly decodes binary Teltonika AVL frames, the server avoids JSON parsing overhead on every location fix.',
       'On the database layer, inserting every frame individually created severe disk I/O bottlenecks. Utilizing worker-thread batching alongside PostgreSQL spatial indices allowed high-frequency telemetry storage without degrading UI query performance.'
     ]
   },
