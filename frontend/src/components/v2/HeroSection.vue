@@ -10,21 +10,21 @@
       <!-- Live IoT Telemetry Status Badge -->
       <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] text-[#B5502F] dark:text-[#E8C976] text-xs sm:text-sm font-mono mb-6 shadow-md">
         <span class="w-2.5 h-2.5 rounded-full bg-[#27C93F]"></span>
-        <span class="font-medium text-[#2A2421] dark:text-[#F5F0E8]">Full-Stack & IoT Systems Engineer @ Mindnrobotics</span>
+        <span class="font-medium text-[#2A2421] dark:text-[#F5F0E8]">{{ profile.roleBadge }}</span>
       </div>
 
       <!-- Main Display Title -->
       <h1 class="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-serif font-normal text-[#B5502F] dark:text-[#E8C976] tracking-wider leading-tight mb-3 drop-shadow-sm">
-        Hazman Adanan
+        {{ profile.name }}
       </h1>
 
       <!-- Role Headline & Sub-Headline -->
       <h2 class="text-2xl sm:text-4xl font-serif text-[#2A2421] dark:text-[#F5F0E8] font-bold mb-4 max-w-3xl mx-auto leading-tight">
-        I build the web platforms that control real hardware.
+        {{ profile.headline }}
       </h2>
 
       <p class="text-sm sm:text-base text-[#524A45] dark:text-[#9E9E9E] font-sans max-w-2xl mx-auto leading-relaxed mb-6">
-        Computer Science degree (UMT) plus an Electrical &amp; Electronics diploma. I work across Vue / Node.js dashboards, ESP32 firmware and the field networks that connect them.
+        {{ profile.subline }}
       </p>
 
       <!-- Wavy Divider with Center Dot -->
@@ -90,11 +90,14 @@
 import WavyDivider from './WavyDivider.vue';
 import DoodleDecorations from './DoodleDecorations.vue';
 import IoTConsoleWidget from './IoTConsoleWidget.vue';
+import { useSiteContent } from '@/composables/useSiteContent';
+
+const { profile } = useSiteContent();
 
 const downloadResume = () => {
   const link = document.createElement('a');
-  link.href = "/Hazman's-resume-july-2026.pdf";
-  link.download = "Hazman's-resume-july-2026.pdf";
+  link.href = profile.value.resumeUrl;
+  link.download = decodeURIComponent(profile.value.resumeUrl.split('/').pop() || 'resume.pdf');
   link.click();
 };
 </script>

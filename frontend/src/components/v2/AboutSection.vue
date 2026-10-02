@@ -57,10 +57,10 @@
 
       <div class="text-sm sm:text-base text-[#2A2421] dark:text-[#F5F0E8] leading-relaxed font-normal space-y-2">
         <p>
-          Software & IoT engineer with a <span class="font-semibold text-[#B5502F] dark:text-[#E8C976]">Computer Science B.Sc. (UMT, Dean's List)</span> with an <span class="font-semibold text-[#B5502F] dark:text-[#E8C976]">Electrical & Electronics Engineering Diploma (PIS)</span>.
+          {{ profile.aboutIntro }}
         </p>
         <p class="text-[#524A45] dark:text-[#9E9E9E]">
-          I build full-stack systems that talk to physical hardware: sensors, GPS trackers, robots and the networks between them.
+          {{ profile.aboutBody }}
         </p>
       </div>
     </div>
@@ -162,6 +162,9 @@
 import { ref } from 'vue';
 import WavyDivider from './WavyDivider.vue';
 import DoodleDecorations from './DoodleDecorations.vue';
+import { useSiteContent } from '@/composables/useSiteContent';
+
+const { profile } = useSiteContent();
 
 const activeDomainTab = ref<'all' | 'cs' | 'ee'>('all');
 </script>

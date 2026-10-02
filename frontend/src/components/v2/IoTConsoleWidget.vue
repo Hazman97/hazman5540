@@ -110,6 +110,10 @@
 
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from 'vue';
+import { useSiteContent } from '@/composables/useSiteContent';
+
+const { profile } = useSiteContent();
+const resumeFileName = () => decodeURIComponent(profile.value.resumeUrl.split('/').pop() || 'resume.pdf');
 
 interface LogLine {
   message: string;
@@ -257,33 +261,33 @@ const execHireContact = async () => {
   const lines: LogLine[] = [
     { message: '\n[HAZMAN-CLI ~]$ cat hire-hazman.md\n', colorClass: 'text-[#00FF66] font-bold' },
     { message: '[CANDIDATE CONTACT DETAILS]', colorClass: 'text-[#F5F0E8] font-bold' },
-    { message: '- Name          : Hazman Adanan', colorClass: 'text-[#F5F0E8]' },
+    { message: `- Name          : ${profile.value.name}`, colorClass: 'text-[#F5F0E8]' },
     { message: '- Current Status: Open for Software & IoT Engineering opportunities', colorClass: 'text-[#E8C976]' },
     { message: '- Location      : Malaysia (Open to Hybrid / Remote / On-Site)', colorClass: 'text-[#F5F0E8]' },
-    { message: '- Email         : hazman5001@gmail.com', colorClass: 'text-[#64FFDA]' },
-    { message: '- LinkedIn      : linkedin.com/in/hazman-adanan', colorClass: 'text-[#64FFDA]' },
-    { message: "- Resume PDF    : Hazman's-resume-july-2026.pdf\n", colorClass: 'text-[#00FF66]' },
+    { message: `- Email         : ${profile.value.email}`, colorClass: 'text-[#64FFDA]' },
+    { message: `- LinkedIn      : ${profile.value.linkedin.replace(/^https?:\/\/(www\.)?/, '')}`, colorClass: 'text-[#64FFDA]' },
+    { message: `- Resume PDF    : ${resumeFileName()}\n`, colorClass: 'text-[#00FF66]' },
     { message: '[SYSTEM] Triggering direct resume PDF download...', colorClass: 'text-[#E8C976]' },
   ];
   await typeLines(lines, 150);
 
   const link = document.createElement('a');
-  link.href = "/Hazman's-resume-july-2026.pdf";
-  link.download = "Hazman's-resume-july-2026.pdf";
+  link.href = profile.value.resumeUrl;
+  link.download = resumeFileName();
   link.click();
 };
 
 const copyEmail = async () => {
   if (isTyping.value) return;
   try {
-    await navigator.clipboard.writeText('hazman5001@gmail.com');
+    await navigator.clipboard.writeText(profile.value.email);
     pushLog({
-      message: '\n[HAZMAN-CLI ~]$ copy email\n[✔] SUCCESS: Email address "hazman5001@gmail.com" copied to clipboard!',
+      message: `\n[HAZMAN-CLI ~]$ copy email\n[✔] SUCCESS: Email address "${profile.value.email}" copied to clipboard!`,
       colorClass: 'text-[#00FF66] font-bold'
     });
   } catch (err) {
     pushLog({
-      message: '\n[HAZMAN-CLI ~]$ copy email\n[!] Email: hazman5001@gmail.com',
+      message: `\n[HAZMAN-CLI ~]$ copy email\n[!] Email: ${profile.value.email}`,
       colorClass: 'text-[#E8C976]'
     });
   }

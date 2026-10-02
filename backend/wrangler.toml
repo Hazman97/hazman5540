@@ -14,9 +14,18 @@ ENVIRONMENT = "production"
 STORAGE_API_URL = "https://storage.bijokdev.com"
 # Only this Google account may access /api/studio/* (comma-separated for more than one)
 OWNER_EMAIL = "hazman5001@gmail.com"
+# Public site origin, used for sitemap / RSS links
+SITE_URL = "https://hazman5540.pages.dev"
 
 # Secrets (set via wrangler secret put):
 # JWT_SECRET
+# AI_BASE_URL  (OpenAI-compatible endpoint for Gemma, e.g. https://gemma.example.com/v1)
+# AI_API_KEY
+# AI_MODEL     (e.g. gemma4)
 # GOOGLE_CLIENT_ID
 
 # Routes are auto-assigned by Cloudflare Workers
+
+# Hourly tick; the AI draft job only runs when ai_settings.next_run_at is due
+[triggers]
+crons = ["0 * * * *"]

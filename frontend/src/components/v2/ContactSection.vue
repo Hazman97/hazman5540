@@ -11,6 +11,13 @@
       <p class="text-[#524A45] dark:text-[#9E9E9E] text-sm sm:text-base font-sans max-w-xl mx-auto">
         For software projects, IoT integration inquiries, or technical discussions — feel free to reach out.
       </p>
+      <p class="mt-3 text-xs sm:text-sm font-mono text-[#524A45] dark:text-[#9E9E9E]">
+        <a :href="`mailto:${profile.email}`" class="text-[#B5502F] dark:text-[#E8C976] hover:underline focus-ring rounded">{{ profile.email }}</a>
+        <template v-if="profile.phone">
+          <span class="mx-2">•</span>
+          <a :href="`tel:${profile.phone.replace(/\s+/g, '')}`" class="hover:underline focus-ring rounded">{{ profile.phone }}</a>
+        </template>
+      </p>
       <WavyDivider />
     </div>
 
@@ -67,7 +74,7 @@
           <!-- Social Quick Links -->
           <div class="flex items-center gap-3">
             <a 
-              href="https://github.com/hazman97" 
+              :href="profile.github" 
               target="_blank" 
               rel="noopener noreferrer"
               class="p-2.5 rounded-full bg-[#F0EBE1] dark:bg-[#242424] text-[#2A2421] dark:text-[#F5F0E8] border border-[#E6E0D4] dark:border-[#333333] hover:text-[#B5502F] dark:hover:text-[#E8C976] transition-all focus-ring"
@@ -78,7 +85,7 @@
               </svg>
             </a>
             <a 
-              href="https://www.linkedin.com/in/hazman-adanan" 
+              :href="profile.linkedin" 
               target="_blank" 
               rel="noopener noreferrer"
               class="p-2.5 rounded-full bg-[#F0EBE1] dark:bg-[#242424] text-[#2A2421] dark:text-[#F5F0E8] border border-[#E6E0D4] dark:border-[#333333] hover:text-[#B5502F] dark:hover:text-[#E8C976] transition-all focus-ring"
@@ -95,7 +102,7 @@
           ✨ Thank you! Your message has been received.
         </p>
         <p v-if="sendError" role="alert" class="text-xs font-mono text-rose-600 dark:text-rose-400 text-center pt-2 font-semibold">
-          {{ sendError }} You can also email me at hazman5001@gmail.com.
+          {{ sendError }} You can also email me at {{ profile.email }}.
         </p>
       </form>
     </div>
@@ -107,6 +114,9 @@ import { reactive, ref } from 'vue';
 import WavyDivider from './WavyDivider.vue';
 import DoodleDecorations from './DoodleDecorations.vue';
 import { api } from '@/api/client';
+import { useSiteContent } from '@/composables/useSiteContent';
+
+const { profile } = useSiteContent();
 
 const form = reactive({
   name: '',

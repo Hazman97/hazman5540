@@ -1,16 +1,8 @@
 import { Hono } from 'hono'
 import { D1Database } from '@cloudflare/workers-types'
+import { hashIp } from '../utils/content'
 
 export const portfolioRoutes = new Hono<{ Bindings: { DB: D1Database } }>()
-
-// Hash the visitor IP to maintain privacy (GDPR compliance)
-async function hashIp(ip: string): Promise<string> {
-  const encoder = new TextEncoder()
-  const data = encoder.encode(ip + 'hazman5540-salt')
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
-}
 
 portfolioRoutes.post('/visitor', async (c) => {
   try {

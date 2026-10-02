@@ -29,58 +29,37 @@
         </div>
 
         <div class="relative border-l border-[#E6E0D4] dark:border-[#2A2A2A] ml-4 pl-6 space-y-10">
-          <!-- Item 1: Mindnrobotics -->
-          <div class="relative group">
-            <div class="absolute -left-[31px] top-1.5 w-3.5 h-3.5 rounded-full bg-[#B5502F] dark:bg-[#E8C976] border-4 border-[#FAF7F2] dark:border-[#0F0F0F] shadow-[0_0_8px_#B5502F] dark:shadow-[0_0_8px_#E8C976] group-hover:scale-125 transition-transform"></div>
-            
+          <!-- First item is the current role and gets the highlighted style -->
+          <div v-for="(job, jobIndex) in experience" :key="`${job.company}-${job.period}`" class="relative group">
+            <div
+              class="absolute -left-[31px] top-1.5 w-3.5 h-3.5 rounded-full border-4 border-[#FAF7F2] dark:border-[#0F0F0F]"
+              :class="jobIndex === 0
+                ? 'bg-[#B5502F] dark:bg-[#E8C976] shadow-[0_0_8px_#B5502F] dark:shadow-[0_0_8px_#E8C976] group-hover:scale-125 transition-transform'
+                : 'bg-[#E6E0D4] dark:bg-[#2A2A2A] group-hover:bg-[#B5502F] dark:group-hover:bg-[#E8C976] transition-all'"
+            ></div>
+
             <div class="bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] p-6 rounded-2xl shadow-md hover:shadow-xl hover:border-[#B5502F]/40 dark:hover:border-[#E8C976]/40 transition-all">
               <div class="flex items-center justify-between gap-2 mb-2">
-                <span class="inline-block px-3 py-1 bg-[#B5502F]/10 dark:bg-[#E8C976]/10 text-[#B5502F] dark:text-[#E8C976] text-xs font-mono rounded-full border border-[#B5502F]/30 dark:border-[#E8C976]/30 font-semibold">May 2025 - Present</span>
-                <span class="text-[10px] font-mono text-[#524A45] dark:text-[#9E9E9E]">Shah Alam, MY</span>
+                <span
+                  class="inline-block px-3 py-1 text-xs font-mono rounded-full border"
+                  :class="jobIndex === 0
+                    ? 'bg-[#B5502F]/10 dark:bg-[#E8C976]/10 text-[#B5502F] dark:text-[#E8C976] border-[#B5502F]/30 dark:border-[#E8C976]/30 font-semibold'
+                    : 'bg-[#F0EBE1] dark:bg-[#242424] text-[#524A45] dark:text-[#9E9E9E] border-[#E6E0D4] dark:border-[#2D2D2D]'"
+                >{{ job.period }}</span>
+                <span v-if="job.location" class="text-[10px] font-mono text-[#524A45] dark:text-[#9E9E9E]">{{ job.location }}</span>
               </div>
-              <h4 class="text-lg font-serif text-[#2A2421] dark:text-[#F5F0E8] font-semibold">Software Engineer</h4>
-              <p class="text-xs font-mono text-[#B5502F] dark:text-[#E8C976] mb-4 font-semibold">Mindnrobotics (K-Youth Programme → Software Engineer)</p>
+              <h4 class="text-lg font-serif text-[#2A2421] dark:text-[#F5F0E8] font-semibold">{{ job.role }}</h4>
+              <p
+                class="text-xs font-mono mb-4"
+                :class="jobIndex === 0 ? 'text-[#B5502F] dark:text-[#E8C976] font-semibold' : 'text-[#524A45] dark:text-[#9E9E9E]'"
+              >{{ job.company }}</p>
               <ul class="text-xs sm:text-sm text-[#524A45] dark:text-[#9E9E9E] font-sans space-y-3 leading-relaxed">
-                <li class="flex items-start gap-2">
-                  <span class="text-[#B5502F] dark:text-[#E8C976] shrink-0 font-bold">•</span>
-                  <span><strong>Built a full-stack shooting range control system</strong>: the web control platform plus ESP32 / Node.js target controllers communicating in real time over WebSockets.</span>
-                </li>
-                <li class="flex items-start gap-2">
-                  <span class="text-[#27C93F] shrink-0 font-bold">•</span>
-                  <span><strong>Built the teleoperation web system for ROS 2 UGVs</strong>, working with a robotics teammate who handled the ROS 2 stack. Operators get live position and control from the browser.</span>
-                </li>
-                <li class="flex items-start gap-2">
-                  <span class="text-[#B5502F] dark:text-[#E8C976] shrink-0 font-bold">•</span>
-                  <span><strong>Built a Node.js TCP server for Teltonika FMC920 GPS trackers</strong> that parses device telemetry into PostgreSQL for the MindGPS fleet tracker.</span>
-                </li>
-                <li class="flex items-start gap-2">
-                  <span class="text-[#27C93F] shrink-0 font-bold">•</span>
-                  <span><strong>Extended field network coverage</strong> using MP2P links, Rajant mesh nodes and Starlink.</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <!-- Item 2: PKT Logistics -->
-          <div class="relative group">
-            <div class="absolute -left-[31px] top-1.5 w-3.5 h-3.5 rounded-full bg-[#E6E0D4] dark:bg-[#2A2A2A] border-4 border-[#FAF7F2] dark:border-[#0F0F0F] group-hover:bg-[#B5502F] dark:group-hover:bg-[#E8C976] transition-all"></div>
-            
-            <div class="bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] p-6 rounded-2xl shadow-md hover:shadow-xl hover:border-[#B5502F]/40 dark:hover:border-[#E8C976]/40 transition-all">
-              <span class="inline-block px-3 py-1 bg-[#F0EBE1] dark:bg-[#242424] text-[#524A45] dark:text-[#9E9E9E] text-xs font-mono rounded-full mb-3 border border-[#E6E0D4] dark:border-[#2D2D2D]">Aug 2023 - Mar 2024</span>
-              <h4 class="text-lg font-serif text-[#2A2421] dark:text-[#F5F0E8] font-semibold">Programmer (Prev. IT Security Intern)</h4>
-              <p class="text-xs font-mono text-[#524A45] dark:text-[#9E9E9E] mb-4">PKT Logistics Group Sdn Bhd</p>
-              <ul class="text-xs sm:text-sm text-[#524A45] dark:text-[#9E9E9E] font-sans space-y-3 leading-relaxed">
-                <li class="flex items-start gap-2">
-                  <span class="text-[#B5502F] dark:text-[#E8C976] shrink-0 font-bold">•</span>
-                  <span><strong>Primary front-end developer for internal systems</strong>: built the security portal and e-claim platform with Vue.js and Tailwind CSS.</span>
-                </li>
-                <li class="flex items-start gap-2">
-                  <span class="text-[#524A45] dark:text-[#9E9E9E] shrink-0 font-bold">•</span>
-                  <span><strong>Built front-end modules for the warehouse management system (WMS)</strong> together with an external vendor.</span>
-                </li>
-                <li class="flex items-start gap-2">
-                  <span class="text-[#524A45] dark:text-[#9E9E9E] shrink-0 font-bold">•</span>
-                  <span><strong>Started as IT Security Intern</strong>, managing CCTV and access control systems before moving into development.</span>
+                <li v-for="(bullet, bulletIndex) in job.bullets" :key="bullet.title" class="flex items-start gap-2">
+                  <span
+                    class="shrink-0 font-bold"
+                    :class="bulletIndex % 2 === 0 ? 'text-[#B5502F] dark:text-[#E8C976]' : (jobIndex === 0 ? 'text-[#27C93F]' : 'text-[#524A45] dark:text-[#9E9E9E]')"
+                  >•</span>
+                  <span><strong>{{ bullet.title }}</strong>{{ bullet.text }}</span>
                 </li>
               </ul>
             </div>
@@ -141,4 +120,7 @@
 <script setup lang="ts">
 import WavyDivider from './WavyDivider.vue';
 import DoodleDecorations from './DoodleDecorations.vue';
+import { useSiteContent } from '@/composables/useSiteContent';
+
+const { experience } = useSiteContent();
 </script>

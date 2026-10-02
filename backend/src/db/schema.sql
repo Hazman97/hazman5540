@@ -250,3 +250,76 @@ CREATE TABLE IF NOT EXISTS user_permissions (
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_user_project ON user_permissions(user_id, project);
+
+-- ============================================================
+-- PORTFOLIO STUDIO (owner CMS, blog, AI drafts, chatbot)
+-- ============================================================
+
+-- Editable portfolio content; value is JSON (keys: profile, experience, projects, chatbot)
+CREATE TABLE IF NOT EXISTS site_content (
+  key        TEXT PRIMARY KEY,
+  value      TEXT NOT NULL,
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS posts (
+  id              TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+  slug            TEXT UNIQUE NOT NULL,
+  title           TEXT NOT NULL,
+  excerpt         TEXT NOT NULL DEFAULT '',
+  body_md         TEXT NOT NULL DEFAULT '',
+  cover_url       TEXT,
+  category        TEXT NOT NULL DEFAULT 'general',
+  tags            TEXT NOT NULL DEFAULT '[]',  -- JSON array
+  status          TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published')),
+  source          TEXT NOT NULL DEFAULT 'manual' CHECK (source IN ('manual', 'ai')),
+  seo_title       TEXT,
+  seo_description TEXT,
+  published_at    TEXT,
+  created_at      TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at      TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_posts_status_published ON posts(status, published_at);
+
+-- Single-row schedule for AI article drafts (id = 'main'); run_hour is in UTC
+CREATE TABLE IF NOT EXISTS ai_settings (
+  id          TEXT PRIMARY KEY,
+  enabled     INTEGER NOT NULL DEFAULT 0,
+  frequency   TEXT NOT NULL DEFAULT 'weekly' CHECK (frequency IN ('daily', 'weekly')),
+  run_hour    INTEGER NOT NULL DEFAULT 1,
+  run_weekday INTEGER NOT NULL DEFAULT 1,      -- 0 = Sunday, used when frequency = 'weekly'
+  categories  TEXT NOT NULL DEFAULT '["AI","Networking","Gadgets"]',
+  tone        TEXT NOT NULL DEFAULT 'clear, practical, beginner-friendly',
+  word_count  INTEGER NOT NULL DEFAULT 900,
+  next_run_at TEXT,
+  updated_at  TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+INSERT OR IGNORE INTO ai_settings (id) VALUES ('main');
+
+CREATE TABLE IF NOT EXISTS topic_queue (
+  id         TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+  topic      TEXT NOT NULL,
+  category   TEXT,
+  used       INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS ai_runs (
+  id          TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+  trigger_type TEXT NOT NULL,                  -- 'cron' | 'manual'
+  status      TEXT NOT NULL,                   -- 'success' | 'error'
+  post_id     TEXT,
+  error       TEXT,
+  duration_ms INTEGER,
+  created_at  TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- Chatbot rate limiting (one row per message)
+CREATE TABLE IF NOT EXISTS chat_rate (
+  ip_hash    TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_chat_rate_ip ON chat_rate(ip_hash, created_at);
