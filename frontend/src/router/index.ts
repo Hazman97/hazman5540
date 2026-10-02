@@ -323,6 +323,19 @@ const routes: RouteRecordRaw[] = [
     component: () => import("@/views/finance/FinanceDashboard.vue"),
     meta: { title: "Finance Tracker", requiresAdmin: true },
   },
+  // === Owner Studio (CMS) ===
+  {
+    path: "/studio/login",
+    name: "StudioLogin",
+    component: () => import("@/views/admin/GoogleLogin.vue"),
+    meta: { title: "Studio — Login" },
+  },
+  {
+    path: "/studio",
+    name: "Studio",
+    component: () => import("@/views/studio/StudioLayout.vue"),
+    meta: { title: "Studio", requiresOwner: true },
+  },
   // === 404 ===
   {
     path: "/:pathMatch(.*)*",
@@ -371,7 +384,14 @@ router.beforeEach((to, from, next) => {
   // The new unified session
   const session = getUnifiedSession();
 
-  if (to.meta.requiresSuperadmin) {
+  if (to.meta.requiresOwner) {
+    // Owner email is enforced server-side by /api/studio/*; here we only require a superadmin session
+    if (!session || !session.is_superadmin) {
+      next(`/studio/login?redirect=${encodeURIComponent(to.fullPath)}`);
+    } else {
+      next();
+    }
+  } else if (to.meta.requiresSuperadmin) {
     if (!session || !session.is_superadmin) {
       next(`/attendance/admin/login?redirect=${encodeURIComponent(to.fullPath)}`);
     } else {

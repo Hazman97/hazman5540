@@ -12,6 +12,8 @@ database_id = "fdae8e3e-4eb6-4a0b-8d24-2e72b2d72133"
 [vars]
 ENVIRONMENT = "production"
 STORAGE_API_URL = "https://storage.bijokdev.com"
+# Only this Google account may access /api/studio/* (comma-separated for more than one)
+OWNER_EMAIL = "hazman5001@gmail.com"
 
 # Secrets (set via wrangler secret put):
 # JWT_SECRET

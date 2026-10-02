@@ -6,4 +6,5 @@ export interface Env {
   STORAGE_API_URL: string;
   STORAGE_API_KEY?: string;
   ENVIRONMENT?: string;
+  OWNER_EMAIL?: string;
 }
