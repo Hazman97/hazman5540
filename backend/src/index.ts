@@ -1,5 +1,7 @@
 import { Hono } from 'hono'
+import type { ExecutionContext, ScheduledController } from '@cloudflare/workers-types'
 import { Env } from './types'
+import { runScheduledDraft } from './utils/blogGenerator'
 import { corsMiddleware } from './middleware/cors'
 import authRouter from './routes/auth'
 import attendanceRouter from './routes/attendance'
@@ -53,4 +55,10 @@ app.onError((err, c) => {
   return c.json({ error: 'Internal server error', message: err.message }, 500)
 })
 
-export default app
+export default {
+  fetch: app.fetch,
+  // Hourly cron (wrangler.toml [triggers]); the draft job checks its own schedule
+  scheduled(_controller: ScheduledController, env: Env, ctx: ExecutionContext) {
+    ctx.waitUntil(runScheduledDraft(env))
+  },
+}
