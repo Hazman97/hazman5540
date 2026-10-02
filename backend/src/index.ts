@@ -14,6 +14,7 @@ import systemRouter from './routes/system'
 import proxyRouter from './routes/proxy'
 import studioRouter from './routes/studio'
 import contentRouter from './routes/content'
+import blogRouter from './routes/blog'
 
 const app = new Hono<{ Bindings: Env }>()
 
@@ -43,6 +44,7 @@ app.route('/api/system', systemRouter)
 app.route('/api/proxy', proxyRouter)
 app.route('/api/studio', studioRouter)
 app.route('/api/content', contentRouter)
+app.route('/api/blog', blogRouter)
 
 // ── 404 Fallback ───────────────────────────────────────────
 app.notFound((c) => c.json({ error: 'Route not found', path: c.req.path }, 404))

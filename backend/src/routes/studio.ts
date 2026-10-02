@@ -2,6 +2,7 @@ import { Hono } from 'hono'
 import { Env } from '../types'
 import { requireOwner, AuthPayload } from '../middleware/auth'
 import { getAllContent, isContentKey } from '../utils/content'
+import { cleanPostInput, insertPost, uniqueSlug, withParsedTags, PostInput } from '../utils/posts'
 
 // Owner-only Studio API (CMS, blog, AI settings). Every route here is locked to OWNER_EMAIL.
 const studio = new Hono<{ Bindings: Env; Variables: { user: AuthPayload } }>()
@@ -73,6 +74,77 @@ studio.delete('/messages/:id', async (c) => {
   } catch (error) {
     console.error('Error deleting message:', error)
     return c.json({ success: false, error: 'Failed to delete message' }, 500)
+  }
+})
+
+// ── Blog posts (drafts + published) ──
+studio.get('/posts', async (c) => {
+  try {
+    const rows = await c.env.DB.prepare(
+      `SELECT id, slug, title, excerpt, category, tags, status, source, published_at, created_at, updated_at
+       FROM posts ORDER BY created_at DESC LIMIT 500`
+    ).all()
+    return c.json({ success: true, posts: rows.results.map(withParsedTags) })
+  } catch (error) {
+    console.error('Error listing studio posts:', error)
+    return c.json({ success: false, error: 'Failed to load posts' }, 500)
+  }
+})
+
+studio.get('/posts/:id', async (c) => {
+  const post = await c.env.DB.prepare('SELECT * FROM posts WHERE id = ?').bind(c.req.param('id')).first()
+  if (!post) return c.json({ success: false, error: 'Post not found' }, 404)
+  return c.json({ success: true, post: withParsedTags(post) })
+})
+
+studio.post('/posts', async (c) => {
+  const { post, error } = cleanPostInput((await c.req.json<PostInput>().catch(() => ({}))) as PostInput)
+  if (!post) return c.json({ success: false, error }, 400)
+  try {
+    const created = await insertPost(c.env.DB, post, 'manual')
+    return c.json({ success: true, ...created }, 201)
+  } catch (err) {
+    console.error('Error creating post:', err)
+    return c.json({ success: false, error: 'Failed to create post' }, 500)
+  }
+})
+
+studio.patch('/posts/:id', async (c) => {
+  const id = c.req.param('id')
+  const body = (await c.req.json<PostInput & { status?: unknown }>().catch(() => ({}))) as PostInput & { status?: unknown }
+  const existing = await c.env.DB.prepare('SELECT id, status, published_at FROM posts WHERE id = ?')
+    .bind(id).first<{ id: string; status: string; published_at: string | null }>()
+  if (!existing) return c.json({ success: false, error: 'Post not found' }, 404)
+
+  const { post, error } = cleanPostInput(body)
+  if (!post) return c.json({ success: false, error }, 400)
+
+  const status = body.status === 'published' || body.status === 'draft' ? body.status : existing.status
+  // Keep the original publish date when re-saving; set it the first time a post goes live
+  const publishedAt = status === 'published' ? (existing.published_at || new Date().toISOString().slice(0, 19).replace('T', ' ')) : existing.published_at
+
+  try {
+    const slug = await uniqueSlug(c.env.DB, post.slug, id)
+    await c.env.DB.prepare(
+      `UPDATE posts SET slug = ?, title = ?, excerpt = ?, body_md = ?, cover_url = ?, category = ?, tags = ?,
+         seo_title = ?, seo_description = ?, status = ?, published_at = ?, updated_at = datetime('now')
+       WHERE id = ?`
+    ).bind(slug, post.title, post.excerpt, post.body_md, post.cover_url, post.category, JSON.stringify(post.tags),
+      post.seo_title, post.seo_description, status, publishedAt, id).run()
+    return c.json({ success: true, slug, status })
+  } catch (err) {
+    console.error('Error updating post:', err)
+    return c.json({ success: false, error: 'Failed to update post' }, 500)
+  }
+})
+
+studio.delete('/posts/:id', async (c) => {
+  try {
+    await c.env.DB.prepare('DELETE FROM posts WHERE id = ?').bind(c.req.param('id')).run()
+    return c.json({ success: true })
+  } catch (error) {
+    console.error('Error deleting post:', error)
+    return c.json({ success: false, error: 'Failed to delete post' }, 500)
   }
 })
 
