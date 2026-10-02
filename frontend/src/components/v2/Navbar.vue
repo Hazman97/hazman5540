@@ -167,7 +167,7 @@ const navItems: NavItem[] = [
   { id: 'about', label: 'about' },
   { id: 'experience', label: 'experience' },
   { id: 'works', label: 'works' },
-  { id: 'writing', label: 'writing' },
+  { id: 'blog', label: 'blog' },
   { id: 'contact', label: 'contact' },
 ];
 
@@ -209,6 +209,12 @@ const updateIndicator = () => {
 };
 
 const selectTab = (tabId: string) => {
+  // The blog lives on its own page rather than a section of the portfolio
+  if (tabId === 'blog') {
+    router.push('/blog');
+    return;
+  }
+
   activeTab.value = tabId;
   updateIndicator();
 

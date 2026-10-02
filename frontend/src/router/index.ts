@@ -323,12 +323,25 @@ const routes: RouteRecordRaw[] = [
     component: () => import("@/views/finance/FinanceDashboard.vue"),
     meta: { title: "Finance Tracker", requiresAdmin: true },
   },
+  // === Blog ===
+  {
+    path: "/blog",
+    name: "BlogList",
+    component: () => import("@/views/blog/BlogList.vue"),
+    meta: { title: "Blog — Hazman Adanan", description: "Notes on AI, networking and gadgets" },
+  },
+  {
+    path: "/blog/:slug",
+    name: "BlogPost",
+    component: () => import("@/views/blog/BlogPost.vue"),
+    meta: { title: "Blog — Hazman Adanan" },
+  },
   // === Owner Studio (CMS) ===
   {
     path: "/studio/login",
     name: "StudioLogin",
     component: () => import("@/views/admin/GoogleLogin.vue"),
-    meta: { title: "Studio � Login" },
+    meta: { title: "Studio — Login" },
   },
   {
     path: "/studio",
