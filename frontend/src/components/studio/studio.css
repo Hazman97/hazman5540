@@ -1,0 +1,28 @@
+/* Shared form styles for the owner Studio (v2 colour tokens) */
+.studio-card {
+  @apply bg-white dark:bg-[#1A1A1A] border border-[#E6E0D4] dark:border-[#2A2A2A] rounded-2xl p-5 sm:p-6 shadow-sm;
+}
+.studio-label {
+  @apply block text-xs font-mono uppercase tracking-wider text-[#B5502F] dark:text-[#E8C976] mb-1.5;
+}
+.studio-input {
+  @apply w-full px-3 py-2 rounded-xl bg-[#FAF7F2] dark:bg-[#141414] border border-[#E6E0D4] dark:border-[#2A2A2A] text-sm text-[#2A2421] dark:text-[#F5F0E8] focus:outline-none focus:border-[#B5502F] dark:focus:border-[#E8C976];
+}
+.studio-btn {
+  @apply inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-[#B5502F] dark:bg-[#E8C976] text-white dark:text-[#0F0F0F] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B5502F] dark:focus-visible:ring-[#E8C976] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF7F2] dark:focus-visible:ring-offset-[#0F0F0F];
+}
+.studio-btn-ghost {
+  @apply inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm border border-[#E6E0D4] dark:border-[#2A2A2A] hover:border-[#B5502F] dark:hover:border-[#E8C976] disabled:opacity-50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B5502F] dark:focus-visible:ring-[#E8C976] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF7F2] dark:focus-visible:ring-offset-[#0F0F0F];
+}
+.studio-btn-danger {
+  @apply inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs border border-rose-300 dark:border-rose-800 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B5502F] dark:focus-visible:ring-[#E8C976] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF7F2] dark:focus-visible:ring-offset-[#0F0F0F];
+}
+.studio-hint {
+  @apply text-xs text-[#524A45] dark:text-[#9E9E9E] mt-1;
+}
+.studio-ok {
+  @apply text-sm text-emerald-700 dark:text-emerald-400;
+}
+.studio-error {
+  @apply text-sm text-rose-600 dark:text-rose-400;
+}
